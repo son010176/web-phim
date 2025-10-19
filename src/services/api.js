@@ -89,6 +89,15 @@ export const getAllMovieCouples = () => fetchGetData('?action=getAllMovieCouples
 // Lấy danh sách phim cùng cốt truyện
 export const getMoviesByStoryline = () => fetchGetData('?action=getMoviesByStoryline');
 
+// Lấy bộ sưu tập phim của người dùng
+export const getCollection = () => fetchGetData('?action=getCollection');
+
+// Thêm phim vào bộ sưu tập
+export const addToCollection = (movieData) => fetchPostData('addToCollection', movieData);
+
+// Xóa phim khỏi bộ sưu tập
+export const removeFromCollection = (movieId) => fetchPostData('removeFromCollection', { id: movieId });
+
 
 // --- CÁC HÀM POST DỮ LIỆU (CHO TRANG ADMIN) ---
 

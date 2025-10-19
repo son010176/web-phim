@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import ImageWithFallback from './ImageWithFallback';
 import './MovieList.css'; // Sẽ tạo ở bước tiếp theo
 
-function MovieList({ movies }) {
+function MovieList({ movies, onRemoveMovie }) {
   if (!movies || movies.length === 0) {
     return <p className="no-results-message">Không có phim nào để hiển thị.</p>;
   }
@@ -19,6 +19,21 @@ function MovieList({ movies }) {
           className="movie-card-link"
         >
           <div className="movie-card">
+            {/* THÊM NÚT XÓA MỚI */}
+            {onRemoveMovie && (
+              <button
+                className="remove-button"
+                title="Xóa khỏi bộ sưu tập"
+                onClick={(e) => {
+                  e.preventDefault(); // Ngăn không cho chuyển trang khi bấm nút X
+                  e.stopPropagation();
+                  onRemoveMovie(movie.id);
+                }}
+              >
+                &times;
+              </button>
+            )}
+            
             <ImageWithFallback
               src={movie.linkPoster}
               alt={`Poster phim ${movie.tenViet}`}

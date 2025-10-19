@@ -141,3 +141,47 @@
 
 .detail-loading { text-align: center; padding: 50px; font-size: 1.2rem; }
 
+/* Thêm vào cuối file src/pages/MovieDetail.css */
+
+.actions-block {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #569cd6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.action-button:hover {
+  background-color: #408ac9;
+}
+
+.action-button svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* Thêm vào cuối file src/pages/MovieDetail.css */
+
+.action-button.collected {
+  background-color: #3a3a3a;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.action-button.collected:hover {
+  background-color: #3a3a3a; /* Giữ nguyên màu khi hover */
+}
+

@@ -5,11 +5,45 @@ import YouTube from "react-youtube";
 import "./MovieDetail.css";
 import { createSlug } from "../utils/createSlug";
 import ImageWithFallback from "../components/ImageWithFallback";
+import { addToCollection } from '../services/api';
+import { ReactComponent as PlusIcon } from '../assets/icons/plus-solid.svg';
+import { ReactComponent as CheckIcon } from '../assets/icons/check-solid.svg';
+import { useNotification } from '../context/NotificationContext';
 
-function MovieDetail({ movies }) {
+function MovieDetail({ movies, collection, setCollection }) {
   const { id } = useParams();
   const movie = movies.find((m) => m.id === id);
+  const { showToast } = useNotification();
   const [activeTab, setActiveTab] = useState(""); // Sẽ được đặt tự động
+  const [isCollected, setIsCollected] = useState(false);
+
+  useEffect(() => {
+    if (movie && collection) {
+      const alreadyExists = collection.some(item => item.id === movie.id);
+      setIsCollected(alreadyExists);
+    }
+  }, [movie, collection]);
+
+  const handleAddToCollection = () => {
+    if (movie && !isCollected) {
+      const originalCollection = [...collection]; // Lưu lại trạng thái cũ để có thể phục hồi nếu lỗi
+
+      // ---- CẬP NHẬT GIAO DIỆN "LẠC QUAN" ----
+      setIsCollected(true);
+      setCollection(prev => [...prev, movie]);
+      showToast('Đã thêm vào bộ sưu tập!'); // Hiển thị thông báo tùy chỉnh
+
+      // ---- GỬI YÊU CẦU TRONG NỀN ----
+      addToCollection(movie)
+        .catch(error => {
+          // Nếu có lỗi, phục hồi lại trạng thái giao diện và báo lỗi
+          console.error("Lỗi khi thêm vào bộ sưu tập:", error);
+          showToast('Lỗi: Không thể thêm phim.', 'error');
+          setCollection(originalCollection); // Phục hồi
+          setIsCollected(false);
+        });
+    }
+  };
 
   // --- HÀM MỚI ---
   // Hàm này chuyển đổi link Google Drive thông thường thành link để nhúng (embed)
@@ -80,6 +114,18 @@ function MovieDetail({ movies }) {
           <div className="title-block">
             <h1 className="detail-title">{movie.tenViet}</h1>
             <p className="detail-original-title">{movie.tenGoc}</p>
+
+            <div className="actions-block">
+              <button
+                className={`action-button ${isCollected ? 'collected' : 'add-to-collection'}`}
+                onClick={handleAddToCollection}
+                disabled={isCollected}
+              >
+                {isCollected ? <CheckIcon /> : <PlusIcon />}
+                <span>{isCollected ? 'Đã có trong Bộ sưu tập' : 'Thêm vào Bộ sưu tập'}</span>
+              </button>
+            </div>
+
             <div className="detail-meta">
               {movie.theLoai?.split(/[.,]/).map(
                 (tag) =>

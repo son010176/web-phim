@@ -276,6 +276,9 @@ function Header({
               <li className="nav-item">
                 <Link to="/phim-couples/all-couples">Couple Phim</Link>
               </li>
+              <li className="nav-item">
+                <Link to="/bo-suu-tap">Bộ Sưu Tập</Link>
+              </li>
             </ul>
           </nav>
           <button className="user-button">

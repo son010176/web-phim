@@ -1,0 +1,12 @@
+/* src/pages/CollectionPage.css */
+
+.empty-collection-message {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #888;
+  margin-top: 50px;
+  background-color: #1e1e1e;
+  padding: 40px;
+  border-radius: 8px;
+  border: 1px solid #333;
+}

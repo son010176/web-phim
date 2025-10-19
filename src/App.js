@@ -10,6 +10,8 @@ import {
   getMovieCouples,
   getMoviesByStoryline,
 } from "./services/api";
+import { getCollection } from "./services/api"; // Thêm import
+import CollectionPage from "./pages/CollectionPage"
 
 import Home from "./pages/Home";
 import CoupleFilmMographyPage from "./pages/CoupleFilmMographyPage";
@@ -41,6 +43,7 @@ function App() {
   const [liveResults, setLiveResults] = useState([]);
 
   const [isLoading, setIsLoading] = useState(true);
+  const [collection, setCollection] = useState([]);
 
   const debouncedSearchQuery = useDebounce(searchQuery, 100);
 
@@ -82,11 +85,13 @@ function App() {
       getAllActors(),
       getMovieCouples(),
       getMoviesByStoryline(),
-    ]).then(([movies, actors, couples, storylines]) => {
+      getCollection(),
+    ]).then(([movies, actors, couples, storylines, collectionData]) => {
       setAllMovies(movies || []);
       setAllActors(actors || []);
       setAllCouplesData(couples || []);
       setStorylineData(storylines || []);
+      setCollection(collectionData || []);
     }).catch(error => {
       console.error("❌ Lỗi nghiêm trọng khi tải dữ liệu ban đầu:", error);
       // Có lỗi vẫn set mảng rỗng để App không bị crash
@@ -167,7 +172,7 @@ function App() {
           />
           <Route
             path="/phim/:id"
-            element={<MovieDetail movies={allMovies} />}
+            element={<MovieDetail movies={allMovies} collection={collection} setCollection={setCollection} />}
           />
           <Route
             path="/search"
@@ -216,6 +221,10 @@ function App() {
                 onGenderToggle={handleGenderToggle}
               />
             } 
+          />
+          <Route
+            path="/bo-suu-tap"
+            element={<CollectionPage collection={collection} setCollection={setCollection} />}
           />
         </Routes>
         <ScrollToTopButton /> {/* THÊM MỚI */}

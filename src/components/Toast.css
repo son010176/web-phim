@@ -1,0 +1,54 @@
+/* src/components/Toast.css */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 25px;
+  border-radius: 8px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.toast-container.success {
+  background-color: #28a745; /* Màu xanh lá */
+}
+
+.toast-container.error {
+  background-color: #dc3545; /* Màu đỏ */
+}
+
+.toast-message {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.toast-close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.7;
+  padding: 0 5px;
+}
+
+.toast-close-btn:hover {
+  opacity: 1;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
