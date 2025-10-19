@@ -1,0 +1,20 @@
+/* src/pages/Home.css (Đã được tinh gọn) */
+
+/* --- Bố cục cho các bộ lọc --- */
+.controls-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+  justify-content:space-between;
+}
+
+/* --- Layout chính của trang Home --- */
+.movie-list-section {
+  padding: 0px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-grow: 1;
+}
+

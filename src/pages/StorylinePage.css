@@ -1,0 +1,120 @@
+/* src/pages/StorylinePage.css (Thiết kế lại hoàn toàn) */
+
+.sl-container {
+  /* padding-top: 20px; */
+  padding-bottom: 40px;
+}
+
+.sl-main-title {
+  /* font-size: 2rem; */
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+/* --- Danh sách chính --- */
+.sl-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Khoảng cách giữa các mục */
+}
+
+.sl-item-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.sl-item-link:hover {
+  background-color: #1e1e1e;
+}
+
+/* --- Thẻ của một mục trong danh sách --- */
+.sl-item-card {
+  display: flex;
+  gap: 20px;
+  padding: 15px;
+}
+
+/* --- Poster --- */
+.sl-item-poster {
+  flex-shrink: 0;
+  width: 120px; /* Độ rộng của poster */
+}
+
+.sl-item-poster img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 2 / 3;
+  /* object-fit: cover; */
+  border-radius: 6px;
+  background-color: #2a2a2a;
+}
+
+/* --- Khối thông tin bên phải --- */
+.sl-item-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex-grow: 1;
+}
+
+.sl-item-title {
+  font-size: 1.2rem;
+  margin: 0 0 8px 0;
+  color: #e0e0e0;
+}
+
+.sl-item-novel {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: #aaa;
+  margin: 0 0 10px 0;
+}
+
+.sl-item-tags {
+  font-size: 0.85rem;
+  color: #ccc;
+  line-height: 1.6;
+  margin: 0 0 15px 0;
+  flex-grow: 1; /* Đẩy phần meta xuống dưới */
+}
+
+.sl-item-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #aaa;
+  border-top: 1px solid #333;
+  padding-top: 10px;
+}
+
+.sl-item-status {
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: #444;
+  color: #e0e0e0;
+}
+
+.sl-item-status.latest {
+  background-color: #28a745;
+  color: white;
+}
+
+.sl-loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 1.5rem;
+  color: #ccc;
+}
+
+.controls-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}

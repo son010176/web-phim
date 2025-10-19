@@ -1,0 +1,71 @@
+/* src/App.css (Đã được tinh gọn) */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #121212;
+  color: #e0e0e0;
+  line-height: 1.6;
+}
+
+.App {
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Phần section chung cho các trang */
+.main-content-section {
+  padding: 0 40px;
+  max-width: 1200px; /* Giới hạn độ rộng nội dung chính */
+  margin: 0 auto;
+  flex-grow: 1; /* Giúp đẩy footer xuống dưới */
+  width: 100%;
+  box-sizing: border-box; /* Đảm bảo padding không làm tăng kích thước */
+}
+
+.section-title {
+  font-size: 2rem;
+  color: #f0f0f0;
+  margin-bottom: 1.5rem; /* Tăng khoảng cách dưới */
+  margin-top: 1.5rem;    /* Thêm khoảng cách trên */
+  text-align: left;
+  border-bottom: 2px solid #333;
+  padding-bottom: 0.5rem;
+}
+
+/* Footer chung */
+.main-footer {
+  background-color: #1a1a1a;
+  padding: 30px 20px;
+  color: #888;
+  font-size: 0.9rem;
+  margin-top: 50px;
+}
+
+/* Thêm vào cuối file src/App.css */
+
+.loading-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  font-size: 1.5rem;
+  color: #888;
+  min-height: 50vh;
+}
+
+/* --- Media Queries Toàn Cục --- */
+@media (max-width: 768px) {
+  .main-content-section {
+    padding: 0 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    font-size: 1.5rem;
+  }
+}

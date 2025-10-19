@@ -1,0 +1,102 @@
+/* src/pages/StorylineFilmMographyPage.css */
+
+.sf-header {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 40px;
+  align-items: center;
+  padding-bottom: 25px;
+  margin-bottom: 25px;
+  border-bottom: 1px solid #333;
+}
+
+.sf-poster img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+.sf-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.sf-novel-title {
+  font-size: 1rem;
+  font-style: italic;
+  color: #ccc;
+  margin-top: -15px;
+  margin-bottom: 15px;
+}
+
+.sf-meta {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.sf-container {
+  text-align: left;
+  padding-top: 40px;
+  /* padding-bottom: 40px; */
+}
+
+.sf-title {
+  font-size: 2.5rem;
+  color: #e0e0e0;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.sf-meta-item {
+  font-size: 1.1rem;
+  color: #ccc;
+}
+
+.sf-meta-item strong {
+  color: #888;
+  margin-right: 10px;
+}
+
+.sf-meta-button {
+  background-color: #569cd6;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.sf-meta-button:hover {
+  background-color: #408ac9;
+}
+
+.sf-loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 1.5rem;
+  color: #ccc;
+}
+
+.sf-no-movies {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+  padding: 40px;
+  border-radius: 8px;
+  text-align: center;
+  color: #888;
+  font-size: 1.1rem;
+}
+
+.sf-container .section-title {
+  font-size: 1.8rem;
+  margin-top: 25px;
+  margin-bottom: 25px;
+}

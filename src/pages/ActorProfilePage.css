@@ -1,0 +1,125 @@
+/* src/pages/ActorProfilePage.css (Thiết kế lại hoàn toàn) */
+
+.ap-container {
+  text-align: left;
+  padding-top: 40px;
+  /* padding-bottom: 40px; */
+}
+
+/* --- Khối Header (Thông tin Diễn viên) --- */
+.ap-header {
+  display: grid;
+  grid-template-columns: 250px 1fr; /* Avatar rộng 250px, info chiếm phần còn lại */
+  gap: 40px;
+  align-items: flex-start; /* Căn lề trên */
+  padding-bottom: 25px;
+  margin-bottom: 25px;
+  border-bottom: 1px solid #333;
+}
+
+.ap-avatar-img {
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Giữ hình vuông */
+  object-fit: cover;
+  border-radius: 50%; /* Bo tròn thành hình tròn */
+  border: 4px solid #333;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+.ap-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.ap-name {
+  font-size: 2.5rem;
+  color: #e0e0e0;
+  margin: 0;
+}
+
+.ap-pinyin-name {
+  font-size: 1.2rem;
+  color: #aaa;
+  font-style: italic;
+  margin: 5px 0 20px 0;
+}
+
+/* Lưới hiển thị thông tin chi tiết */
+.ap-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px 20px;
+  line-height: 1.8;
+  color: #ccc;
+  width: 100%;
+}
+
+.ap-meta-grid p {
+  margin: 0;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #2c2c2c;
+}
+
+.ap-meta-grid strong {
+  color: #888;
+  margin-right: 10px;
+  min-width: 100px; /* Đảm bảo các label có độ rộng đều nhau */
+  display: inline-block;
+}
+
+.ap-meta-grid a {
+  color: #569cd6;
+  text-decoration: none;
+}
+
+.ap-meta-grid a:hover {
+  text-decoration: underline;
+}
+
+.ap-tags {
+  margin-top: 20px;
+  color: #888;
+  font-style: italic;
+  word-wrap: break-word;
+}
+
+/* --- Các style chung và responsive --- */
+.ap-loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 1.5rem;
+  color: #ccc;
+}
+
+.ap-no-movies {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+  padding: 40px;
+  border-radius: 8px;
+  text-align: center;
+  color: #888;
+  font-size: 1.1rem;
+}
+
+.ap-container .section-title {
+  font-size: 1.8rem;
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+
+/* --- Responsive cho màn hình nhỏ --- */
+@media (max-width: 768px) {
+  .ap-header {
+    grid-template-columns: 1fr; /* Chuyển thành 1 cột */
+    text-align: center;
+  }
+
+  .ap-avatar {
+    width: 200px;
+    margin: 0 auto 20px auto; /* Căn avatar ra giữa */
+  }
+
+  .ap-meta-grid {
+    text-align: left; /* Giữ cho text trong lưới căn trái */
+  }
+}

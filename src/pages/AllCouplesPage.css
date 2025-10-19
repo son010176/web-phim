@@ -1,0 +1,47 @@
+/* src/pages/AllCouplesPage.css (Đã tinh gọn để tái sử dụng) */
+
+/* Meta info nằm trong thẻ movie-info */
+.movie-info .ac-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-top: auto; /* Đẩy xuống dưới cùng của thẻ info */
+  padding-top: 10px;
+}
+
+.ac-container {
+  /* text-align: center; */
+  /* padding-top: 40px; */
+  /* padding-bottom: 40px; */
+}
+
+.ac-card-status {
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: #444;
+  color: #e0e0e0;
+}
+
+/* Thêm màu cho trạng thái 'LATEST' */
+.ac-card-status.latest {
+  background-color: #28a745; /* Màu xanh lá */
+  color: white;
+}
+
+.ac-loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 1.5rem;
+  color: #ccc;
+}
+
+.controls-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}

@@ -1,0 +1,143 @@
+/* src/MovieDetail.css (Cập nhật) */
+.movie-detail-container {
+  width: 90%;
+  margin: 40px auto;
+  padding: 0 40px;
+  color: #e0e0e0;
+}
+
+/* --- LƯỚI LAYOUT CHÍNH --- */
+.detail-body-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr; 
+  gap: 30px 40px;
+  grid-template-areas:
+    "poster info"
+    "video  video";
+}
+
+/* --- SẮP XẾP CÁC KHỐI VÀO ĐÚNG VỊ TRÍ TRÊN LƯỚI --- */
+.poster-block { grid-area: poster; }
+.info-container { grid-area: info; }
+.video-block { 
+  grid-area: video; 
+  padding: 0rem 10rem;
+}
+
+/* --- ĐỊNH DẠNG CHI TIẾT CHO CÁC KHỐI --- */
+.poster-frame {
+  position: relative; width: 100%; padding-top: 150%;
+  border-radius: 10px; overflow: hidden; background-color: #1e1e1e;
+}
+.detail-poster {
+  position: absolute; 
+  top: 0; 
+  left: 0;
+  width: 100%; 
+  height: 100%; 
+  /* object-fit: cover; */
+  /* padding: 5px; */
+  object-fit: contain;
+}
+
+/* Cột thông tin bên phải */
+.info-container {
+  display: flex;
+  flex-direction: column;
+  /* gap: 30px; */
+  text-align: left;
+}
+
+.detail-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 0; 
+  /* margin: 0 0 5px 0;  */
+  /* margin: 0 auto;  */
+  overflow-wrap: break-word; 
+  word-break: break-word;
+}
+.detail-original-title { 
+  font-size: 1.1rem;
+  color: #aaa; font-style: italic; 
+  margin: 0 0 1rem 0;
+}
+.detail-meta { margin-top: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+.detail-genre-tag {
+  background-color: #333; color: #e0e0e0; padding: 8px 15px;
+  border-radius: 20px; font-size: 0.9rem;
+}
+
+/* Khối video */
+.video-player-wrapper {
+  position: relative; width: 100%; aspect-ratio: 16 / 9;
+  background-color: #000; border-radius: 12px; overflow: hidden;
+  border: 1px solid #222; display: flex; align-items: center; justify-content: center;
+}
+.youtube-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.no-video-message { font-size: 1.1rem; color: #aaa; }
+.video-tabs { 
+  display: flex; gap: 15px; margin-top: 15px;
+  justify-content: center;
+}
+.tab-button {
+  flex: 1; max-width: 250px; padding: 12px 20px;
+  text-align: center; font-size: 1rem; font-weight: 600;
+  color: #ccc; background-color: #2a2a2a; border: 1px solid #444;
+  border-radius: 8px; cursor: pointer; transition: all 0.2s ease-in-out;
+}
+.tab-button:hover { background-color: #3a3a3a; color: #fff; }
+.tab-button.active { background-color: #61dafb; color: #1a1a1a; border-color: #61dafb; }
+
+.video-footer-info { margin-top: 20px; padding-top: 20px; border-top: 1px solid #333; }
+.external-links-section { background-color: #1a1a1a; padding: 20px; border-radius: 8px; }
+.detail-tags { margin-top: 15px; font-size: 0.9rem; color: #aaa; }
+.detail-tags strong { color: #ccc; }
+.link-item:not(:last-child) { margin-bottom: 15px; }
+.link-title { font-weight: bold; color: #ccc; margin-right: 10px; }
+.link-item a { color: #61dafb; text-decoration: none; word-break: break-all; }
+.link-item a:hover { text-decoration: underline; }
+
+/* Các định dạng chung cho khối thông tin */
+.info-section { width: 100%; }
+.info-title { 
+  font-size: 1.3rem; 
+  color: #f0f0f0; 
+  margin: 1rem 0 0 0; 
+  font-weight: 600; 
+}
+.description-text { line-height: 1.7; color: #ccc; margin: 0; text-align: justify;}
+.actor-list-detail { line-height: 1.7; }
+.actor-item-detail { font-size: 1rem; color: #ccc; }
+
+.actor-name-detail {
+  color: #ccc;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.actor-name-detail:hover {
+  color: #61dafb; /* Hoặc màu bạn thích */
+  text-decoration: underline;
+}
+
+.actor-hanzi-detail { color: #888; margin-left: 8px; }
+
+/* --- RESPONSIVE --- */
+@media (max-width: 900px) {
+  .detail-body-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "poster"
+      "info"
+      "video";
+  }
+  .poster-block { margin: 0 auto; width: 100%; max-width: 320px; }
+}
+@media (max-width: 480px) {
+  .movie-detail-container { padding: 0 20px; width: 100%; }
+  .detail-title { font-size: 1.2rem; }
+}
+
+.detail-loading { text-align: center; padding: 50px; font-size: 1.2rem; }
+
