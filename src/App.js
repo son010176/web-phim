@@ -12,6 +12,7 @@ import {
 } from "./services/api";
 import { getCollection } from "./services/api"; // Thêm import
 import CollectionPage from "./pages/CollectionPage"
+import LoginPage from './pages/LoginPage';
 
 import Home from "./pages/Home";
 import CoupleFilmMographyPage from "./pages/CoupleFilmMographyPage";
@@ -226,6 +227,7 @@ function App() {
             path="/bo-suu-tap"
             element={<CollectionPage collection={collection} setCollection={setCollection} />}
           />
+          <Route path="/login" element={<LoginPage />} />
         </Routes>
         <ScrollToTopButton /> {/* THÊM MỚI */}
       </div>

@@ -1,5 +1,5 @@
 // src/services/api.js
-
+import { auth } from '../firebase';
 // Định nghĩa URL của API Google Apps Script ở một nơi duy nhất.
 // const API_URL = "https://script.google.com/macros/s/AKfycbxQvRm7VwxKcjmciim8mdchDu7X-c4-ZeHpY6mKRPPLLxsPJhCkTgWoBNxPM-Pls7uV/exec";
 const API_URL = "https://script.google.com/macros/s/AKfycbwof2iqWfeEnkEuAmP50MTtj4B_pO-Ks95slRXPY4B0QVZ5Dmlf2Ya5OHh81OdANKmFTg/exec";
@@ -33,23 +33,50 @@ const fetchGetData = async (queryString) => {
  * @param {string} action - Tên hành động (ví dụ: 'addMovie').
  * @param {object} payload - Dữ liệu cần gửi đi.
  */
+// --- HÀM POST ĐƯỢC SỬA LẠI HOÀN CHỈNH ---
 const fetchPostData = async (action, payload) => {
-    try {
-        // Apps Script Web App khi nhận POST thường cần được gọi với mode 'no-cors'
-        // và không thể đọc response trực tiếp, nhưng request vẫn được xử lý.
-        await fetch(API_URL, {
-            method: "POST",
-            mode: "no-cors", 
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action, payload }),
-        });
-        // Vì mode là 'no-cors', chúng ta không thể đọc response,
-        // nên chỉ có thể giả định là thành công nếu không có lỗi mạng.
-        return { status: 'success', message: `Yêu cầu "${action}" đã được gửi.` };
-    } catch (error) {
-        console.error(`Lỗi khi thực hiện yêu cầu POST (${action}):`, error);
-        return { status: 'error', message: error.message };
+  try {
+    const user = auth.currentUser;
+    let token = null;
+
+    if (user) {
+      token = await user.getIdToken(true); // Lấy "vé thông hành"
+    } else {
+      // Nếu không có người dùng, không gửi token và báo lỗi sớm
+      throw new Error("Bạn cần đăng nhập để thực hiện hành động này.");
     }
+    
+    const requestBody = {
+      action,
+      payload,
+      token // Gửi vé này trong body của yêu cầu
+    };
+
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      // XÓA BỎ: mode: "no-cors", 
+      headers: {
+        // Giữ nguyên header này
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+      redirect: 'follow' // Thêm dòng này để xử lý chuyển hướng nếu có
+    }); 
+
+    // BỎ COMMENT VÀ SỬA LẠI: Xử lý response từ API
+    const result = await response.json(); 
+    if (result.status === 'success' || result.status === 'info') {
+      // Chấp nhận cả status 'success' và 'info'
+      return result; 
+    } else {
+      // Ném lỗi với message từ API để có thể debug
+      throw new Error(result.message || 'Lỗi không xác định từ API');
+    }
+  } catch (error) {
+    console.error(`Lỗi POST action "${action}":`, error);
+    // Ném lại lỗi để component gọi nó có thể xử lý (ví dụ: hiển thị thông báo)
+    throw error;
+  }
 };
 
 

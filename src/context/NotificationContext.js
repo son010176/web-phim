@@ -7,7 +7,7 @@ const NotificationContext = createContext();
 export function NotificationProvider({ children }) {
   const [toast, setToast] = useState(null); // { message: '...', type: '...' }
 
-  const showToast = (message, type = 'success') => {
+  const addNotification = (message, type = 'success') => {
     setToast({ message, type });
   };
 
@@ -16,7 +16,7 @@ export function NotificationProvider({ children }) {
   };
 
   return (
-    <NotificationContext.Provider value={{ showToast }}>
+    <NotificationContext.Provider value={{ addNotification }}>
       {children}
       {toast && (
         <Toast

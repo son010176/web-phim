@@ -13,7 +13,7 @@ import { useNotification } from '../context/NotificationContext';
 function MovieDetail({ movies, collection, setCollection }) {
   const { id } = useParams();
   const movie = movies.find((m) => m.id === id);
-  const { showToast } = useNotification();
+  const { addNotification } = useNotification();
   const [activeTab, setActiveTab] = useState(""); // Sẽ được đặt tự động
   const [isCollected, setIsCollected] = useState(false);
 
@@ -23,7 +23,6 @@ function MovieDetail({ movies, collection, setCollection }) {
       setIsCollected(alreadyExists);
     }
   }, [movie, collection]);
-
   const handleAddToCollection = () => {
     if (movie && !isCollected) {
       const originalCollection = [...collection]; // Lưu lại trạng thái cũ để có thể phục hồi nếu lỗi
@@ -31,14 +30,14 @@ function MovieDetail({ movies, collection, setCollection }) {
       // ---- CẬP NHẬT GIAO DIỆN "LẠC QUAN" ----
       setIsCollected(true);
       setCollection(prev => [...prev, movie]);
-      showToast('Đã thêm vào bộ sưu tập!'); // Hiển thị thông báo tùy chỉnh
+      addNotification('Đã thêm vào bộ sưu tập!'); // Hiển thị thông báo tùy chỉnh
 
       // ---- GỬI YÊU CẦU TRONG NỀN ----
       addToCollection(movie)
         .catch(error => {
           // Nếu có lỗi, phục hồi lại trạng thái giao diện và báo lỗi
           console.error("Lỗi khi thêm vào bộ sưu tập:", error);
-          showToast('Lỗi: Không thể thêm phim.', 'error');
+          addNotification('Lỗi: Không thể thêm phim.', 'error');
           setCollection(originalCollection); // Phục hồi
           setIsCollected(false);
         });

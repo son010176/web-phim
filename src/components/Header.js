@@ -4,6 +4,11 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
 import ImageWithFallback from "./ImageWithFallback";
 
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
+import { useAuth } from "../context/AuthContext";
+import { useNotification } from "../context/NotificationContext";
+
 const SearchIcon = () => (
   <svg
     className="search-icon"
@@ -50,9 +55,25 @@ function Header({
   const searchFormRef = useRef(null);
   const [isDropdownVisible, setDropdownVisible] = useState(true); // State quản lý hiển thị dropdown
 
+  const { currentUser } = useAuth();
+  const { addNotification } = useNotification();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      addNotification("Đăng xuất thành công!");
+      navigate("/");
+    } catch (error) {
+      addNotification("Lỗi khi đăng xuất: " + error.message, "error");
+    }
+  };
+
   useEffect(() => {
     function handleClickOutside(event) {
-      if (searchFormRef.current && !searchFormRef.current.contains(event.target)) {
+      if (
+        searchFormRef.current &&
+        !searchFormRef.current.contains(event.target)
+      ) {
         setDropdownVisible(false); // Ẩn dropdown nếu click ra ngoài
       }
     }
@@ -72,7 +93,10 @@ function Header({
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    if (searchQuery.trim() && (searchScope === "tenPhim" || searchScope === "theLoai")) {
+    if (
+      searchQuery.trim() &&
+      (searchScope === "tenPhim" || searchScope === "theLoai")
+    ) {
       navigate(`/search?q=${searchQuery}&scope=${searchScope}`);
       setSearchQuery("");
       setDropdownVisible(false); // Ẩn dropdown sau khi submit
@@ -97,7 +121,11 @@ function Header({
             <span className="logo-text">My Collection</span>
           </Link>
 
-          <form className="search-form" onSubmit={handleSearchSubmit} ref={searchFormRef}>
+          <form
+            className="search-form"
+            onSubmit={handleSearchSubmit}
+            ref={searchFormRef}
+          >
             <div className="search-bar">
               <select
                 className="search-scope-select"
@@ -154,7 +182,10 @@ function Header({
 
                   // THÊM MỚI: TRƯỜNG HỢP COUPLE PHIM (STORYLINE)
                   if (result.type === "storyline") {
-                    const poster = (result.movies && result.movies.length > 0) ? result.movies[0].linkPoster : null;
+                    const poster =
+                      result.movies && result.movies.length > 0
+                        ? result.movies[0].linkPoster
+                        : null;
                     return (
                       <Link
                         to={`/phim-couples/${result.id}`}
@@ -169,8 +200,10 @@ function Header({
                           className="result-poster"
                         />
                         <div className="result-info">
-                          <span className="result-title">{result.tenCouple}</span>
-                           <span className="result-original-title">
+                          <span className="result-title">
+                            {result.tenCouple}
+                          </span>
+                          <span className="result-original-title">
                             {result.tieuThuyetGoc}
                           </span>
                         </div>
@@ -180,7 +213,10 @@ function Header({
 
                   // THÊM MỚI: TRƯỜNG HỢP COUPLE PHIM (STORYLINE)
                   if (result.type === "couple") {
-                    const poster = (result.movies && result.movies.length > 0) ? result.movies[0].linkPoster : null;
+                    const poster =
+                      result.movies && result.movies.length > 0
+                        ? result.movies[0].linkPoster
+                        : null;
                     return (
                       <Link
                         to={`/dien-vien-couples/${result.id}`}
@@ -195,7 +231,9 @@ function Header({
                           className="result-poster"
                         />
                         <div className="result-info">
-                          <span className="result-title">{result.tenCouple}</span>
+                          <span className="result-title">
+                            {result.tenCouple}
+                          </span>
                           <span className="result-original-title">
                             {result.tongSoPhim} phim
                           </span>
@@ -271,20 +309,35 @@ function Header({
                 <Link to="/dien-vien/all-actors">Diễn viên</Link>
               </li>
               <li className="nav-item">
-                <Link to="/dien-vien-couples/all-couples">Couple Diễn viên</Link>
+                <Link to="/dien-vien-couples/all-couples">
+                  Couple Diễn viên
+                </Link>
               </li>
               <li className="nav-item">
                 <Link to="/phim-couples/all-couples">Couple Phim</Link>
               </li>
-              <li className="nav-item">
-                <Link to="/bo-suu-tap">Bộ Sưu Tập</Link>
-              </li>
+              {currentUser && (
+                <li className="nav-item">
+                  <Link to="/bo-suu-tap">Bộ Sưu Tập</Link>
+                </li>
+              )}
             </ul>
           </nav>
-          <button className="user-button">
-            <UserIcon />
-            <span>Thành viên</span>
-          </button>
+          <div className="auth-section">
+            {currentUser ? (
+              <div className="user-info">
+                <span className="user-email">{currentUser.email}</span>
+                <button onClick={handleLogout} className="auth-btn logout-btn">
+                  Đăng xuất
+                </button>
+              </div>
+            ) : (
+              <Link to="/login" className="auth-btn login-btn">
+                <UserIcon />
+                <span>Đăng nhập</span>
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </header>
