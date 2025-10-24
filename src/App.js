@@ -1,19 +1,16 @@
-// src/App.js (Đã cập nhật)
+// src/App.js (Đã refactor - Tách API và dùng Context)
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { performLiveSearch } from "./utils/search";
-import { useMovieFilter } from "./hooks/useMovieFilter";
-import {
-  getAllMovies,
-  getAllActors,
-  getMovieCouples,
-  getMoviesByStoryline,
-} from "./services/api";
-import { getCollection } from "./services/api"; // Thêm import
-import CollectionPage from "./pages/CollectionPage"
-import LoginPage from './pages/LoginPage';
 
+// --- IMPORT API ---
+import { 
+  fetchAllDataForSearchCache, loadCacheFromStorage, saveCacheToStorage
+} from "./services/api_client"; // <-- api_client.js (App Script)
+
+// --- IMPORT CÁC TRANG ---
+import LoginPage from './pages/LoginPage';
 import Home from "./pages/Home";
 import CoupleFilmMographyPage from "./pages/CoupleFilmMographyPage";
 import StorylineFilmMographyPage from "./pages/StorylineFilmMographyPage";
@@ -24,132 +21,99 @@ import AllActorsPage from "./pages/AllActorsPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import ActorProfilePage from "./pages/ActorProfilePage";
 import AdminSandbox from "./pages/AdminSandbox";
+import CollectionPage from "./pages/CollectionPage"; // <-- THÊM TRANG COLLECTION
+
+// --- IMPORT CÁC COMPONENT ---
 import Header from "./components/Header";
-import ScrollToTopButton from "./components/ScrollToTopButton"; // THÊM MỚI
-import { useActorFilter } from './hooks/useActorFilter';
+import ScrollToTopButton from "./components/ScrollToTopButton";
 import useDebounce from "./hooks/useDebounce";
-import { useCouplesFilter } from './hooks/useCouplesFilter';
-import { useStorylineFilter } from './hooks/useStorylineFilter';
 import "./App.css";
 
-function App() {
-  const [allMovies, setAllMovies] = useState([]);
-  const [allActors, setAllActors] = useState([]);
+// --- IMPORT CÁC HOOK LỌC/SẮP XẾP ---
+import { useMovieFilter } from './hooks/useMovieFilter';
+import { useActorFilter } from './hooks/useActorFilter';
+import { useCouplesFilter } from './hooks/useCouplesFilter';
+import { useStorylineFilter } from './hooks/useStorylineFilter';
 
-  const [allCouplesData, setAllCouplesData] = useState([]);
-  const [storylineData, setStorylineData] = useState([]);
+// LƯU Ý: App KHÔNG cần import useAuth hay getCollection nữa
+// Vì CollectionContext sẽ tự quản lý
+
+function App() {
+  const [isLoading, setIsLoading] = useState(true); 
+
+  const [searchCache, setSearchCache] = useState({ movies: [], actors: [], couples: [], storylines: [] });
+  const [isCacheReady, setIsCacheReady] = useState(false); // "Công tắc"
+
+  // (Các state cho filter/search giữ nguyên)
+  const { displayMovies, ...movieControls } = useMovieFilter(searchCache.movies);
+  const { displayActors, ...actorControls } = useActorFilter(searchCache.actors);
+  const { displayCouples, ...coupleControls } = useCouplesFilter(searchCache.couples);
+  const { displayStorylines, ...storylineControls } = useStorylineFilter(searchCache.storylines);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchScope, setSearchScope] = useState("tenPhim");
   const [liveResults, setLiveResults] = useState([]);
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [collection, setCollection] = useState([]);
-
   const debouncedSearchQuery = useDebounce(searchQuery, 100);
 
-  const {
-    displayMovies,
-    uniqueGenres,
-    selectedGenres,
-    handleGenreToggle,
-    sortOrder,
-    handleSortChange,
-  } = useMovieFilter(allMovies);
-
-  const {
-    displayActors,
-    sortOrder: actorSortOrder,
-    handleSortChange: handleActorSortChange,
-    selectedGender,
-    handleGenderToggle
-  } = useActorFilter(allActors);
-
-  const {
-    displayCouples,
-    sortOrder: coupleSortOrder,
-    handleSortChange: handleCoupleSortChange
-  } = useCouplesFilter(allCouplesData);
-
-  const {
-    displayStorylines,
-    sortOrder: storylineSortOrder,
-    handleSortChange: handleStorylineSortChange
-  } = useStorylineFilter(storylineData);
-
+  // --- useEffect TẢI DỮ LIỆU (LOGIC MỚI - Giữ nguyên) ---
   useEffect(() => {
-    setIsLoading(true); // Bắt đầu tải, bật trạng thái loading
+    setIsLoading(true);
+    
+    // 1. Import thêm saveCacheToStorage
+    // (Hãy đảm bảo bạn đã import { loadCacheFromStorage, fetchAllDataForSearchCache, saveCacheToStorage } ở đầu file App.js)
+    
+    // 2. Thử tải từ cache trước
+    const cachedData = loadCacheFromStorage(6); // Cache 1 giờ
 
-    // Sử dụng Promise.all để tải đồng thời nhiều nguồn dữ liệu, giúp tối ưu thời gian
-    Promise.all([
-      getAllMovies(),
-      getAllActors(),
-      getMovieCouples(),
-      getMoviesByStoryline(),
-      getCollection(),
-    ]).then(([movies, actors, couples, storylines, collectionData]) => {
-      setAllMovies(movies || []);
-      setAllActors(actors || []);
-      setAllCouplesData(couples || []);
-      setStorylineData(storylines || []);
-      setCollection(collectionData || []);
+    if (cachedData) {
+      // --- CHẾ ĐỘ 1: CLIENT (CÓ CACHE) ---
+      console.log("🚀 Sử dụng cache từ localStorage. Kích hoạt Chế độ Client.");
+      setSearchCache(cachedData);
+      setIsCacheReady(true);
+      setIsLoading(false);
+      return; // Dừng lại, không làm gì nữa
+    }
+
+    // --- CHẾ ĐỘ 2: SERVER (KHÔNG CÓ CACHE) ---
+    // (Logic này của bạn là đúng để API Cloudflare chạy được)
+    console.log("🌐 Không có cache localStorage, hiển thị trang ở Chế độ Server.");
+    setIsLoading(false); // Cho phép các trang con render và gọi API server (Cloudflare)
+    
+    // 3. Chạy ngầm để TẢI VÀ KÍCH HOẠT cache (từ Apps Script)
+    fetchAllDataForSearchCache().then(cacheData => {
+      console.log("✅ Cache (Apps Script) đã tải xong. BẬT CÔNG TẮC.");
+      setSearchCache(cacheData); 
+
+      // saveCacheToStorage(cacheData); //NƠI KÍCH HOẠT LƯU VÀO LOCALSTORAGE
+      
+      setIsCacheReady(true); // <-- KÍCH HOẠT CÔNG TẮC
+      
     }).catch(error => {
-      console.error("❌ Lỗi nghiêm trọng khi tải dữ liệu ban đầu:", error);
-      // Có lỗi vẫn set mảng rỗng để App không bị crash
-      setAllMovies([]);
-      setAllActors([]);
-      setAllCouplesData([]);
-      setStorylineData([]);
-    }).finally(() => {
-      setIsLoading(false); // Tải xong (dù thành công hay thất bại), tắt trạng thái loading
+      console.error("❌ Lỗi khi tải cache nền:", error);
+      // Nếu tải cache lỗi, vẫn bật công tắc để app chạy ở chế độ server
+      setIsCacheReady(true); 
     });
-  }, []);
+    
+  }, []); // Chỉ chạy 1 lần
 
-    // useEffect(() => {
-  //   getAllMovies().then((data) => {
-  //     if (data) setAllMovies(data);
-  //   });
-  //   getAllActors().then((data) => {
-  //     if (data) setAllActors(data);
-  //   });
-  //   getMovieCouples().then((data) => {
-  //     if (data) setAllCouplesData(data);
-  //   });
-  //   getMoviesByStoryline().then((data) => {
-  //     if (data) setStorylineData(data);
-  //   });
-  // }, []);
-  
+  // --- useEffect CHO LIVE SEARCH (giữ nguyên) ---
   useEffect(() => {
-    if (searchQuery.length < 2) {
+    if (searchQuery.length < 2 || !isCacheReady) {
       setLiveResults([]);
       return;
     }
     if (debouncedSearchQuery) {
       const results = performLiveSearch(
-        debouncedSearchQuery,
-        searchScope,
-        allMovies,
-        allActors,
-        allCouplesData,
-        storylineData
+        debouncedSearchQuery, searchScope,
+        searchCache.movies, searchCache.actors, searchCache.couples, searchCache.storylines
       );
       setLiveResults(results.slice(0, 5));
     }
-  }, [debouncedSearchQuery, searchScope, allMovies, allActors, allCouplesData, storylineData]);
+  }, [debouncedSearchQuery, searchScope, searchCache, isCacheReady]);
 
-  const homePageElement = useMemo(() => {
-    return (
-      <Home
-        movies={displayMovies}
-        genres={uniqueGenres}
-        selectedGenres={selectedGenres}
-        onGenreToggle={handleGenreToggle}
-        sortOrder={sortOrder}
-        onSortChange={handleSortChange}
-      />
-    );
-  }, [displayMovies, uniqueGenres, selectedGenres, handleGenreToggle, sortOrder, handleSortChange]);
+  if (isLoading) {
+    return <div className="loading-message">Đang khởi động ứng dụng...</div>;
+  }
 
   return (
     <Router>
@@ -160,76 +124,98 @@ function App() {
           searchScope={searchScope}
           setSearchScope={setSearchScope}
           liveResults={liveResults}
+          isSearchReady={isCacheReady}
         />
         <Routes>
           <Route
             path="/"
             element={
-              // THAY ĐỔI: Hiển thị thông báo loading hoặc trang Home tùy vào trạng thái
-              isLoading 
-                ? <div className="loading-message">Đang tải toàn bộ dữ liệu...</div> 
-                : homePageElement
-            }
-          />
-          <Route
-            path="/phim/:id"
-            element={<MovieDetail movies={allMovies} collection={collection} setCollection={setCollection} />}
-          />
-          <Route
-            path="/search"
-            element={<SearchResultsPage allMovies={allMovies} />}
-          />
-          <Route path="/dien-vien/:slug" element={<ActorProfilePage />} />
-          <Route path="/admin-sandbox" element={<AdminSandbox />} />
-          <Route
-            path="/dien-vien-couples/:coupleId"
-            element={<CoupleFilmMographyPage allCouples={allCouplesData} />}
-          />
-          <Route
-            path="/dien-vien-couples/all-couples"
-            element={
-              <AllCouplesPage 
-                allCouples={displayCouples}
-                sortOrder={coupleSortOrder}
-                onSortChange={handleCoupleSortChange}
+              <Home
+                clientMovies={displayMovies} 
+                {...movieControls}
+                isCacheReady={isCacheReady} // Pass "công tắc"
               />
-            }
-          />
-          <Route
-            path="/phim-couples/all-couples"
-            element={
-              <StorylinePage 
-                storylines={displayStorylines}
-                sortOrder={storylineSortOrder}
-                onSortChange={handleStorylineSortChange}
-              />
-            }
-          />
-          <Route
-            path="/phim-couples/:storylineId"
-            element={
-              <StorylineFilmMographyPage allStorylines={storylineData} />
             }
           />
           <Route 
             path="/dien-vien/all-actors" 
             element={
               <AllActorsPage 
-                allActors={displayActors} 
-                sortOrder={actorSortOrder}
-                onSortChange={handleActorSortChange}
-                selectedGender={selectedGender}
-                onGenderToggle={handleGenderToggle}
+                clientActors={displayActors} 
+                {...actorControls}
+                isCacheReady={isCacheReady} 
               />
             } 
           />
           <Route
-            path="/bo-suu-tap"
-            element={<CollectionPage collection={collection} setCollection={setCollection} />}
+            path="/dien-vien-couples/all-couples"
+            element={
+              <AllCouplesPage 
+                clientCouples={displayCouples}
+                {...coupleControls}
+                isCacheReady={isCacheReady}
+              />
+            }
+          />
+          <Route
+            path="/phim-couples/all-couples"
+            element={
+              <StorylinePage
+                clientStorylines={displayStorylines}
+                {...storylineControls}
+                isCacheReady={isCacheReady}
+              />
+            }
+          />
+          {/* --- CÁC ROUTE CHI TIẾT --- */}
+          <Route
+            path="/phim/:id"
+            // SỬA: Xóa props collection và setCollection
+            element={<MovieDetail movies={searchCache.movies} isCacheReady={isCacheReady} />}
+          />
+          <Route
+            path="/search"
+            element={<SearchResultsPage allMovies={searchCache.movies} />}
+          />
+          <Route 
+            path="/dien-vien/:slug" 
+            element={
+              <ActorProfilePage 
+                actors={searchCache.actors} // Luôn truyền full cache
+                isCacheReady={isCacheReady} 
+              />
+            } 
+          />
+          <Route path="/admin-sandbox" element={<AdminSandbox />} />
+          <Route
+            path="/dien-vien-couples/:coupleId"
+            element={
+              <CoupleFilmMographyPage 
+                allCouples={searchCache.couples} // Luôn truyền full cache
+                isCacheReady={isCacheReady} 
+              />
+            }
+          />
+          <Route
+            path="/phim-couples/:storylineId"
+            element={
+              <StorylineFilmMographyPage 
+                allStorylines={searchCache.storylines} // Luôn truyền full cache
+                isCacheReady={isCacheReady} 
+              />
+            }
           />
           <Route path="/login" element={<LoginPage />} />
+          
+          {/* --- ROUTE MỚI CHO BỘ SƯU TẬP --- */}
+          <Route 
+            path="/bo-suu-tap" 
+            // SỬA: Không cần truyền props
+            element={<CollectionPage />} 
+          />
+
         </Routes>
-        <ScrollToTopButton /> {/* THÊM MỚI */}
+        <ScrollToTopButton />
       </div>
     </Router>
   );

@@ -1,59 +1,147 @@
-// src/pages/StorylinePage.js (Đã thêm Infinite Scroll)
+// src/pages/StorylinePage.js (Nâng cấp "Đồng bộ Trang" khi chuyển chế độ)
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import "./StorylinePage.css";
 import ImageWithFallback from "../components/ImageWithFallback";
 import SortDropdown from "../components/SortDropdown";
+import DropdownFilter from "../components/DropdownFilter";
 import Pagination from "../components/Pagination";
+import { getStorylinesPage } from "../services/api";
 
-const ITEMS_PER_PAGE = 20; // Trang này item cao hơn nên tải ít hơn mỗi lần
+const ITEMS_PER_PAGE = 20;
 
-function StorylinePage({ storylines, sortOrder, onSortChange }) {
-  const [currentPage, setCurrentPage] = useState(1);
+function StorylinePage({ 
+  clientStorylines,
+  sortOrder, handleSortChange, selectedTheLoai, handleTheLoaiToggle,
+  isCacheReady 
+}) {
 
-// THAY ĐỔI: Reset về trang 1
+  const [serverData, setServerData] = useState({
+    list: [], currentPage: 1, totalPages: 1, pageTokens: { 1: null }, isLoading: false
+  });
+  
+  const [clientCurrentPage, setClientCurrentPage] = useState(1);
+  const [effectiveMode, setEffectiveMode] = useState(isCacheReady ? 'client' : 'server');
+
+  // Ref để quản lý việc chuyển giao
+  const isTransitioning = useRef(false);
+
+  // 1. useEffect (Mount): Tải page 1 của server
   useEffect(() => {
-    setCurrentPage(1);
-  }, [storylines]);
+    if (effectiveMode === 'server') {
+      console.log("Storyline: Bắt đầu ở Chế độ Server. Tải trang 1...");
+      setServerData(prev => ({ ...prev, isLoading: true }));
+      getStorylinesPage().then(res => {
+        setServerData(prev => ({
+          ...prev,
+          list: res.data || [],
+          totalPages: res.totalPages || 1,
+          pageTokens: { ...prev.pageTokens, 2: res.pagination.nextPageToken },
+          isLoading: false
+        }));
+      }).catch(err => {
+        console.error("Lỗi tải getStorylinesPage:", err);
+        setServerData(prev => ({ ...prev, isLoading: false }));
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); 
 
-  if (!storylines || storylines.length === 0) {
+  // 2. useEffect (Theo dõi "công tắc" VÀ ĐỒNG BỘ TRANG)
+  useEffect(() => {
+    if (isCacheReady && effectiveMode === 'server') {
+      console.log(`Storyline: Cache sẵn sàng. Nâng cấp lên Client Mode, đồng bộ trang ${serverData.currentPage}.`);
+      isTransitioning.current = true;
+      setClientCurrentPage(serverData.currentPage);
+      setEffectiveMode('client');
+    }
+  }, [isCacheReady, effectiveMode, serverData.currentPage]);
+  
+  // 3. useEffect (Reset Client Page KHI LỌC/SẮP XẾP)
+  useEffect(() => {
+    if (effectiveMode === 'client') {
+      if (isTransitioning.current) {
+        isTransitioning.current = false;
+      } else {
+        console.log("Storyline: Client filters/sort changed. Resetting to page 1.");
+        setClientCurrentPage(1);
+      }
+    }
+  }, [clientStorylines, effectiveMode]); // Phụ thuộc vào `clientStorylines` (kết quả lọc)
+
+  // Hàm xử lý phân trang server
+  const handleServerPageChange = async (newPage) => {
+    const { currentPage, isLoading, pageTokens } = serverData;
+    if (newPage === currentPage || isLoading) return;
+
+    setServerData(prev => ({ ...prev, isLoading: true }));
+    const token = pageTokens[newPage];
+    const res = await getStorylinesPage({ pageToken: token });
+    
+    setServerData(prev => ({
+      ...prev,
+      list: res.data || [],
+      currentPage: newPage,
+      pageTokens: { ...prev.pageTokens, [newPage + 1]: res.pagination.nextPageToken },
+      isLoading: false
+    }));
+    window.scrollTo(0, 0);
+  };
+
+  // --- Logic Render ---
+  const isClientMode = effectiveMode === 'client'; 
+  
+  const clientTotalPages = Math.ceil(clientStorylines.length / ITEMS_PER_PAGE);
+  const currentClientStorylines = clientStorylines.slice(
+    (clientCurrentPage - 1) * ITEMS_PER_PAGE,
+    clientCurrentPage * ITEMS_PER_PAGE
+  );
+  
+  const storylinesToRender = isClientMode ? currentClientStorylines : serverData.list;
+  const isLoading = !isClientMode && serverData.isLoading;
+
+  if (!storylinesToRender && !isLoading) {
     return <div className="sl-loading">Đang tải danh sách...</div>;
   }
 
-  // --- LOGIC PHÂN TRANG MỚI ---
-  const totalPages = Math.ceil(storylines.length / ITEMS_PER_PAGE);
-  const currentStorylines = storylines.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
-return (
+  return (
     <div className="main-content-section">
       <div className="sl-container">
         <h1 className="sl-main-title section-title">
           Tổng Hợp Phim Cùng Cốt Truyện
         </h1>
-        <div className="controls-wrapper">
-          <SortDropdown
-            currentSortOrder={sortOrder}
-            onSortChange={onSortChange}
-          />
-        </div>
+        
+          <div className="controls-wrapper">
+            <DropdownFilter
+              genres={["Hiện đại", "Cổ trang", "Niên đại"]} 
+              selectedGenres={[selectedTheLoai]}
+              onGenreToggle={handleTheLoaiToggle}
+              isDisabled={!isClientMode} // <-- Disable
+            />
+            <SortDropdown
+              currentSortOrder={sortOrder}
+              onSortChange={handleSortChange}
+              isDisabled={!isClientMode} // <-- Disable
+            />
+          </div>
 
-        {storylines.length === 0 ? (
+        {storylinesToRender.length === 0 && !isLoading ? (
           <p>Không có mục nào.</p>
         ) : (
           <>
+            {(isLoading || (!isClientMode && storylinesToRender.length === 0)) && 
+              <div className="loading-overlay">Đang tải trang mới...</div>
+            }
+
             <div className="sl-list">
-              {/* THAY ĐỔI: Sử dụng currentStorylines */}
-              {currentStorylines.map((item) => {
+              {storylinesToRender.map((item) => {
                 const movies = item.movies || [];
                 const storylinePoster = movies.find(movie => movie.linkPoster)?.linkPoster || null;
 
                 return (
                   <Link
-                    to={`/phim-couples/${item.id}`}
+                    to={`/phim-couples/${item.id}`} 
                     key={item.id}
                     className="sl-item-link"
                   >
@@ -83,12 +171,21 @@ return (
                 );
               })}
             </div>
-            {/* THÊM MỚI: Thanh phân trang */}
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
+            
+            {isClientMode ? (
+              <Pagination
+                currentPage={clientCurrentPage}
+                totalPages={clientTotalPages}
+                onPageChange={setClientCurrentPage}
+              />
+            ) : (
+              <Pagination
+                currentPage={serverData.currentPage}
+                totalPages={serverData.totalPages}
+                onPageChange={handleServerPageChange}
+                isDisabled={!isClientMode} // <-- Vô hiệu hóa
+              />
+            )}
           </>
         )}
       </div>

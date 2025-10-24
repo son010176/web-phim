@@ -1,54 +1,122 @@
-// src/pages/MovieDetail.js (Đã cập nhật để hỗ trợ Google Drive)
+// src/pages/MovieDetail.js (Đã nâng cấp logic)
+
 import React, { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom"; // Thêm useNavigate
 import YouTube from "react-youtube";
 import "./MovieDetail.css";
 import { createSlug } from "../utils/createSlug";
 import ImageWithFallback from "../components/ImageWithFallback";
-import { addToCollection } from '../services/api';
 import { ReactComponent as PlusIcon } from '../assets/icons/plus-solid.svg';
 import { ReactComponent as CheckIcon } from '../assets/icons/check-solid.svg';
-import { useNotification } from '../context/NotificationContext';
+// import { useNotification } from '../context/NotificationContext'; // Không cần nữa
+import { getMovieDetail_CF } from "../services/api"; // <-- IMPORT API
+import { useCollection } from "../context/CollectionContext"; // <-- IMPORT CONTEXT MỚI
+import { useAuth } from "../context/AuthContext"; // <-- Import useAuth
 
-function MovieDetail({ movies, collection, setCollection }) {
+// SỬA: Xóa props collection, setCollection
+function MovieDetail({ movies, isCacheReady }) {
   const { id } = useParams();
-  const movie = movies.find((m) => m.id === id);
-  const { addNotification } = useNotification();
-  const [activeTab, setActiveTab] = useState(""); // Sẽ được đặt tự động
+  const navigate = useNavigate(); // Dùng để chuyển trang
+  
+  // State nội bộ để quản lý dữ liệu phim
+  const [movie, setMovie] = useState(null); // <-- Dùng state thay vì prop
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // const { addNotification } = useNotification(); // Lấy từ CollectionContext
+  const [activeTab, setActiveTab] = useState("");
+  
+  // --- LOGIC MỚI: DÙNG COLLECTION CONTEXT ---
+  const { currentUser } = useAuth(); // Lấy user hiện tại
+  const { 
+    isMovieInCollection, 
+    addMovieToCollection 
+  } = useCollection();
+  
   const [isCollected, setIsCollected] = useState(false);
 
+  // --- LOGIC TẢI DỮ LIỆU (Giữ nguyên) ---
   useEffect(() => {
-    if (movie && collection) {
-      const alreadyExists = collection.some(item => item.id === movie.id);
-      setIsCollected(alreadyExists);
+    if (!id) {
+      setError("Không có ID phim.");
+      setIsLoading(false);
+      return;
     }
-  }, [movie, collection]);
-  const handleAddToCollection = () => {
-    if (movie && !isCollected) {
-      const originalCollection = [...collection]; // Lưu lại trạng thái cũ để có thể phục hồi nếu lỗi
 
-      // ---- CẬP NHẬT GIAO DIỆN "LẠC QUAN" ----
-      setIsCollected(true);
-      setCollection(prev => [...prev, movie]);
-      addNotification('Đã thêm vào bộ sưu tập!'); // Hiển thị thông báo tùy chỉnh
+    setIsLoading(true);
+    setError(null);
+    setMovie(null); // Xóa phim cũ
 
-      // ---- GỬI YÊU CẦU TRONG NỀN ----
-      addToCollection(movie)
-        .catch(error => {
-          // Nếu có lỗi, phục hồi lại trạng thái giao diện và báo lỗi
-          console.error("Lỗi khi thêm vào bộ sưu tập:", error);
-          addNotification('Lỗi: Không thể thêm phim.', 'error');
-          setCollection(originalCollection); // Phục hồi
-          setIsCollected(false);
+    // 1. Định nghĩa hàm gọi API
+    const fetchMovieFromAPI = () => {
+      console.log(`🌐 Gọi Cloudflare với movieId: ${id}`);
+      getMovieDetail_CF(id) // Giả định hàm này gọi /api/movies/:id/profile
+        .then(data => {
+          // API trả về { status, data: { movie: {...} } }
+          if (data && data.movie) {
+             setMovie(data.movie);
+          } else {
+            throw new Error("Cấu trúc dữ liệu API không hợp lệ.");
+          }
+        })
+        .catch(err => {
+          console.error("Lỗi khi gọi getMovieDetail_CF:", err);
+          setError(err.message || "Không tìm thấy phim (lỗi API).");
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
+    };
+
+    // 2. Kiểm tra Cache đã sẵn sàng chưa
+    if (isCacheReady) {
+      // 2a. Cache đã sẵn sàng, thử tìm trong cache
+      const movieFromCache = movies.find((m) => m.id === id);
+
+      if (movieFromCache) {
+        // TÌM THẤY TRONG CACHE -> Dùng cache
+        console.log("🚀 Dùng cache (Google Sheet) - BỎ QUA API");
+        setMovie(movieFromCache);
+        setIsLoading(false);
+      } else {
+        // 2b. KHÔNG TÌM THẤY TRONG CACHE -> Vẫn gọi API
+        fetchMovieFromAPI();
+      }
+    } else {
+      // 3. CACHE CHƯA SẴN SÀNG (isCacheReady = false)
+      // Đây là trường hợp RELOAD (F5). Gọi API ngay lập tức.
+      fetchMovieFromAPI();
+    }
+
+  }, [id, movies, isCacheReady]);
+  // --- HẾT LOGIC TẢI DỮ LIỆU ---
+
+
+  // useEffect cho "Bộ sưu tập"
+  useEffect(() => {
+    if (movie) {
+      // Dùng hàm check từ context
+      setIsCollected(isMovieInCollection(movie.id));
+    }
+  }, [movie, isMovieInCollection]); // Phụ thuộc vào hàm của context
+
+  // --- HÀM MỚI: Xử lý Thêm vào Bộ sưu tập ---
+  const handleAddToCollection = () => {
+    if (!currentUser) {
+      // Nếu chưa đăng nhập, chuyển đến trang login
+      navigate('/login');
+      return;
+    }
+    
+    if (movie && !isCollected) {
+      // Gọi hàm từ context
+      addMovieToCollection(movie);
     }
   };
 
-  // --- HÀM MỚI ---
-  // Hàm này chuyển đổi link Google Drive thông thường thành link để nhúng (embed)
+  // (Các hàm getGoogleDriveEmbedUrl, getYouTubeVideoId giữ nguyên)
   const getGoogleDriveEmbedUrl = (url) => {
     if (!url) return null;
-    // Sử dụng biểu thức chính quy (regex) để tìm ID của file
     const match = url.match(
       /drive\.google\.com\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/
     );
@@ -56,7 +124,7 @@ function MovieDetail({ movies, collection, setCollection }) {
       const fileId = match[1];
       return `https://drive.google.com/file/d/${fileId}/preview`;
     }
-    return null; // Trả về null nếu không tìm thấy ID
+    return null; 
   };
 
   const getYouTubeVideoId = (url) => {
@@ -74,17 +142,29 @@ function MovieDetail({ movies, collection, setCollection }) {
     ? getGoogleDriveEmbedUrl(movie.linkGgDrive)
     : null;
 
-  // Tự động chọn tab đầu tiên có video để hiển thị
+  // Tự động chọn tab đầu tiên
   useEffect(() => {
     if (viVideoId) setActiveTab("vi");
     else if (driveEmbedUrl) setActiveTab("drive");
     else if (subVideoId) setActiveTab("sub");
+    else setActiveTab(""); // Không có video nào
   }, [viVideoId, subVideoId, driveEmbedUrl]);
 
-  if (!movie) {
+  // --- Logic Render ---
+  if (isLoading) {
     return (
       <div className="detail-loading">
         <p>Đang tải thông tin phim...</p>
+      </div>
+    );
+  }
+  if (error) {
+    return <div className="detail-loading"><p>{error}</p></div>; 
+  }
+  if (!movie) {
+    return (
+      <div className="detail-loading">
+        <p>Không tìm thấy thông tin phim.</p>
       </div>
     );
   }
@@ -97,6 +177,7 @@ function MovieDetail({ movies, collection, setCollection }) {
 
   return (
     <div className="movie-detail-container">
+      {/* (Toàn bộ phần JSX còn lại giữ nguyên, nó đã đọc từ 'movie' state) */}
       <div className="detail-body-grid">
         <div className="poster-block">
           <div className="poster-frame">
@@ -117,11 +198,16 @@ function MovieDetail({ movies, collection, setCollection }) {
             <div className="actions-block">
               <button
                 className={`action-button ${isCollected ? 'collected' : 'add-to-collection'}`}
-                onClick={handleAddToCollection}
-                disabled={isCollected}
+                onClick={handleAddToCollection} // <-- SỬA
+                disabled={isCollected} // <-- SỬA
               >
                 {isCollected ? <CheckIcon /> : <PlusIcon />}
-                <span>{isCollected ? 'Đã có trong Bộ sưu tập' : 'Thêm vào Bộ sưu tập'}</span>
+                <span>
+                  {!currentUser 
+                    ? 'Đăng nhập để thêm' 
+                    : (isCollected ? 'Đã có trong Bộ sưu tập' : 'Thêm vào Bộ sưu tập')
+                  }
+                </span>
               </button>
             </div>
 
@@ -181,7 +267,6 @@ function MovieDetail({ movies, collection, setCollection }) {
 
         <div className="video-block">
           <div className="video-player-wrapper">
-            {/* --- HIỂN THỊ VIDEO YOUTUBE (VI) --- */}
             {activeTab === "vi" && viVideoId && (
               <YouTube
                 videoId={viVideoId}
@@ -189,8 +274,6 @@ function MovieDetail({ movies, collection, setCollection }) {
                 className="youtube-player"
               />
             )}
-
-            {/* --- HIỂN THỊ VIDEO YOUTUBE (SUB) --- */}
             {activeTab === "sub" && subVideoId && (
               <YouTube
                 videoId={subVideoId}
@@ -198,24 +281,19 @@ function MovieDetail({ movies, collection, setCollection }) {
                 className="youtube-player"
               />
             )}
-
-            {/* --- HIỂN THỊ VIDEO GOOGLE DRIVE --- */}
             {activeTab === "drive" && driveEmbedUrl && (
               <iframe
                 src={driveEmbedUrl}
                 title="Google Drive Player"
-                className="youtube-player" // Tái sử dụng class để có cùng kích thước
+                className="youtube-player"
                 allow="fullscreen"
               ></iframe>
             )}
-
-            {/* --- THÔNG BÁO KHI KHÔNG CÓ VIDEO NÀO --- */}
             {!viVideoId && !subVideoId && !driveEmbedUrl && (
               <p className="no-video-message">Không có video cho phim này.</p>
             )}
           </div>
           <div className="video-tabs">
-            {/* Nút bấm cho YouTube (VI) */}
             {viVideoId && (
               <button
                 className={`tab-button ${activeTab === "vi" ? "active" : ""}`}
@@ -224,7 +302,6 @@ function MovieDetail({ movies, collection, setCollection }) {
                 [VN] Thuyết Minh
               </button>
             )}
-            {/* Nút bấm cho YouTube (SUB) */}
             {subVideoId && (
               <button
                 className={`tab-button ${activeTab === "sub" ? "active" : ""}`}
@@ -233,7 +310,6 @@ function MovieDetail({ movies, collection, setCollection }) {
                 [CN] MultiSub
               </button>
             )}
-            {/* Nút bấm cho Google Drive */}
             {driveEmbedUrl && (
               <button
                 className={`tab-button ${

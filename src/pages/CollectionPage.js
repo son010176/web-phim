@@ -1,21 +1,35 @@
 // src/pages/CollectionPage.js
 import React, { useState } from "react";
 import MovieList from "../components/MovieList";
-import { removeFromCollection } from "../services/api";
+// import { removeFromCollection } from "../services/api"; // Không cần nữa
 import ConfirmModal from "../components/ConfirmModal";
+import { useCollection } from "../context/CollectionContext"; // <-- IMPORT CONTEXT
+import { useAuth } from "../context/AuthContext"; // Import để kiểm tra login
+import { Link } from "react-router-dom"; // Import Link
 
 import "./CollectionPage.css";
 
-function CollectionPage({ collection, setCollection }) {
-  // State để quản lý trạng thái của modal
+// SỬA: Xóa props collection, setCollection
+function CollectionPage() {
+  // Lấy state từ Context
+  const { 
+    collection, 
+    removeMovieFromCollection, 
+    isLoadingCollection 
+  } = useCollection();
+  
+  const { currentUser } = useAuth(); // Kiểm tra user
+
+  // State để quản lý trạng thái của modal (giữ nguyên)
   const [isModalOpen, setIsModalOpen] = useState(false);
   // State để lưu ID của phim sắp bị xóa
   const [movieToDelete, setMovieToDelete] = useState(null);
+
   /**
    * Mở modal xác nhận và lưu ID phim khi người dùng bấm nút X.
    * @param {string} movieId - ID của phim cần xóa.
    */
-  // 1. Hàm này sẽ được gọi khi người dùng bấm nút X
+  // 1. Hàm này sẽ được gọi khi người dùng bấm nút X (giữ nguyên)
   const handleRemoveClick = (movieId) => {
     setMovieToDelete(movieId); // Lưu lại ID phim cần xóa
     setIsModalOpen(true); // Mở modal xác nhận
@@ -24,35 +38,46 @@ function CollectionPage({ collection, setCollection }) {
   // 2. Hàm này sẽ được gọi khi người dùng bấm nút "Xác nhận" trên modal
   const handleConfirmRemove = () => {
     if (movieToDelete) {
-      const movieToRemoveId = movieToDelete;
-
-      // ---- BƯỚC 1: CẬP NHẬT GIAO DIỆN NGAY LẬP TỨC (OPTIMISTIC UPDATE) ----
-      // Xóa phim khỏi state để giao diện cập nhật ngay, không cần chờ server.
-      setCollection((prevCollection) =>
-        prevCollection.filter((movie) => movie.id !== movieToRemoveId)
-      );
-      // Đóng modal ngay lập tức.
+      // Gọi hàm xóa từ context
+      // Toàn bộ logic (optimistic update, gọi API, rollback)
+      // đã được xử lý bên trong context.
+      removeMovieFromCollection(movieToDelete);
+      
+      // Đóng modal
       handleCloseModal();
-
-      // ---- BƯỚC 2: GỬI YÊU CẦU TỚI SERVER TRONG NỀN ----
-      // Gọi API nhưng không dùng `await` để nó không làm giao diện bị trễ.
-      // Chúng ta chỉ bắt lỗi nếu có sự cố về mạng.
-      removeFromCollection(movieToRemoveId).catch((error) => {
-        console.error("Lỗi mạng khi xóa phim:", error);
-        // Trong trường hợp lỗi, bạn có thể cân nhắc việc thêm phim trở lại danh sách
-        // và thông báo cho người dùng, nhưng điều này hiếm khi xảy ra.
-        alert(
-          "Lỗi: Không thể đồng bộ hóa việc xóa với máy chủ. Vui lòng kiểm tra lại sau."
-        );
-      });
     }
   };
 
-  // 3. Hàm này được gọi khi người dùng bấm "Hủy" hoặc click ra ngoài
+  // 3. Hàm này được gọi khi người dùng bấm "Hủy" hoặc click ra ngoài (giữ nguyên)
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setMovieToDelete(null);
   };
+
+  // --- LOGIC RENDER MỚI ---
+
+  if (!currentUser) {
+    return (
+      <div className="main-content-section">
+        <p className="empty-collection-message">
+          Vui lòng <Link to="/login">đăng nhập</Link> để xem bộ sưu tập của bạn.
+        </p>
+      </div>
+    );
+  }
+
+  if (isLoadingCollection) {
+     return (
+      <div className="main-content-section">
+        <h1 className="section-title">
+          Bộ Sưu Tập Của Tôi
+        </h1>
+        <p className="empty-collection-message">
+          Đang tải bộ sưu tập...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>

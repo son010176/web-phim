@@ -1,30 +1,51 @@
 /**
- * Chuyển đổi một chuỗi ngày tháng ISO thành định dạng DD/MM/YYYY.
- * @param {string} isoString - Chuỗi ngày tháng theo định dạng ISO (ví dụ: "1995-02-05T08:00:00.000Z").
- * @returns {string} - Chuỗi ngày tháng đã được định dạng hoặc "Chưa rõ" nếu đầu vào không hợp lệ.
+ * Định dạng ngày tháng về dạng DD/MM/YYYY.
+ * Hỗ trợ:
+ *  - Firestore timestamp ("2000-05-10T00:00:00Z")
+ *  - Chuỗi ngày kiểu "18.08.1998" hoặc "18/08/1998"
+ *  - Đối tượng Firestore Timestamp (nếu dùng SDK)
+ * @param {any} inputDate - Chuỗi, số, hoặc object ngày tháng.
+ * @returns {string} - Chuỗi ngày DD/MM/YYYY hoặc "Chưa rõ" / "Ngày không hợp lệ".
  */
-export const formatDate = (isoString) => {
-  // Trả về "Chưa rõ" nếu không có dữ liệu đầu vào
-  if (!isoString) {
-    return 'Chưa rõ';
-  }
+export const formatDate = (inputDate) => {
+  if (!inputDate) return 'Chưa rõ';
 
   try {
-    const date = new Date(isoString);
-    
-    // Kiểm tra xem date có phải là một ngày hợp lệ không
-    if (isNaN(date.getTime())) {
-        return 'Ngày không hợp lệ';
+    let dateObj = null;
+
+    // 🧩 1. Nếu là đối tượng Firestore Timestamp (có .seconds)
+    if (typeof inputDate === 'object' && inputDate.seconds) {
+      dateObj = new Date(inputDate.seconds * 1000);
+    }
+    // 🧩 2. Nếu là chuỗi ISO hoặc timestampValue
+    else if (typeof inputDate === 'string' && inputDate.includes('T')) {
+      dateObj = new Date(inputDate);
+    }
+    // 🧩 3. Nếu là chuỗi ngày kiểu "18.08.1998" hoặc "18/08/1998"
+    else if (typeof inputDate === 'string') {
+      const normalized = inputDate.replace(/\./g, '/'); // thay "." bằng "/"
+      const parts = normalized.split('/');
+      if (parts.length === 3) {
+        const [day, month, year] = parts.map(p => parseInt(p, 10));
+        if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+          dateObj = new Date(year, month - 1, day);
+        }
+      }
     }
 
-    // Sử dụng toLocaleDateString để định dạng theo chuẩn Việt Nam (DD/MM/YYYY)
-    return date.toLocaleDateString('vi-VN', {
+    // 🧩 4. Nếu vẫn chưa xác định được
+    if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
+      return 'Ngày không hợp lệ';
+    }
+
+    // ✅ Trả về dạng DD/MM/YYYY theo chuẩn Việt Nam
+    return dateObj.toLocaleDateString('vi-VN', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
     });
   } catch (error) {
-    console.error("Lỗi định dạng ngày:", error);
+    console.error('Lỗi định dạng ngày:', error);
     return 'Ngày không hợp lệ';
   }
 };

@@ -5,16 +5,20 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { NotificationProvider } from './context/NotificationContext';
 import { AuthProvider } from './context/AuthContext';
+// 1. Import CollectionProvider
+import { CollectionProvider } from './context/CollectionContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <AuthProvider>
-      <NotificationProvider>
-        <App />
-      </NotificationProvider>
-    </AuthProvider>
-  </React.StrictMode>
+  // <React.StrictMode>
+    <NotificationProvider>
+      <AuthProvider>
+        <CollectionProvider>
+          <App />
+        </CollectionProvider>
+      </AuthProvider>
+    </NotificationProvider>
+  /* </React.StrictMode> */
 );
 
 // If you want to start measuring performance in your app, pass a function

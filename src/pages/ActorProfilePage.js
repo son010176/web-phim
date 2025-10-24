@@ -1,41 +1,81 @@
-// src/pages/ActorProfilePage.js (Đã sửa lỗi hiển thị)
+// src/pages/ActorProfilePage.js (ĐÃ SỬA LỖI LOGIC)
 
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getActorProfile } from '../services/api';
+import { getActorProfile_CF } from "../services/api"; // <-- SỬ DỤNG API CLOUDFLARE
 import "./ActorProfilePage.css";
 import ImageWithFallback from "../components/ImageWithFallback";
 import { formatDate } from "../utils/formatDate";
 import MovieList from "../components/MovieList";
+import { createSlug } from "../utils/createSlug"; 
 
-function ActorProfilePage() {
-  const { slug } = useParams();
-  const [actorData, setActorData] = useState(null);
+// props: actors (full cache), isCacheReady
+function ActorProfilePage({ actors, isCacheReady }) {
+  const { slug } = useParams(); // slug này có thể là ID hoặc slug
+  const [actorData, setActorData] = useState(null); // { profile, movies }
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null); // State mới để lưu lỗi
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (!slug) {
-        setIsLoading(false);
-        return;
-      }
-      setIsLoading(true);
-      setError(null);
-      setActorData(null);
+    if (!slug) {
+      setError("Không có slug.");
+      setIsLoading(false);
+      return;
+    }
 
-      try {
-        const data = await getActorProfile(slug);
-        setActorData(data);
-      } catch (err) {
-        setError(err.message); // Lưu thông báo lỗi từ API
-        setActorData(null);
-      } finally {
-        setIsLoading(false);
-      }
+    setIsLoading(true);
+    setError(null);
+
+    // 1. Định nghĩa hàm gọi API
+    const fetchProfileFromAPI = () => {
+      console.log(`🌐 Gọi Cloudflare với slug/id: ${slug}`);
+      getActorProfile_CF(slug)
+        .then(data => {
+          // API trả về { status, data: { actor: { ... } } }
+          if (data && data.actor) {
+             setActorData({
+               profile: data.actor, // profile chứa { ...profile, movies: [...] }
+               movies: data.actor.movies || []
+             });
+          } else {
+            throw new Error("Cấu trúc dữ liệu API không hợp lệ.");
+          }
+        })
+        .catch(err => {
+          console.error("Lỗi khi gọi getActorProfile_CF:", err);
+          setError(err.message || "Không tìm thấy diễn viên (lỗi API).");
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     };
-    fetchProfile();
-  }, [slug]);
+
+    // 2. Kiểm tra Cache (từ Google Sheet) đã sẵn sàng chưa
+    if (isCacheReady) {
+      // 2a. Cache đã sẵn sàng, thử tìm trong cache
+      const actorFromCache = actors.find(
+        (a) => a.id === slug || createSlug(a.ten) === slug
+      );
+
+      if (actorFromCache) {
+        // TÌM THẤY TRONG CACHE -> Dùng cache
+        console.log("🚀 Dùng cache (Google Sheet) - BỎ QUA API");
+        setActorData({
+          profile: actorFromCache,
+          movies: actorFromCache.movies || [] // Đảm bảo movies là mảng
+        });
+        setIsLoading(false);
+      } else {
+        // 2b. KHÔNG TÌM THẤY TRONG CACHE (lạ) -> Vẫn gọi API
+        fetchProfileFromAPI();
+      }
+    } else {
+      // 3. CACHE CHƯA SẴN SÀNG (isCacheReady = false)
+      // Đây là trường hợp RELOAD (F5). Gọi API ngay lập tức.
+      fetchProfileFromAPI();
+    }
+
+  }, [slug, actors, isCacheReady]); // Phản ứng với tất cả các thay đổi
 
   // Ưu tiên hiển thị trạng thái Loading
   if (isLoading) {
@@ -44,7 +84,7 @@ function ActorProfilePage() {
 
   // Nếu có lỗi, hiển thị thông báo lỗi
   if (error) {
-    return <div className="ap-loading">{error}</div>; // Hiển thị chính xác lỗi từ API
+    return <div className="ap-loading">{error}</div>; 
   }
   
   // Nếu không loading, không có lỗi, nhưng không có dữ liệu
@@ -83,7 +123,7 @@ function ActorProfilePage() {
           </div>
         </div>
         <h2 className="section-title">Các phim đã tham gia</h2>
-        <MovieList movies={movies} />
+        <MovieList movies={movies || []} />
       </div>
     </div>
   );

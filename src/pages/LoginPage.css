@@ -75,11 +75,13 @@
   background-color: #357ae8;
 }
 
+/* --- SỬA: Xóa class này ---
 .error-message {
   color: #e57373;
   margin-top: 1rem;
   text-align: center;
 }
+*/
 
 .toggle-form-text {
   margin-top: 1.5rem;

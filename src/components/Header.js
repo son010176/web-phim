@@ -58,6 +58,12 @@ function Header({
   const { currentUser } = useAuth();
   const { addNotification } = useNotification();
 
+  // --- THÊM LOGIC LẤY CHỮ CÁI ĐẦU ---
+  let userAvatarLetter = null;
+  if (currentUser && currentUser.email) {
+    userAvatarLetter = currentUser.email[0].toUpperCase();
+  }
+
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -82,14 +88,6 @@ function Header({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [searchFormRef]);
-
-  // const handleSearchSubmit = (e) => {
-  //   e.preventDefault();
-  //   if (searchQuery.trim() && (searchScope === "tenPhim" || searchScope === "theLoai")) {
-  //     navigate(`/search?q=${searchQuery}&scope=${searchScope}`);
-  //     setSearchQuery("");
-  //   }
-  // };
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -118,7 +116,7 @@ function Header({
         <div className="header-left">
           <Link to="/" className="logo-link">
             <span className="logo-icon">🎬</span>
-            <span className="logo-text">My Collection</span>
+            <span className="logo-text">MiDrama</span>
           </Link>
 
           <form
@@ -291,20 +289,6 @@ function Header({
         <div className="header-right">
           <nav className="main-nav">
             <ul>
-              {/* <li className="nav-item dropdown">
-                <a href="#">Thể loại</a>
-                <ul className="dropdown-menu">
-                  <li>
-                    <a href="#">Hiện đại</a>
-                  </li>
-                  <li>
-                    <a href="#">Cổ trang</a>
-                  </li>
-                  <li>
-                    <a href="#">Niên đại</a>
-                  </li>
-                </ul>
-              </li> */}
               <li className="nav-item">
                 <Link to="/dien-vien/all-actors">Diễn viên</Link>
               </li>
@@ -326,7 +310,10 @@ function Header({
           <div className="auth-section">
             {currentUser ? (
               <div className="user-info">
-                <span className="user-email">{currentUser.email}</span>
+                {/* <span className="user-email">{currentUser.email}</span> */}
+                {userAvatarLetter && (
+                  <div className="user-avatar">{userAvatarLetter}</div>
+                )}
                 <button onClick={handleLogout} className="auth-btn logout-btn">
                   Đăng xuất
                 </button>

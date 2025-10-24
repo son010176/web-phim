@@ -149,3 +149,15 @@
   color: #121212;
   font-weight: bold;
 }
+
+/* Thêm vào cuối file src/components/DropdownFilter.css */
+
+.dropdown-display.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: #444; /* Ngăn hiệu ứng hover border */
+}
+
+.dropdown-display.disabled:hover {
+  border-color: #444; /* Đảm bảo không đổi màu khi hover */
+}

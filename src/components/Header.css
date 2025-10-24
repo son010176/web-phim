@@ -307,11 +307,26 @@
   color: #ccc;
 }
 
-.user-email {
+/* .user-email {
   font-size: 0.9rem;
   background-color: #2c2c2c;
   padding: 8px 12px;
   border-radius: 15px;
+} */
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #1d4e48; /* Màu xanh đậm giống ảnh mẫu */
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1rem;
+  user-select: none; /* Ngăn người dùng chọn chữ cái */
+  cursor: default; /* Thêm con trỏ mặc định */
 }
 
 .auth-btn {

@@ -11,11 +11,16 @@ const sortOptions = {
   za: 'Tên Z-A',
 };
 
-function SortDropdown({ currentSortOrder, onSortChange }) {
+function SortDropdown({ currentSortOrder, onSortChange, isDisabled }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const toggleDropdown = () => setIsOpen(!isOpen);
+// Hàm để bật/tắt dropdown
+  const toggleDropdown = () => {
+    // CHỈ MỞ KHI KHÔNG BỊ VÔ HIỆU HÓA
+    if (isDisabled) return;
+    setIsOpen(!isOpen);
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -27,6 +32,13 @@ function SortDropdown({ currentSortOrder, onSortChange }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [dropdownRef]);
 
+  // Tự động đóng panel nếu component bị disable
+  useEffect(() => {
+    if (isDisabled) {
+      setIsOpen(false);
+    }
+  }, [isDisabled]);
+
   const handleOptionClick = (order) => {
     onSortChange(order);
     setIsOpen(false); // Tự động đóng dropdown sau khi chọn
@@ -34,7 +46,7 @@ function SortDropdown({ currentSortOrder, onSortChange }) {
 
   return (
     <div className="dropdown-filter" ref={dropdownRef}>
-      <div className="dropdown-display" onClick={toggleDropdown}>
+      <div className={`dropdown-display ${isDisabled ? 'disabled' : ''}`} onClick={toggleDropdown}>
         <SortIcon className="dropdown-icon" />
         <span className="dropdown-label">Sắp xếp:</span>
         <span className="dropdown-selected-text">{sortOptions[currentSortOrder]}</span>

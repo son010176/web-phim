@@ -1,10 +1,9 @@
-// src/hooks/useMovieFilter.js (Đã nâng cấp thêm Sắp xếp)
+// src/hooks/useMovieFilter.js (Đã sửa logic lọc)
 
 import { useState, useMemo, useCallback } from 'react';
 
 export function useMovieFilter(allMovies) {
   const [selectedGenres, setSelectedGenres] = useState(['Tất cả']);
-  // THÊM MỚI: State cho thứ tự sắp xếp (mặc định, a-z, z-a)
   const [sortOrder, setSortOrder] = useState('default');
 
   const handleGenreToggle = useCallback((genre) => {
@@ -25,7 +24,6 @@ export function useMovieFilter(allMovies) {
     });
   }, []);
 
-  // THÊM MỚI: Hàm để thay đổi trạng thái sắp xếp
   const handleSortChange = useCallback((order) => {
     setSortOrder(order);
   }, []);
@@ -43,18 +41,36 @@ export function useMovieFilter(allMovies) {
     return Array.from(genres).sort();
   }, [allMovies]);
 
+  // --- LOGIC LỌC ĐÃ ĐƯỢC SỬA ---
   const filteredMovies = useMemo(() => {
-    if (selectedGenres.includes('Tất cả')) {
+    // 1. Nếu chọn 'Tất cả' hoặc không chọn gì, trả về tất cả phim
+    if (selectedGenres.length === 0 || selectedGenres.includes('Tất cả')) {
       return allMovies;
     }
-    return allMovies.filter(movie => 
-      selectedGenres.some(selectedGenre => 
-        movie.theLoai && movie.theLoai.includes(selectedGenre)
-      )
-    );
-  }, [selectedGenres, allMovies]);
 
-  // THÊM MỚI: Sắp xếp danh sách phim đã được lọc
+    // 2. Nếu có lọc, bắt đầu duyệt qua từng phim
+    return allMovies.filter(movie => {
+      // 3. Xử lý trường hợp phim không có thể loại
+      if (!movie.theLoai) {
+        return false; // Không có thể loại, không thể khớp -> ẩn
+      }
+
+      // 4. Tách các thẻ của phim ra thành một mảng
+      // Ví dụ: "Hiện đại, Chênh lệch tuổi tác, HE"
+      //       -> ["Hiện đại", "Chênh lệch tuổi tác", "HE"]
+      const movieTags = movie.theLoai.split(/[.,]/)
+                             .map(tag => tag.trim())
+                             .filter(tag => tag.length > 0);
+      
+      // 5. Kiểm tra xem CÓ BẤT KỲ (some) thẻ nào người dùng chọn (selectedGenres)
+      //    có nằm trong mảng thẻ của phim (movieTags) hay không.
+      //    (Đây là logic "Hoặc" - chỉ cần khớp 1 thẻ là được)
+      return selectedGenres.some(selectedTag => movieTags.includes(selectedTag));
+    });
+  }, [selectedGenres, allMovies]);
+  // --- KẾT THÚC SỬA ---
+
+  // Sắp xếp danh sách phim đã được lọc
   const sortedAndFilteredMovies = useMemo(() => {
     // Tạo một bản sao để không thay đổi mảng gốc
     const moviesToSort = [...filteredMovies];

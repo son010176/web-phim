@@ -1,49 +1,42 @@
-// // File: movies.gs
-const MOVIE_SHEET_NAME = "TỔNG HỢP"; // Đặt tên sheet ở đây để dễ quản lý
+// File: movies.gs (ĐÃ TỐI ƯU HOÀN TOÀN - ĐÃ SỬA TÊN HEADER)
+
+// Tên sheet
+const MOVIE_SHEET_NAME = "TỔNG HỢP";
+const COUPLES_SHEET_NAME = "#PHIMTHEOCẶPDIỄNVIÊN";
+const STORYLINE_SHEET_NAME = "#PHIMCÙNGCỐTTRUYỆN";
 
 /**
- * Lấy danh sách phim từ sheet "TỔNG HỢP".
- * Hỗ trợ tìm kiếm phía server nếu có tham số 'query' và 'scope' được truyền vào.
- * @param {object} e - Tham số sự kiện từ yêu cầu GET, chứa e.parameter.
- */
-/**
- * Lấy danh sách phim từ sheet "TỔNG HỢP", sử dụng chỉ số cột cố định.
- * Hỗ trợ tìm kiếm phía server nếu có tham số 'query' và 'scope'.
- * @param {object} e - Tham số sự kiện từ yêu cầu GET.
+ * Lấy danh sách phim (Đã tối ưu để dùng Header Map)
  */
 function getAllMovies(e) {
   try {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("TỔNG HỢP");
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(MOVIE_SHEET_NAME);
     if (!sheet) {
-      throw new Error("Không tìm thấy sheet có tên TỔNG HỢP");
+      throw new Error(`Không tìm thấy sheet có tên ${MOVIE_SHEET_NAME}`);
     }
 
-    // Lấy tất cả các hàng dữ liệu, bỏ qua hàng tiêu đề
-    const dataRows = sheet.getDataRange().getValues().slice(1);
+    const dataRows = sheet.getDataRange().getValues();
+    const headers = dataRows.shift(); // Lấy hàng đầu tiên làm headers
+    const h = createHeaderMap(headers); // Tạo map
 
     const searchQuery = e && e.parameter ? e.parameter.query : null;
     const searchScope = e && e.parameter ? e.parameter.scope : 'tenPhim';
-    
     let processedData = dataRows;
 
     // --- LỌC DỮ LIỆU NẾU CÓ TỪ KHÓA TÌM KIẾM ---
     if (searchQuery) {
       const lowerCaseQuery = searchQuery.toLowerCase();
-      
       processedData = dataRows.filter(row => {
-        // Luôn kiểm tra xem hàng có ID ở cột I (index 0) không
-        if (!row[8] || row[8].toString().trim() === '') return false;
+        // --- ĐÃ CẬP NHẬT KEY (viết hoa) ---
+        if (!row[h['ID']] || row[h['ID']].toString().trim() === '') return false;
         
         if (searchScope === 'tenPhim') {
-          // Cột B (index 2): TỰA DỊCH SANG TIẾNG VIỆT
-          const tenViet = (row[1] || '').toLowerCase();
-          // Cột C (index 3): TỰA GỐC TIẾNG TRUNG
-          const tenGoc = (row[2] || '').toLowerCase();
+          const tenViet = (row[h['TỰA DỊCH SANG TIẾNG VIỆT']] || '').toLowerCase();
+          const tenGoc = (row[h['TỰA GỐC TIẾNG TRUNG']] || '').toLowerCase();
           return tenViet.includes(lowerCaseQuery) || tenGoc.includes(lowerCaseQuery);
         }
         if (searchScope === 'theLoai') {
-          // Cột J (index 9): THỂ LOẠI CHÍNH
-          const theLoai = (row[9] || '').toLowerCase();
+          const theLoai = (row[h['THỂ LOẠI CHÍNH']] || '').toLowerCase();
           return theLoai.includes(lowerCaseQuery);
         }
         return false;
@@ -52,238 +45,143 @@ function getAllMovies(e) {
 
     // --- CHUYỂN ĐỔI DỮ LIỆU SANG JSON ---
     const moviesData = processedData
-      .map(row => {
-        return {
-          linkFbPost:         row[0],   // Cột A
-          tenViet:            row[1],   // Cột B
-          tenGoc:             row[2],   // Cột C
-          dienVienNam:        row[3],   // Cột D
-          dienVienNu:         row[4],   // Cột E
-          tags:               row[5],   // Cột F
-          code:               row[6],   // Cột G
-          tinhTrangLuuTru:    row[7],   // Cột H
-
-          id:                 row[8],   // Cột I
-          theLoai:            row[9],   // Cột J
-          linkPoster:         row[10],  // Cột K
-          linkVideo:          row[11],  // Cột L
-          linkVideoMultiSub:  row[12],  // Cột M
-          linkFbVideo:        row[13],  // Cột N
-          linkGgDrive:        row[14],  // Cột O
-          linkKhac:           row[15],  // Cột P
-          moTa:               row[16]   // Cột Q
-        };
-      })
-      // Lọc bỏ các hàng không có ID (chỉ áp dụng khi không tìm kiếm)
+      .map(row => createMovieObject(row, h)) // Dùng helper để tạo object
       .filter(movie => searchQuery ? true : (movie.id && movie.id.toString().trim() !== ''));
 
     return createJsonResponse({ status: 'success', data: moviesData });
-
   } catch (error) {
     return createJsonResponse({ status: 'error', message: error.toString() });
   }
 }
 
 /**
- * Lấy danh sách các cặp đôi diễn viên và phim của họ.
- * Đọc từ sheet: #PHIMTHEOCẶPDIỄNVIÊN
- */
-/**
+ * --- ĐÃ VIẾT LẠI HOÀN TOÀN ---
  * Lấy danh sách các cặp đôi diễn viên, kèm theo các bộ phim họ đã đóng chung.
- * Tối ưu bằng cách chỉ đọc sheet phim một lần.
+ * Tối ưu bằng cách dùng Lookup Map (Hash Map) thay vì vòng lặp lồng nhau.
  */
-function getMovieCouples() {
+function getAllMovieCouples() {
   try {
-    // --- BƯỚC 1: LẤY DỮ LIỆU TỪ CÁC SHEET CẦN THIẾT ---
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const couplesSheet = ss.getSheetByName("#PHIMTHEOCẶPDIỄNVIÊN");
-    const movieSheet = ss.getSheetByName("TỔNG HỢP");
+    const couplesSheet = ss.getSheetByName(COUPLES_SHEET_NAME);
+    const movieSheet = ss.getSheetByName(MOVIE_SHEET_NAME);
 
-    if (!couplesSheet) {
-      throw new Error("Không tìm thấy sheet có tên #PHIMTHEOCẶPDIỄNVIÊN");
-    }
-    if (!movieSheet) {
-      throw new Error("Không tìm thấy sheet TỔNG HỢP");
-    }
+    if (!couplesSheet) throw new Error(`Không tìm thấy sheet ${COUPLES_SHEET_NAME}`);
+    if (!movieSheet) throw new Error(`Không tìm thấy sheet ${MOVIE_SHEET_NAME}`);
 
-    // Lấy dữ liệu phim một lần duy nhất để tối ưu hiệu năng
+    // --- BƯỚC 1: Xử lý sheet Phim (TỔNG HỢP) ---
     const moviesData = movieSheet.getDataRange().getValues();
-    const movieHeaders = moviesData[0];
-    // Xác định vị trí các cột Diễn viên trong sheet TỔNG HỢP
-    const dienVienNamIndex = movieHeaders.indexOf('NAM DIỄN VIÊN');
-    const dienVienNuIndex = movieHeaders.indexOf('NỮ DIỄN VIÊN');
+    const movieHeaders = moviesData.shift();
+    const h_movies = createHeaderMap(movieHeaders);
+    
+    const moviesByCoupleCode = new Map();
 
-    // Lấy dữ liệu các cặp đôi, bỏ qua hàng tiêu đề
-    const couplesRows = couplesSheet.getDataRange().getValues().slice(1);
-
-    // --- BƯỚC 2: XỬ LÝ TỪNG CẶP ĐÔI ---
-    const couplesData = couplesRows.map(row => {
-      // a. Tạo đối tượng thông tin cơ bản của cặp đôi
-      const coupleInfo = {
-        tenCouple:          row[0], // Cột A
-        linkPost:           row[1], // Cột B
-        tongSoPhim:         row[2], // Cột C
-        tinhTrangCapNhat:   row[3], // Cột D
-        id:                 row[4]  // Cột E
-      };
-
-      // b. Tách tên 2 diễn viên từ cột "TÊN COUPLE"
-      // Ví dụ: "An Từ Dương 安字杨 & Quách Tĩnh 郭静" -> ["An Từ Dương", "Quách Tĩnh"]
-      const actorNames = coupleInfo.tenCouple.split('&').map(name => 
-        name.trim().split(/[\(（\u4e00-\u9fa5]/)[0].trim()
-      );
-      
-      const [actor1Name, actor2Name] = actorNames;
-      const coupleMovies = [];
-
-      // c. Lọc qua danh sách phim để tìm phim chung
-      if (actor1Name && actor2Name) {
-        // Bắt đầu lặp từ hàng thứ 2 của sheet phim (bỏ qua tiêu đề)
-        for (let i = 1; i < moviesData.length; i++) {
-          const movieRow = moviesData[i];
-          const dvNam = movieRow[dienVienNamIndex] || '';
-          const dvNu = movieRow[dienVienNuIndex] || '';
-          const allActorsInMovie = dvNam + ' & ' + dvNu; // Nối chuỗi để tìm kiếm
-
-          // Kiểm tra xem phim có chứa tên của CẢ HAI diễn viên không
-          if (allActorsInMovie.includes(actor1Name) && allActorsInMovie.includes(actor2Name)) {
-            // Nếu có, tạo đối tượng phim và thêm vào danh sách
-            const movie = {
-                linkFbPost:         movieRow[0],
-                tenViet:            movieRow[1],
-                tenGoc:             movieRow[2],
-                dienVienNam:        movieRow[3],
-                dienVienNu:         movieRow[4],
-                tags:               movieRow[5],
-                code:               movieRow[6],
-                tinhTrangLuuTru:    movieRow[7],
-
-                id:                 movieRow[8],
-                theLoai:            movieRow[9],
-                linkPoster:         movieRow[10],
-                linkVideo:          movieRow[11],
-                linkVideoMultiSub:  movieRow[12],
-                linkFbVideo:        movieRow[13],
-                linkGgDrive:        movieRow[14],
-                linkKhac:           movieRow[15],
-                moTa:               movieRow[16]
-            };
-            coupleMovies.push(movie);
-          }
+    moviesData.forEach(row => {
+      // --- ĐÃ CẬP NHẬT KEY (viết hoa) ---
+      const codeCouples = row[h_movies['CODE COUPLES']];
+      if (codeCouples) {
+        const movie = createMovieObject(row, h_movies);
+        if (!moviesByCoupleCode.has(codeCouples)) {
+          moviesByCoupleCode.set(codeCouples, []);
         }
+        moviesByCoupleCode.get(codeCouples).push(movie);
       }
+    });
 
-      // d. Gắn danh sách phim tìm được vào đối tượng couple
-      coupleInfo.movies = coupleMovies;
+    // --- BƯỚC 2: Xử lý sheet Cặp đôi (#PHIMTHEOCẶPDIỄNVIÊN) ---
+    const couplesRows = couplesSheet.getDataRange().getValues();
+    const coupleHeaders = couplesRows.shift();
+    // Giả định header sheet này là chữ thường (vd: 'id', 'code')
+    const h_couples = createHeaderMap(coupleHeaders);
+
+    const couplesData = couplesRows.map(row => {
+      const code = row[h_couples['CODE']]; // Lấy code của couple (giả định key là 'code')
+      
+      const coupleInfo = {
+        tenCouple: row[h_couples['TÊN COUPLE']],
+        linkPost: row[h_couples['LINK POST']],
+        tongSoPhim: row[h_couples['TỔNG SỐ PHIM ĐÃ HỢP TÁC']],
+        tinhTrangCapNhat: row[h_couples['TÌNH TRẠNG CẬP NHẬT']],
+        id: row[h_couples['ID']],
+        code: code,
+        movies: moviesByCoupleCode.get(code) || [] 
+      };
       return coupleInfo;
-
-    }).filter(couple => couple.id); // Lọc bỏ các hàng không có ID
+    }).filter(couple => couple.id && couple.code); 
 
     // --- BƯỚC 3: TRẢ VỀ KẾT QUẢ ---
     return createJsonResponse({ status: 'success', data: couplesData });
-
   } catch (error) {
-    console.error("Lỗi trong hàm getMovieCouples: ", error);
+    console.error("Lỗi trong hàm getAllMovieCouples: ", error);
     return createJsonResponse({ status: 'error', message: error.message });
   }
 }
 
+
 /**
+ * --- ĐÃ VIẾT LẠI HOÀN TOÀN ---
  * Lấy danh sách các phim được nhóm theo cùng cốt truyện.
- * LOGIC MỚI: Chỉ lấy những dòng có giá trị ở cột THỂ LOẠI (cột H).
+ * Tối ưu bằng cách dùng Lookup Map (Hash Map).
  */
 function getMoviesByStoryline() {
   try {
-    // --- BƯỚC 1: LẤY DỮ LIỆU TỪ CÁC SHEET CẦN THIẾT ---
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const storylineSheet = ss.getSheetByName("#PHIMCÙNGCỐTTRUYỆN");
-    const movieSheet = ss.getSheetByName("TỔNG HỢP");
+    const storylineSheet = ss.getSheetByName(STORYLINE_SHEET_NAME);
+    const movieSheet = ss.getSheetByName(MOVIE_SHEET_NAME);
 
-    if (!storylineSheet) {
-      throw new Error("Không tìm thấy sheet có tên #PHIMCÙNGCỐTTRUYỆN");
-    }
-    if (!movieSheet) {
-      throw new Error("Không tìm thấy sheet TỔNG HỢP");
-    }
+    if (!storylineSheet) throw new Error(`Không tìm thấy sheet ${STORYLINE_SHEET_NAME}`);
+    if (!movieSheet) throw new Error(`Không tìm thấy sheet ${MOVIE_SHEET_NAME}`);
 
-    // Lấy dữ liệu phim một lần duy nhất để tối ưu
+    // --- BƯỚC 1: Xử lý sheet Phim (TỔNG HỢP) ---
     const moviesData = movieSheet.getDataRange().getValues();
-    const movieHeaders = moviesData[0];
-    const codeIndex = movieHeaders.indexOf('CODE'); // Tìm vị trí cột CODE
+    const movieHeaders = moviesData.shift();
+    const h_movies = createHeaderMap(movieHeaders);
 
-    if (codeIndex === -1) {
-        throw new Error("Không tìm thấy cột 'CODE' trong sheet TỔNG HỢP");
-    }
+    const moviesByStorylineCode = new Map();
 
-    // Lấy dữ liệu các storyline, bỏ qua hàng tiêu đề
-    const storylineRows = storylineSheet.getDataRange().getValues().slice(1);
+    moviesData.forEach(row => {
+      // --- ĐÃ CẬP NHẬT KEY (viết hoa) ---
+      const codeStorylines = row[h_movies['CODE STORYLINES']];
+      if (codeStorylines) {
+        const movie = createMovieObject(row, h_movies);
+        if (!moviesByStorylineCode.has(codeStorylines)) {
+          moviesByStorylineCode.set(codeStorylines, []);
+        }
+        moviesByStorylineCode.get(codeStorylines).push(movie);
+      }
+    });
 
-    // --- BƯỚC 2: XỬ LÝ TỪNG STORYLINE ---
+    // --- BƯỚC 2: Xử lý sheet Cốt truyện (#PHIMCÙNGCỐTTRUYỆN) ---
+    const storylineRows = storylineSheet.getDataRange().getValues();
+    const storylineHeaders = storylineRows.shift();
+    // Giả định header sheet này là chữ thường (vd: 'id', 'code', 'theLoai')
+    const h_storyline = createHeaderMap(storylineHeaders);
+
     const storylineData = storylineRows
-      // **ĐIỀU CHỈNH QUAN TRỌNG:** Lọc những dòng có cả ID (cột G) VÀ THỂ LOẠI (cột H)
       .filter(row => 
-        (row[6] && row[6].toString().trim() !== '') && // Điều kiện 1: ID không được rỗng
-        (row[7] && row[7].toString().trim() !== '')    // Điều kiện 2: THỂ LOẠI không được rỗng
+        (row[h_storyline['ID']] && row[h_storyline['ID']].toString().trim() !== '') && 
+        (row[h_storyline['THỂ LOẠI']] && row[h_storyline['THỂ LOẠI']].toString().trim() !== '') &&
+        (row[h_storyline['CODE']] && row[h_storyline['CODE']].toString().trim() !== '')
       )
       .map(row => {
-        // a. Tạo đối tượng thông tin cơ bản của storyline
-        const storylineInfo = {
-          
-          tenCouple:          row[0], // Cột A
-          linkPost:           row[1], // Cột B
-          tagTheLoai:         row[2], // Cột C
-          tieuThuyetGoc:      row[3], // Cột D
-          tongSoPhienBan:     row[4], // Cột E
-          tinhTrangCapNhat:   row[5], // Cột F
-          id:                 row[6], // Cột G
-          theLoai:            row[7]  // Cột H
-        };
-
-        const storylineMovies = [];
+        const code = row[h_storyline['code']]; // Lấy code của storyline
         
-        // b. Chuyển đổi ID của storyline thành định dạng để so sánh
-        const storylineIdentifier = storylineInfo.id.replace(/-/g, '').toUpperCase();
-
-        // c. Lọc qua danh sách phim để tìm các phim cùng cốt truyện
-        if (storylineIdentifier) {
-          for (let i = 1; i < moviesData.length; i++) {
-            const movieRow = moviesData[i];
-            const movieCode = (movieRow[codeIndex] || '').toUpperCase();
-
-            if (movieCode.startsWith(storylineIdentifier)) {
-              const movie = {
-                  linkFbPost:         movieRow[0],
-                  tenViet:            movieRow[1],
-                  tenGoc:             movieRow[2],
-                  dienVienNam:        movieRow[3],
-                  dienVienNu:         movieRow[4],
-                  tags:               movieRow[5],
-                  code:               movieRow[6],
-                  tinhTrangLuuTru:    movieRow[7],
-
-                  id:                 movieRow[8],
-                  theLoai:            movieRow[9],
-                  linkPoster:         movieRow[10],
-                  linkVideo:          movieRow[11],
-                  linkVideoMultiSub:  movieRow[12],
-                  linkFbVideo:        movieRow[13],
-                  linkGgDrive:        movieRow[14],
-                  linkKhac:           movieRow[15],
-                  moTa:               movieRow[16]
-              };
-              storylineMovies.push(movie);
-            }
-          }
-        }
-
-        // d. Gắn danh sách phim tìm được vào đối tượng storyline
-        storylineInfo.movies = storylineMovies;
+        const storylineInfo = {
+          tenCouple: row[h_storyline['TÊN COUPLE']],
+          linkPost: row[h_storyline['LINK POST']],
+          tagTheLoai: row[h_storyline['TAG THỂ LOẠI']],
+          tieuThuyetGoc: row[h_storyline['TIỂU THUYẾT GỐC']],
+          tongSoPhienBan: row[h_storyline['TỔNG SỐ PHIÊN BẢN']],
+          tinhTrangCapNhat: row[h_storyline['TÌNH TRẠNG CẬP NHẬT']],
+          id: row[h_storyline['ID']],
+          theLoai: row[h_storyline['THỂ LOẠI']],
+          code: code,
+          movies: moviesByStorylineCode.get(code) || []
+        };
         return storylineInfo;
       });
 
     // --- BƯỚC 3: TRẢ VỀ KẾT QUẢ ---
     return createJsonResponse({ status: 'success', data: storylineData });
-
   } catch (error) {
     console.error("Lỗi trong hàm getMoviesByStoryline: ", error);
     return createJsonResponse({ status: 'error', message: error.message });

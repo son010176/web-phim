@@ -4,13 +4,17 @@ import './DropdownFilter.css'; // File CSS riêng cho component này
 import { ReactComponent as ChevronIcon } from '../assets/icons/chevron-down-solid-full.svg';
 import { ReactComponent as FilterIcon } from '../assets/icons/filter-solid-full.svg';
 
-function DropdownFilter({ genres, selectedGenres, onGenreToggle }) {
+function DropdownFilter({ genres, selectedGenres, onGenreToggle, isDisabled }) {
   // State để quản lý trạng thái đóng/mở của dropdown
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null); // Ref để theo dõi thẻ div chính của component
 
   // Hàm để bật/tắt dropdown
-  const toggleDropdown = () => setIsOpen(!isOpen);
+  const toggleDropdown = () => {
+    // CHỈ MỞ KHI KHÔNG BỊ VÔ HIỆU HÓA
+    if (isDisabled) return;
+    setIsOpen(!isOpen);
+  };
 
   // Xử lý việc bấm ra ngoài để đóng dropdown
   useEffect(() => {
@@ -26,6 +30,13 @@ function DropdownFilter({ genres, selectedGenres, onGenreToggle }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [dropdownRef]);
+
+  // Tự động đóng panel nếu component bị disable (ví dụ: đang tải lại)
+  useEffect(() => {
+    if (isDisabled) {
+      setIsOpen(false);
+    }
+  }, [isDisabled]);
 
   const safeGenres = Array.isArray(genres) ? genres : [];
   const allGenres = ['Tất cả', ...safeGenres];
@@ -46,7 +57,7 @@ function DropdownFilter({ genres, selectedGenres, onGenreToggle }) {
 
   return (
     <div className="dropdown-filter" ref={dropdownRef}>
-      <div className="dropdown-display" onClick={toggleDropdown}>
+      <div className={`dropdown-display ${isDisabled ? 'disabled' : ''}`} onClick={toggleDropdown}>
         <FilterIcon className="dropdown-icon" />
         <span className="dropdown-label">Lọc theo:</span>
         <span className="dropdown-selected-text">{displaySelected()}</span>

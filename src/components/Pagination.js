@@ -1,9 +1,10 @@
-// src/components/Pagination.js (Đã nâng cấp)
+// src/components/Pagination.js (Đã nâng cấp, hỗ trợ isDisabled)
 
 import React, { useState, useEffect } from 'react';
 import './Pagination.css';
 
-function Pagination({ currentPage, totalPages, onPageChange }) {
+// 1. Nhận thêm prop 'isDisabled', mặc định là false
+function Pagination({ currentPage, totalPages, onPageChange, isDisabled = false }) {
   // State để quản lý giá trị của ô nhập liệu
   const [inputValue, setInputValue] = useState(currentPage);
 
@@ -14,8 +15,18 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
 
   // --- CÁC HÀM XỬ LÝ SỰ KIỆN ---
 
-  const handleGoToFirst = () => onPageChange(1);
-  const handleGoToLast = () => onPageChange(totalPages);
+  const handleGoToFirst = () => {
+    // 2. Thêm kiểm tra: Không làm gì nếu bị vô hiệu hóa
+    if (isDisabled) return;
+    onPageChange(1);
+  };
+  
+  const handleGoToLast = () => {
+    // 2. Thêm kiểm tra: Không làm gì nếu bị vô hiệu hóa
+    if (isDisabled) return;
+    onPageChange(totalPages);
+  };
+  
   const handlePrevious = () => {
     if (currentPage > 1) {
       onPageChange(currentPage - 1);
@@ -34,19 +45,25 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
 
   // Xử lý khi người dùng nhấn Enter trong ô input
   const handleInputKeyDown = (e) => {
+    // 2. Thêm kiểm tra: Không làm gì nếu bị vô hiệu hóa
+    if (isDisabled) return; 
+    
     if (e.key === 'Enter') {
       const pageNumber = parseInt(inputValue, 10);
-      // Kiểm tra xem số nhập vào có hợp lệ không
       if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= totalPages) {
         onPageChange(pageNumber);
       } else {
-        // Nếu không hợp lệ, reset ô input về trang hiện tại
         setInputValue(currentPage);
       }
     }
   };
+  
+  // Xử lý khi click ra ngoài (onBlur)
+  const handleInputBlur = () => {
+    // Chỉ reset về trang hiện tại, không làm gì khác
+    setInputValue(currentPage);
+  };
 
-  // Không hiển thị component nếu chỉ có 1 trang hoặc không có trang nào
   if (totalPages <= 1) {
     return null;
   }
@@ -56,7 +73,8 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
       {/* NÚT VỀ TRANG ĐẦU */}
       <button 
         onClick={handleGoToFirst} 
-        disabled={currentPage === 1}
+        // 3. Logic vô hiệu hóa: (Trang 1) HOẶC (Bị vô hiệu hóa từ bên ngoài)
+        disabled={currentPage === 1 || isDisabled}
         className="pagination-button"
         title="Trang đầu"
       >
@@ -81,7 +99,9 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleInputKeyDown}
-          onBlur={() => setInputValue(currentPage)} // Reset khi người dùng click ra ngoài
+          onBlur={handleInputBlur} // Reset khi người dùng click ra ngoài
+          // 3. Vô hiệu hóa ô nhập liệu khi ở Chế độ Server
+          disabled={isDisabled}
           className="page-input"
         />
         <span>/ {totalPages}</span>
@@ -100,7 +120,8 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
       {/* NÚT ĐẾN TRANG CUỐI */}
       <button 
         onClick={handleGoToLast} 
-        disabled={currentPage === totalPages}
+        // 3. Logic vô hiệu hóa: (Trang cuối) HOẶC (Bị vô hiệu hóa từ bên ngoài)
+        disabled={currentPage === totalPages || isDisabled}
         className="pagination-button"
         title="Trang cuối"
       >

@@ -1,138 +1,217 @@
-// src/services/api.js
-import { auth } from '../firebase';
-// Định nghĩa URL của API Google Apps Script ở một nơi duy nhất.
-// const API_URL = "https://script.google.com/macros/s/AKfycbxQvRm7VwxKcjmciim8mdchDu7X-c4-ZeHpY6mKRPPLLxsPJhCkTgWoBNxPM-Pls7uV/exec";
-const API_URL = "https://script.google.com/macros/s/AKfycbwof2iqWfeEnkEuAmP50MTtj4B_pO-Ks95slRXPY4B0QVZ5Dmlf2Ya5OHh81OdANKmFTg/exec";
+// src/services/api.js (Đã dọn dẹp và bổ sung)
 
+// URL của API Cloudflare Worker
+
+const API_URL_MOVIES = 'https://phim-ngan-web-api.phimngan.workers.dev/api/movies';
+const API_URL_ACTORS = 'https://phim-ngan-web-api.phimngan.workers.dev/api/actors';
+const API_URL_COUPLES = 'https://phim-ngan-web-api.phimngan.workers.dev/api/couples';
+const API_URL_STORYLINES = 'https://phim-ngan-web-api.phimngan.workers.dev/api/storylines';
+const API_URL_USERS = 'https://phim-ngan-web-api.phimngan.workers.dev/api/users';
+
+// --- HÀM HELPER CHUNG (MỚI) ---
 /**
- * Hàm chung để xử lý các yêu cầu GET và trả về dữ liệu JSON.
- * @param {string} queryString - Chuỗi truy vấn cho URL (ví dụ: '?action=getAllMovies').
- * @returns {Promise<any>} - Dữ liệu JSON từ API.
+ * Xử lý phản hồi API chung
+ * @param {Response} response - Phản hồi từ fetch
+ * @param {string} context - Tên hàm (để log lỗi)
+ * @returns {Promise<any>} - Dữ liệu data
  */
-const fetchGetData = async (queryString) => {
-  try {
-    const response = await fetch(`${API_URL}${queryString}`);
-    if (!response.ok) {
-      throw new Error(`Lỗi mạng: ${response.statusText}`);
-    }
-    const result = await response.json();
-    if (result.status === 'success') {
-      return result.data;
-    } else {
-      throw new Error(`Lỗi từ API: ${result.message}`);
-    }
-  } catch (error) {
-    console.error(`Lỗi khi thực hiện yêu cầu GET (${queryString}):`, error);
-    // Trả về một giá trị mặc định (ví dụ: mảng rỗng) để tránh làm sập ứng dụng
-    return []; 
+const handleResponse = async (response, context) => {
+  if (!response.ok) {
+    throw new Error(`Lỗi mạng từ API Worker (${context}): ${response.statusText}`);
+  }
+  const result = await response.json();
+  if (result.status === 'success') {
+    console.log(`✅ API Worker (${context}) phản hồi thành công.`, result.data);
+    return result.data; // Trả về { ...data }
+  } else {
+    throw new Error(`Lỗi logic từ API Worker (${context}): ${result.message}`);
   }
 };
 
 /**
- * Hàm chung để xử lý các yêu cầu POST đến Apps Script.
- * @param {string} action - Tên hành động (ví dụ: 'addMovie').
- * @param {object} payload - Dữ liệu cần gửi đi.
+ * Xử lý lỗi API chung
+ * @param {Error} error - Lỗi
+ * @param {string} context - Tên hàm (để log lỗi)
  */
-// --- HÀM POST ĐƯỢC SỬA LẠI HOÀN CHỈNH ---
-const fetchPostData = async (action, payload) => {
+const handleError = (error, context) => {
+  console.error(`❌ Lỗi nghiêm trọng khi gọi API Worker (${context}):`, error);
+  throw error;
+};
+
+// --- CÁC HÀM GET PAGE (Giữ nguyên) ---
+export const getMoviesPage = async ({ pageToken = null } = {}) => {
+  const apiUrl = pageToken ? `${API_URL_MOVIES}?pageToken=${pageToken}` : API_URL_MOVIES;
   try {
-    const user = auth.currentUser;
-    let token = null;
-
-    if (user) {
-      token = await user.getIdToken(true); // Lấy "vé thông hành"
-    } else {
-      // Nếu không có người dùng, không gửi token và báo lỗi sớm
-      throw new Error("Bạn cần đăng nhập để thực hiện hành động này.");
-    }
-    
-    const requestBody = {
-      action,
-      payload,
-      token // Gửi vé này trong body của yêu cầu
-    };
-
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      // XÓA BỎ: mode: "no-cors", 
-      headers: {
-        // Giữ nguyên header này
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-      redirect: 'follow' // Thêm dòng này để xử lý chuyển hướng nếu có
-    }); 
-
-    // BỎ COMMENT VÀ SỬA LẠI: Xử lý response từ API
-    const result = await response.json(); 
-    if (result.status === 'success' || result.status === 'info') {
-      // Chấp nhận cả status 'success' và 'info'
-      return result; 
-    } else {
-      // Ném lỗi với message từ API để có thể debug
-      throw new Error(result.message || 'Lỗi không xác định từ API');
-    }
+    const response = await fetch(apiUrl);
+    if (!response.ok) throw new Error(`Lỗi mạng: ${response.statusText}`);
+    const result = await response.json();
+    if (result.status === 'success') return result;
+    throw new Error(`Lỗi logic: ${result.message}`);
   } catch (error) {
-    console.error(`Lỗi POST action "${action}":`, error);
-    // Ném lại lỗi để component gọi nó có thể xử lý (ví dụ: hiển thị thông báo)
+    console.error('❌ Lỗi khi gọi getMoviesPage:', error);
     throw error;
   }
 };
 
-
-// --- CÁC HÀM GET DỮ LIỆU ---
-
-// Lấy danh sách tất cả phim
-/**
- * Lấy danh sách phim. Có thể kèm theo query để tìm kiếm phía server.
- * @param {string} [query] - Từ khóa tìm kiếm.
- * @param {string} [scope] - Phạm vi tìm kiếm.
- * @returns {Promise<any>}
- */
-export const getAllMovies = (query = '', scope = 'tenPhim') => {
-  if (query) {
-    // Nếu có query, gửi nó lên server
-    return fetchGetData(`?action=getAllMovies&query=${encodeURIComponent(query)}&scope=${scope}`);
+export const getActorsPage = async ({ pageToken = null } = {}) => {
+  const apiUrl = pageToken ? `${API_URL_ACTORS}?pageToken=${pageToken}` : API_URL_ACTORS;
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) throw new Error(`Lỗi mạng: ${response.statusText}`);
+    const result = await response.json();
+    if (result.status === 'success') return result;
+    throw new Error(`Lỗi logic: ${result.message}`);
+  } catch (error) {
+    console.error('❌ Lỗi khi gọi getActorsPage:', error);
+    throw error;
   }
-  // Nếu không, chỉ lấy tất cả phim như cũ
-  return fetchGetData('?action=getAllMovies');
 };
 
-// Lấy danh sách tất cả diễn viên
-export const getAllActors = () => fetchGetData('?action=getAllActors');
+export const getCouplesPage = async ({ pageToken = null } = {}) => {
+  const apiUrl = pageToken ? `${API_URL_COUPLES}?pageToken=${pageToken}` : API_URL_COUPLES;
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) throw new Error(`Lỗi mạng: ${response.statusText}`);
+    const result = await response.json();
+    if (result.status === 'success') return result;
+    throw new Error(`Lỗi logic: ${result.message}`);
+  } catch (error) {
+    console.error('❌ Lỗi khi gọi getCouplesPage:', error);
+    throw error;
+  }
+};
 
-// Lấy danh sách các phim đang chờ xử lý
-export const getPendingMovies = () => fetchGetData('?action=getPendingMovies');
+export const getStorylinesPage = async ({ pageToken = null } = {}) => {
+  const apiUrl = pageToken ? `${API_URL_STORYLINES}?pageToken=${pageToken}` : API_URL_STORYLINES;
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) throw new Error(`Lỗi mạng: ${response.statusText}`);
+    const result = await response.json();
+    if (result.status === 'success') return result;
+    throw new Error(`Lỗi logic: ${result.message}`);
+  } catch (error) {
+    console.error('❌ Lỗi khi gọi getStorylinesPage:', error);
+    throw error;
+  }
+};
 
-// Lấy thông tin profile chi tiết của một diễn viên
-export const getActorProfile = (slug) => fetchGetData(`?action=getActorProfile&slug=${slug}`);
+// --- CÁC HÀM GET PROFILE / DETAIL (Cập nhật) ---
 
-// Lấy danh sách tất cả phim theo các cặp đôi diễn viên
-export const getMovieCouples = () => fetchGetData('?action=getMovieCouples');
+export const getMovieDetail_CF = async (movieId) => {
+  const context = "MovieDetail";
+  const apiUrl = `${API_URL_MOVIES}/${movieId}/profile`;
+  console.log(`✅ Gọi API (CF Worker): ${apiUrl}`);
+  try {
+    const response = await fetch(apiUrl);
+    return await handleResponse(response, context); // Trả về { movie: ... }
+  } catch (error) {
+    handleError(error, context);
+  }
+};
 
-// Lấy danh sách TẤT CẢ các cặp đôi (không kèm phim)
-export const getAllMovieCouples = () => fetchGetData('?action=getAllMovieCouples');
+export const getActorProfile_CF = async (actorId) => {
+  const context = "ActorProfile";
+  const apiUrl = `${API_URL_ACTORS}/${actorId}/profile`;
+  console.log(`✅ Gọi API (CF Worker): ${apiUrl}`);
+  try {
+    const response = await fetch(apiUrl);
+    return await handleResponse(response, context); // Trả về { actor: ... }
+  } catch (error) {
+    handleError(error, context);
+  }
+};
 
-// Lấy danh sách phim cùng cốt truyện
-export const getMoviesByStoryline = () => fetchGetData('?action=getMoviesByStoryline');
+export const getCoupleProfile_CF = async (coupleId) => {
+  const context = "CoupleProfile";
+  const apiUrl = `${API_URL_COUPLES}/${coupleId}/profile`;
+  console.log(`✅ Gọi API (CF Worker): ${apiUrl}`);
+  try {
+    const response = await fetch(apiUrl);
+    return await handleResponse(response, context); // Trả về { couple: ... }
+  } catch (error) {
+    handleError(error, context);
+  }
+};
 
-// Lấy bộ sưu tập phim của người dùng
-export const getCollection = () => fetchGetData('?action=getCollection');
+export const getStorylineProfile_CF = async (storylineId) => {
+  const context = "StorylineProfile";
+  const apiUrl = `${API_URL_STORYLINES}/${storylineId}/profile`;
+  console.log(`✅ Gọi API (CF Worker): ${apiUrl}`);
+  try {
+    const response = await fetch(apiUrl);
+    return await handleResponse(response, context); // Trả về { storyline: ... }
+  } catch (error) {
+    handleError(error, context);
+  }
+};
 
-// Thêm phim vào bộ sưu tập
-export const addToCollection = (movieData) => fetchPostData('addToCollection', movieData);
+// --- CÁC HÀM MỚI CHO BỘ SƯU TẬP ---
 
-// Xóa phim khỏi bộ sưu tập
-export const removeFromCollection = (movieId) => fetchPostData('removeFromCollection', { id: movieId });
+/**
+ * Lấy bộ sưu tập phim của người dùng
+ * @param {string} userId - (Email của user)
+ * @returns {Promise<any>} - { movies: [...] }
+ */
+export const getCollection = async (userId) => {
+  const context = "GetCollection";
+  const apiUrl = `${API_URL_USERS}/${encodeURIComponent(userId)}/collection`;
+  console.log(`✅ Gọi API (CF Worker): ${apiUrl}`);
+  try {
+    const response = await fetch(apiUrl);
+    return await handleResponse(response, context); // Trả về { movies: [...] }
+  } catch (error) {
+    handleError(error, context);
+  }
+};
 
+/**
+ * Thêm phim vào bộ sưu tập
+ * @param {string} userId - (Email của user)
+ * @param {object} movieData - Dữ liệu phim (chỉ các trường cần thiết)
+ * @returns {Promise<any>}
+ */
+export const addToCollection = async (userId, movieData) => {
+  const context = "AddToCollection";
+  const apiUrl = `${API_URL_USERS}/${encodeURIComponent(userId)}/collection`;
+  console.log(`✅ Gọi API (CF Worker): POST ${apiUrl}`);
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(movieData),
+    });
+    return await handleResponse(response, context);
+  } catch (error) {
+    handleError(error, context);
+  }
+};
 
-// --- CÁC HÀM POST DỮ LIỆU (CHO TRANG ADMIN) ---
-
-// Thêm một phim mới
-export const addMovie = (movieData) => fetchPostData('addMovie', movieData);
-
-// Cập nhật thông tin một phim
-export const updateMovie = (movieData) => fetchPostData('updateMovie', movieData);
-
-// Xóa một phim dựa trên ID
-export const deleteMovie = (movieId) => fetchPostData('deleteMovie', { ID: movieId });
+/**
+ * Xóa phim khỏi bộ sưu tập
+ * @param {string} userId - (Email của user)
+ * @param {string} movieId - ID của phim
+ * @returns {Promise<any>}
+ */
+export const removeFromCollection = async (userId, movieId) => {
+  const context = "RemoveFromCollection";
+  const apiUrl = `${API_URL_USERS}/${encodeURIComponent(userId)}/collection/${movieId}`;
+  console.log(`✅ Gọi API (CF Worker): DELETE ${apiUrl}`);
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'DELETE',
+    });
+    // Xử lý riêng cho DELETE (có thể không trả về body)
+    if (!response.ok) {
+      throw new Error(`Lỗi mạng từ API Worker (${context}): ${response.statusText}`);
+    }
+    const result = await response.json(); // Worker trả về { status: 'success' }
+    if (result.status === 'success') {
+      console.log(`✅ API Worker (${context}) phản hồi thành công.`);
+      return result;
+    } else {
+      throw new Error(`Lỗi logic từ API Worker (${context}): ${result.message}`);
+    }
+  } catch (error) {
+    handleError(error, context);
+  }
+};
