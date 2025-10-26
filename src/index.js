@@ -1,16 +1,16 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import { NotificationProvider } from './context/NotificationContext';
-import { AuthProvider } from './context/AuthContext';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
+import { NotificationProvider } from "./context/NotificationContext";
+import { AuthProvider } from "./context/AuthContext";
 // 1. Import CollectionProvider
-import { CollectionProvider } from './context/CollectionContext';
+import { CollectionProvider } from "./context/CollectionContext";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  // <React.StrictMode>
+  <React.StrictMode>
     <NotificationProvider>
       <AuthProvider>
         <CollectionProvider>
@@ -18,7 +18,7 @@ root.render(
         </CollectionProvider>
       </AuthProvider>
     </NotificationProvider>
-  /* </React.StrictMode> */
+  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
