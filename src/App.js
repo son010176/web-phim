@@ -87,96 +87,95 @@ function App() {
   const debouncedSearchQuery = useDebounce(searchQuery, 100);
 
   // --- useEffect TẢI DỮ LIỆU (LOGIC 3 API MỚI) ---
+  // src/App.js
   useEffect(() => {
     async function loadApplicationData() {
       console.log("🚀 Bắt đầu quá trình tải dữ liệu ứng dụng...");
 
-      // --- BƯỚC 1: KIỂM TRA CACHE INDEXEDDB ---
-      let loadedFromFullCache = false;
-      let loadedFromSearchCache = false;
+      let shouldLoadFullInBackground = false; // ← Cờ để quyết định có load Full không
 
-      // Ưu tiên 1: Có cache đầy đủ
-      const dbFull = await loadCacheFromDB(CACHE_KEY_FULL, 6); // Cache 6 giờ
+      // --- BƯỚC 1: KIỂM TRA CACHE ĐẦY ĐỦ (FULL) ---
+      const dbFull = await loadCacheFromDB(CACHE_KEY_FULL, 6);
       if (dbFull) {
         console.log("✅ Chế độ CLIENT (Full): Tải từ IndexedDB (Full).");
+        // ✅ SỬA: Gộp tất cả setState vào 1 batch (React tự động batch từ v18)
         setFullCache(dbFull);
-        setSearchCache(dbFull); // Dùng data full cho search luôn
+        setSearchCache(dbFull);
         setIsSearchReady(true);
-        setIsFullDataReady(true); // <-- BẬT CỜ FULL
-        loadedFromFullCache = true;
+        setIsFullDataReady(true);
+        setIsLoading(false);
+        return; // Dừng hoàn toàn
+      }
+
+      // Nếu không có Full Cache, đánh dấu cần load Full ở background
+      shouldLoadFullInBackground = true;
+
+      // --- BƯỚC 2: KIỂM TRA CACHE NHẸ (SEARCH) ---
+      const dbSearch = await loadCacheFromDB(CACHE_KEY_SEARCH, 6);
+      if (dbSearch) {
+        console.log("✅ Chế độ CLIENT (Search): Tải từ IndexedDB (Search).");
+        setSearchCache(dbSearch);
+        setIsSearchReady(true);
+        setIsLoading(false); // ← Chỉ gọi 1 lần duy nhất ở đây
+        // KHÔNG return, tiếp tục load Full ở background
       } else {
-        // Ưu tiên 2: Chỉ có cache search
-        const dbSearch = await loadCacheFromDB(CACHE_KEY_SEARCH, 6);
-        if (dbSearch) {
-          console.log("✅ Chế độ CLIENT (Search): Tải từ IndexedDB (Search).");
-          setSearchCache(dbSearch);
-          setIsSearchReady(true); // <-- BẬT CỜ SEARCH
-          loadedFromSearchCache = true;
-        }
-      }
-
-      // TẮT LOADING BAN ĐẦU
-      // App sẽ render. Các trang con (Home) sẽ tự quyết định
-      // gọi Cloudflare (server mode) hay không dựa vào cờ isFullDataReady
-      setIsLoading(false);
-      console.log(
-        `ℹ️ Tắt Loading ban đầu. (isFullDataReady: ${loadedFromFullCache})`
-      );
-
-      // --- BƯỚC 2: TẢI NGẦM CÁC API CÒN THIẾU ---
-
-      // Chỉ gọi API Search nếu chưa có cache Search (và cũng chưa có cache Full)
-      if (!loadedFromSearchCache && !loadedFromFullCache) {
-        // console.log("🔄 Gọi API getDataSearch (ngầm)...");
-
-        console.log("🔄 Gọi API getSearchData_CF (Cloudflare R2)...");
-
-        // THAY THẾ getDataSearch() BẰNG getSearchData_CF()
-        getSearchData_CF()
-          .then((data) => {
+        // --- BƯỚC 3: TẢI API SEARCH (BẮT BUỘC) ---
+        console.log("🔄 Đang tải API getSearchData_CF (Cloudflare R2)...");
+        try {
+          const searchData = await getSearchData_CF();
+          if (searchData?.movies?.length > 0) {
+            // ← Dùng optional chaining
             console.log("🔍 API getSearchData_CF hoàn tất.");
-            setSearchCache(data);
-            if (data) {
-              // // <-- BẬT CỜ SEARCH. Chỉ bật cờ và lưu nếu data hợp lệ
-              setIsSearchReady(true); // <-- BẬT CỜ SEARCH
-              saveCacheToDB(CACHE_KEY_SEARCH, data);
-            }
+            setSearchCache(searchData);
+            setIsSearchReady(true);
+            saveCacheToDB(CACHE_KEY_SEARCH, searchData);
+          } else {
+            console.warn("⚠️ API getSearchData_CF không trả về dữ liệu.");
+          }
+        } catch (err) {
+          console.error("❌ Lỗi API getSearchData_CF:", err);
+        }
 
-            // setIsSearchReady(true);
-            // saveCacheToDB(CACHE_KEY_SEARCH, data);
-          })
-          .catch((err) => {
-            console.error("❌ Lỗi API getSearchData_CF:", err);
-            // Có thể set 1 cờ lỗi
-          });
+        setIsLoading(false); // ← Chỉ gọi 1 lần duy nhất ở đây
       }
 
-      // Chỉ gọi API Full nếu chưa có cache Full
-      if (!loadedFromFullCache) {
+      // --- BƯỚC 4: TẢI NGẦM DỮ LIỆU ĐẦY ĐỦ (FULL) ---
+      if (shouldLoadFullInBackground) {
         console.log("🔄 Gọi API getDataFull (ngầm)...");
-        getDataFull()
-          .then((data) => {
+        try {
+          const fullData = await getDataFull();
+          if (fullData?.movies?.length > 0) {
             console.log("💾 API getDataFull hoàn tất.");
-            if (data && data.movies && data.movies.length > 0) {
-              setFullCache(data);
-              setSearchCache(data); // Nâng cấp search cache lên bản full
-              setIsFullDataReady(true); // <-- BẬT CỜ FULL
-              setIsSearchReady(true); // Đảm bảo cờ search cũng bật
-              saveCacheToDB(CACHE_KEY_FULL, data);
-              console.log("🚀 Đã nâng cấp ứng dụng lên dữ liệu đầy đủ.");
-            } else {
-              console.warn("⚠️ API getDataFull trả về rỗng, không nâng cấp.");
-            }
-          })
-          .catch((err) => {
-            console.error("❌ Lỗi API getDataFull:", err);
-          });
+
+            // ✅ SỬA: Chỉ set những state cần thiết
+            setFullCache(fullData);
+            setIsFullDataReady(true);
+
+            // ✅ SỬA: Chỉ nâng cấp searchCache nếu nó chưa có dữ liệu đầy đủ
+            // (Tránh re-render không cần thiết nếu searchCache đã tốt)
+            setSearchCache((prev) => {
+              // Nếu prev đã có đủ movies, không cần cập nhật
+              if (prev?.movies?.length >= fullData.movies.length) {
+                console.log("ℹ️ SearchCache đã đầy đủ, không cập nhật.");
+                return prev;
+              }
+              console.log("🔄 Nâng cấp SearchCache lên dữ liệu Full.");
+              return fullData;
+            });
+
+            saveCacheToDB(CACHE_KEY_FULL, fullData);
+            console.log("🚀 Đã nâng cấp ứng dụng lên dữ liệu đầy đủ.");
+          } else {
+            console.warn("⚠️ API getDataFull trả về rỗng, không nâng cấp.");
+          }
+        } catch (err) {
+          console.error("❌ Lỗi API getDataFull:", err);
+        }
       }
     }
 
     loadApplicationData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Chỉ chạy 1 lần khi mount
+  }, []); // ← Đảm bảo dependencies rỗng // Chỉ chạy 1 lần khi mount
 
   // --- useEffect CHO LIVE SEARCH (CẬP NHẬT) ---
   useEffect(() => {
