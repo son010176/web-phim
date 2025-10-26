@@ -140,9 +140,7 @@ function StorylinePage({
   return (
     <div className="main-content-section">
       <div className="sl-container">
-        <h1 className="sl-main-title section-title">
-          Tổng Hợp Phim Cùng Cốt Truyện
-        </h1>
+        
         
           <div className="controls-wrapper">
             <DropdownFilter
@@ -151,6 +149,7 @@ function StorylinePage({
               onGenreToggle={handleTheLoaiToggle}
               isDisabled={controlsDisabled} // <-- DÙNG CỜ SEARCH
             />
+            <h1 className="sl-main-title section-title">Phim Cùng Cốt Truyện</h1>
             <SortDropdown
               currentSortOrder={sortOrder}
               onSortChange={handleSortChange}

@@ -1,7 +1,7 @@
-// src/components/SortDropdown.js (Đã thêm icon vào panel)
+// src/components/SortDropdown.js (Đã đổi tên class)
 
 import React, { useState, useEffect, useRef } from 'react';
-import './DropdownFilter.css'; // Tái sử dụng CSS
+import './SortDropdown.css'; // SỬA: Import file CSS riêng
 import { ReactComponent as SortIcon } from '../assets/icons/sort-solid-full.svg'; 
 import { ReactComponent as ChevronIcon } from '../assets/icons/chevron-down-solid-full.svg';
 import { ReactComponent as SortIconAZ } from '../assets/icons/arrow-down-a-z-solid-full.svg';
@@ -13,8 +13,6 @@ const sortOptions = {
   za: 'Tên Z-A',
 };
 
-// --- BƯỚC 1: TẠO MAP CHỨA ICON ---
-// (Sử dụng các icon bạn đã import)
 const sortIcons = {
   default: <SortIcon />,
   az: <SortIconAZ />,
@@ -52,25 +50,28 @@ function SortDropdown({ currentSortOrder, onSortChange, isDisabled }) {
   };
 
   return (
-    <div className="dropdown-filter" ref={dropdownRef}>
-      <div className={`dropdown-display ${isDisabled ? 'disabled' : ''}`} onClick={toggleDropdown}>
-        <SortIcon className="dropdown-icon" />
-        <span className="dropdown-label">Sắp xếp:</span>
-        <span className="dropdown-selected-text">{sortOptions[currentSortOrder]}</span>
-        <ChevronIcon className={`dropdown-chevron ${isOpen ? 'expanded' : ''}`} />
+    // SỬA TÊN CLASS
+    <div className="sort-dropdown" ref={dropdownRef}>
+      <div 
+        className={`sort-dropdown-display ${isDisabled ? 'disabled' : ''}`} 
+        onClick={toggleDropdown}
+      >
+        <SortIcon className="sort-dropdown-icon" />
+        <span className="sort-dropdown-label">Sắp xếp:</span>
+        <span className="sort-dropdown-selected-text">{sortOptions[currentSortOrder]}</span>
+        <ChevronIcon className={`sort-dropdown-chevron ${isOpen ? 'expanded' : ''}`} />
       </div>
 
       {isOpen && (
-        <div className="dropdown-panel">
-          <div className="sort-options">
+        <div className="sort-dropdown-panel">
+          <div className="sort-dropdown-options">
             {Object.entries(sortOptions).map(([key, value]) => (
               <button
                 key={key}
-                className={`sort-button ${currentSortOrder === key ? 'active' : ''}`}
+                className={`sort-dropdown-button ${currentSortOrder === key ? 'active' : ''}`}
                 onClick={() => handleOptionClick(key)}
               >
-                {/* --- BƯỚC 2: THÊM ICON VÀO NÚT --- */}
-                <span className="sort-icon-wrapper">{sortIcons[key]}</span>
+                <span className="sort-dropdown-icon-wrapper">{sortIcons[key]}</span>
                 <span>{value}</span>
               </button>
             ))}

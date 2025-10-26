@@ -33,6 +33,7 @@ import CollectionPage from "./pages/CollectionPage"; // <-- THÊM TRANG COLLECTI
 // --- IMPORT CÁC COMPONENT ---
 import Header from "./components/Header";
 import ScrollToTopButton from "./components/ScrollToTopButton";
+import ScrollToTopOnNavigate from "./components/ScrollToTopOnNavigate";
 import useDebounce from "./hooks/useDebounce";
 import "./App.css";
 
@@ -205,6 +206,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTopOnNavigate />
       <div className="App">
         <Header
           searchQuery={searchQuery}

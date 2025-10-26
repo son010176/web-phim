@@ -1,0 +1,130 @@
+/* src/components/SortDropdown.css (File riêng) */
+
+.sort-dropdown {
+  position: relative; 
+  width: 17rem; 
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+}
+
+.sort-dropdown-display {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  border: 1px solid #444;
+  border-radius: 0.5rem;
+  padding: 10px 15px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  overflow: hidden; 
+}
+
+.sort-dropdown-display:hover {
+  border-color: #61dafb;
+}
+
+.sort-dropdown-icon {
+  width: 20px;
+  height: 20px;
+  fill: #aaa;
+}
+
+.sort-dropdown-label {
+  flex-shrink: 0; 
+  color: #aaa;
+}
+
+.sort-dropdown-selected-text {
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; 
+  flex: 1;
+  min-width: 0;
+}
+
+.sort-dropdown-chevron {
+  width: 20px;
+  height: 20px;
+  fill: #e0e0e0;
+  transition: transform 0.3s ease;
+}
+
+.sort-dropdown-chevron.expanded {
+  transform: rotate(180deg);
+}
+
+.sort-dropdown-panel {
+  position: absolute;
+  top: 110%; 
+  left: 0;
+  width: 100%; /* Panel co dãn theo wrapper */
+  background-color: #1f1f1f;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 10px; /* Padding hẹp cho sort */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* --- CSS RIÊNG CHO SORT DROPDOWN --- */
+.sort-dropdown-options {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.sort-dropdown-button {
+  width: 100%;
+  text-align: left;
+  background-color: transparent;
+  color: #e0e0e0;
+  border: none;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sort-dropdown-button:hover {
+  background-color: #444;
+}
+.sort-dropdown-button.active {
+  background-color: #61dafb;
+  color: #121212;
+  font-weight: bold;
+}
+.sort-dropdown-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.sort-dropdown-icon-wrapper svg {
+  width: 16px;
+  height: 16px;
+  fill: #aaa; 
+}
+.sort-dropdown-button:hover .sort-dropdown-icon-wrapper svg,
+.sort-dropdown-button.active .sort-dropdown-icon-wrapper svg {
+  fill: currentColor; 
+}
+
+/* --- CSS CHO TRẠNG THÁI DISABLED --- */
+.sort-dropdown-display.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: #444; 
+}
+.sort-dropdown-display.disabled:hover {
+  border-color: #444; 
+}

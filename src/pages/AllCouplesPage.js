@@ -139,18 +139,15 @@ function AllCouplesPage({
   return (
     <div className="main-content-section">
       <div className="ac-container">
-        <h1 className="ac-main-title section-title">
-          Tổng Hợp Phim Theo Cặp Đôi
-        </h1>
-        
           <div className="controls-wrapper">
+            <h1 className="ac-main-title section-title">Phim Theo Cặp Đôi</h1>
             <SortDropdown
               currentSortOrder={sortOrder}
               onSortChange={handleSortChange}
               isDisabled={controlsDisabled} // <-- DÙNG CỜ SEARCH
             />
+            
           </div>
-
         {showLoadingOverlay && <div className="loading-overlay ac-loading">Đang tải trang mới...</div>}
 
         {couplesToRender.length === 0 && !showLoadingOverlay ? (

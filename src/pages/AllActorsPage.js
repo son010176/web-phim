@@ -142,8 +142,6 @@ function AllActorsPage({
   return (
     <div className="main-content-section">
       <div className="aa-container">
-        <h1 className="section-title">Danh Sách Diễn Viên</h1>
-
         <div className="controls-wrapper">
            <DropdownFilter
             genres={uniqueGenders || ["Nam", "Nữ"]}
@@ -151,6 +149,7 @@ function AllActorsPage({
             onGenreToggle={handleGenderToggle} 
             isDisabled={controlsDisabled} // <-- DÙNG CỜ SEARCH
           />
+          <h1 className="section-title">Danh Sách Diễn Viên</h1>
           <SortDropdown
             currentSortOrder={sortOrder}
             onSortChange={handleSortChange}

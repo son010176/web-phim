@@ -142,6 +142,7 @@ function Home({
             onGenreToggle={handleGenreToggle}
             isDisabled={controlsDisabled} // <-- DÙNG CỜ SEARCH
           />
+          <h1 className="section-title">Danh Sách Phim</h1>
           <SortDropdown
             currentSortOrder={sortOrder}
             onSortChange={handleSortChange}
