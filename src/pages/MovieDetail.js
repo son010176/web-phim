@@ -1,35 +1,32 @@
 // src/pages/MovieDetail.js (Đã sửa logic, dựa trên ActorProfilePage)
 
 import React, { useState, useEffect } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom"; 
+import { Link, useParams, useNavigate } from "react-router-dom";
 import YouTube from "react-youtube";
 import "./MovieDetail.css";
 import { createSlug } from "../utils/createSlug";
 import ImageWithFallback from "../components/ImageWithFallback";
-import { ReactComponent as PlusIcon } from '../assets/icons/plus-solid-full.svg';
-import { ReactComponent as CheckIcon } from '../assets/icons/check-solid-full.svg';
+import { ReactComponent as PlusIcon } from "../assets/icons/plus-solid-full.svg";
+import { ReactComponent as CheckIcon } from "../assets/icons/check-solid-full.svg";
 import { getMovieDetail_CF } from "../services/api"; // <-- IMPORT API
-import { useCollection } from "../context/CollectionContext"; 
-import { useAuth } from "../context/AuthContext"; 
+import { useCollection } from "../context/CollectionContext";
+import { useAuth } from "../context/AuthContext";
 
 // Nhận props từ App.js (giống ActorProfilePage)
 function MovieDetail({ fullCache, isFullDataReady }) {
   const { id } = useParams();
-  const navigate = useNavigate(); 
-  
+  const navigate = useNavigate();
+
   // State nội bộ để quản lý dữ liệu phim
-  const [movie, setMovie] = useState(null); 
+  const [movie, setMovie] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   const [activeTab, setActiveTab] = useState("");
-  
+
   // --- LOGIC COLLECTION CONTEXT (Giữ nguyên) ---
-  const { currentUser } = useAuth(); 
-  const { 
-    isMovieInCollection, 
-    addMovieToCollection 
-  } = useCollection();
+  const { currentUser } = useAuth();
+  const { isMovieInCollection, addMovieToCollection } = useCollection();
   const [isCollected, setIsCollected] = useState(false);
 
   // --- LOGIC TẢI DỮ LIỆU (ĐÃ SỬA) ---
@@ -55,34 +52,44 @@ function MovieDetail({ fullCache, isFullDataReady }) {
 
       // Kiểm tra xem dữ liệu cache có đủ chi tiết không
       // (Dữ liệu search-data KHÔNG có 'moTa', 'linkVideo', v.v...)
-      if (movieFromCache && movieFromCache.moTa !== undefined && movieFromCache.linkVideo !== undefined) {
-        console.log("🚀 MovieDetail: Tìm thấy dữ liệu đầy đủ trong Full Cache.");
+      if (
+        movieFromCache &&
+        movieFromCache.moTa !== undefined &&
+        movieFromCache.linkVideo !== undefined
+      ) {
+        console.log(
+          "🚀 MovieDetail: Tìm thấy dữ liệu đầy đủ trong Full Cache."
+        );
         // Gán dữ liệu từ cache vào state
         setMovie(movieFromCache);
         foundInCache = true; // Đánh dấu đã tìm thấy
         setIsLoading(false); // Ngừng loading
       } else {
-         console.log("ℹ️ MovieDetail: Không tìm thấy trong Full Cache (hoặc cache không đủ chi tiết).");
+        console.log(
+          "ℹ️ MovieDetail: Không tìm thấy trong Full Cache (hoặc cache không đủ chi tiết)."
+        );
       }
     } else {
-       console.log("ℹ️ MovieDetail: Full Cache chưa sẵn sàng hoặc không có dữ liệu movies.");
+      console.log(
+        "ℹ️ MovieDetail: Full Cache chưa sẵn sàng hoặc không có dữ liệu movies."
+      );
     }
 
     // --- BƯỚC 2: Gọi API Cloudflare nếu không tìm thấy trong cache ---
     // Chỉ gọi API nếu chưa tìm thấy trong cache (foundInCache === false)
     if (!foundInCache) {
       console.log(`☁️ MovieDetail: Gọi Cloudflare API cho ID: ${id}`);
-      getMovieDetail_CF(id) 
-        .then(data => {
+      getMovieDetail_CF(id)
+        .then((data) => {
           // API Cloudflare trả về { status, data: { movie: {...} } }
           if (data && data.movie) {
-             console.log("✅ MovieDetail: API Cloudflare thành công.");
-             setMovie(data.movie);
+            console.log("✅ MovieDetail: API Cloudflare thành công.");
+            setMovie(data.movie);
           } else {
             throw new Error("Cấu trúc dữ liệu API không hợp lệ.");
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.error("Lỗi khi gọi getMovieDetail_CF:", err);
           setError(err.message || "Không tìm thấy phim (lỗi API).");
         })
@@ -90,10 +97,8 @@ function MovieDetail({ fullCache, isFullDataReady }) {
           setIsLoading(false);
         });
     }
-
   }, [id, fullCache, isFullDataReady]); // <-- Phản ứng với cờ FullData
   // --- HẾT LOGIC TẢI DỮ LIỆU ---
-
 
   // useEffect cho "Bộ sưu tập"
   useEffect(() => {
@@ -107,10 +112,10 @@ function MovieDetail({ fullCache, isFullDataReady }) {
   const handleAddToCollection = () => {
     if (!currentUser) {
       // Nếu chưa đăng nhập, chuyển đến trang login
-      navigate('/login');
+      navigate("/login");
       return;
     }
-    
+
     if (movie && !isCollected) {
       // Gọi hàm từ context
       addMovieToCollection(movie);
@@ -127,7 +132,7 @@ function MovieDetail({ fullCache, isFullDataReady }) {
       const fileId = match[1];
       return `https://drive.google.com/file/d/${fileId}/preview`;
     }
-    return null; 
+    return null;
   };
 
   const getYouTubeVideoId = (url) => {
@@ -148,7 +153,7 @@ function MovieDetail({ fullCache, isFullDataReady }) {
   // Tự động chọn tab đầu tiên
   useEffect(() => {
     // Chỉ chạy nếu movie đã tồn tại
-    if (movie) { 
+    if (movie) {
       const viId = getYouTubeVideoId(movie.linkVideo);
       const subId = getYouTubeVideoId(movie.linkVideoMultiSub);
       const driveUrl = getGoogleDriveEmbedUrl(movie.linkGgDrive);
@@ -169,7 +174,11 @@ function MovieDetail({ fullCache, isFullDataReady }) {
     );
   }
   if (error) {
-    return <div className="detail-loading"><p>{error}</p></div>; 
+    return (
+      <div className="detail-loading">
+        <p>{error}</p>
+      </div>
+    );
   }
   if (!movie) {
     return (
@@ -190,13 +199,29 @@ function MovieDetail({ fullCache, isFullDataReady }) {
       {/* (Toàn bộ phần JSX còn lại giữ nguyên, nó đã đọc từ 'movie' state) */}
       <div className="detail-body-grid">
         <div className="poster-block">
-          <div className="poster-frame">
-            <ImageWithFallback
-              src={movie.linkPoster}
-              alt={`Poster phim ${movie.tenViet}`}
-              type="movie"
-              className="detail-poster"
-            />
+          <ImageWithFallback
+            src={movie.linkPoster}
+            alt={`Poster phim ${movie.tenViet}`}
+            type="movie"
+            className="detail-poster" // Giữ nguyên class này cho img
+          />
+          <div className="actions-block">
+            <button
+              className={`action-button ${
+                isCollected ? "collected" : "add-to-collection"
+              }`}
+              onClick={handleAddToCollection}
+              disabled={isCollected}
+            >
+              {isCollected ? <CheckIcon /> : <PlusIcon />}
+              <span>
+                {!currentUser
+                  ? "Đăng nhập để thêm"
+                  : isCollected
+                  ? "Đã có trong Bộ sưu tập"
+                  : "Thêm vào Bộ sưu tập"}
+              </span>
+            </button>
           </div>
         </div>
 
@@ -204,22 +229,6 @@ function MovieDetail({ fullCache, isFullDataReady }) {
           <div className="title-block">
             <h1 className="detail-title">{movie.tenViet}</h1>
             <p className="detail-original-title">{movie.tenGoc}</p>
-
-            <div className="actions-block">
-              <button
-                className={`action-button ${isCollected ? 'collected' : 'add-to-collection'}`}
-                onClick={handleAddToCollection} 
-                disabled={isCollected} 
-              >
-                {isCollected ? <CheckIcon /> : <PlusIcon />}
-                <span>
-                  {!currentUser 
-                    ? 'Đăng nhập để thêm' 
-                    : (isCollected ? 'Đã có trong Bộ sưu tập' : 'Thêm vào Bộ sưu tập')
-                  }
-                </span>
-              </button>
-            </div>
 
             <div className="detail-meta">
               {movie.theLoai?.split(/[.,]/).map(

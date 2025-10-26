@@ -141,6 +141,8 @@ function Home({
             selectedGenres={selectedGenres}
             onGenreToggle={handleGenreToggle}
             isDisabled={controlsDisabled} // <-- DÙNG CỜ SEARCH
+            groupByLetter={true} // Bộ lọc có thêm chữ cái phân biệt
+            panelWidth="860px"
           />
           <h1 className="section-title">Danh Sách Phim</h1>
           <SortDropdown

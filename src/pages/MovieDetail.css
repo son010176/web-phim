@@ -1,65 +1,62 @@
-/* src/MovieDetail.css (Cập nhật) */
+/* src/MovieDetail.css (Đã refactor) */
 .movie-detail-container {
-  width: 90%;
+  width: 80%;
   margin: 40px auto;
   padding: 0 40px;
   color: #e0e0e0;
 }
 
-/* --- LƯỚI LAYOUT CHÍNH --- */
+/* --- LƯỚI LAYOUT CHÍNH (Giữ nguyên) --- */
 .detail-body-grid {
   display: grid;
-  grid-template-columns: 320px 1fr; 
+  grid-template-columns: 320px 1fr;
   gap: 30px 40px;
   grid-template-areas:
     "poster info"
     "video  video";
 }
 
-/* --- SẮP XẾP CÁC KHỐI VÀO ĐÚNG VỊ TRÍ TRÊN LƯỚI --- */
+/* --- SẮP XẾP CÁC KHỐI VÀO ĐÚNG VỊ TRÍ TRÊN LƯỚI (Giữ nguyên) --- */
 .poster-block { grid-area: poster; }
 .info-container { grid-area: info; }
-.video-block { 
-  grid-area: video; 
+.video-block {
+  grid-area: video;
   padding: 0rem 10rem;
 }
 
 /* --- ĐỊNH DẠNG CHI TIẾT CHO CÁC KHỐI --- */
-.poster-frame {
-  position: relative; width: 100%; padding-top: 150%;
-  border-radius: 10px; overflow: hidden; background-color: #1e1e1e;
-}
-.detail-poster {
-  position: absolute; 
-  top: 0; 
-  left: 0;
-  width: 100%; 
-  height: 100%; 
-  /* object-fit: cover; */
-  /* padding: 5px; */
-  object-fit: contain;
-}
 
-/* Cột thông tin bên phải */
+/* Cập nhật .detail-poster */
+.detail-poster {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 10px;
+  background-color: #1e1e1e;
+  border: 4px solid #333;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4); 
+}
+/* ========================== */
+
+
+/* Cột thông tin bên phải (Giữ nguyên) */
 .info-container {
   display: flex;
   flex-direction: column;
-  /* gap: 30px; */
   text-align: left;
 }
 
 .detail-title {
   font-size: 1.5rem;
   font-weight: 700;
-  margin-top: 0; 
-  /* margin: 0 0 5px 0;  */
-  /* margin: 0 auto;  */
-  overflow-wrap: break-word; 
+  margin-top: 0;
+  overflow-wrap: break-word;
   word-break: break-word;
 }
-.detail-original-title { 
+.detail-original-title {
   font-size: 1.1rem;
-  color: #aaa; font-style: italic; 
+  color: #aaa; font-style: italic;
   margin: 0 0 1rem 0;
 }
 .detail-meta { margin-top: 0; display: flex; flex-wrap: wrap; gap: 10px; }
@@ -68,7 +65,7 @@
   border-radius: 20px; font-size: 0.9rem;
 }
 
-/* Khối video */
+/* Khối video (Giữ nguyên) */
 .video-player-wrapper {
   position: relative; width: 100%; aspect-ratio: 16 / 9;
   background-color: #000; border-radius: 12px; overflow: hidden;
@@ -76,7 +73,7 @@
 }
 .youtube-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 .no-video-message { font-size: 1.1rem; color: #aaa; }
-.video-tabs { 
+.video-tabs {
   display: flex; gap: 15px; margin-top: 15px;
   justify-content: center;
 }
@@ -98,13 +95,13 @@
 .link-item a { color: #61dafb; text-decoration: none; word-break: break-all; }
 .link-item a:hover { text-decoration: underline; }
 
-/* Các định dạng chung cho khối thông tin */
+/* Các định dạng chung cho khối thông tin (Giữ nguyên) */
 .info-section { width: 100%; }
-.info-title { 
-  font-size: 1.3rem; 
-  color: #f0f0f0; 
-  margin: 1rem 0 0 0; 
-  font-weight: 600; 
+.info-title {
+  font-size: 1.3rem;
+  color: #f0f0f0;
+  margin: 1rem 0 0.5rem 0; /* Điều chỉnh margin */
+  font-weight: 600;
 }
 .description-text { line-height: 1.7; color: #ccc; margin: 0; text-align: justify;}
 .actor-list-detail { line-height: 1.7; }
@@ -117,13 +114,13 @@
 }
 
 .actor-name-detail:hover {
-  color: #61dafb; /* Hoặc màu bạn thích */
+  color: #61dafb;
   text-decoration: underline;
 }
 
-.actor-hanzi-detail { color: #888; margin-left: 8px; }
+/* .actor-hanzi-detail { color: #888; margin-left: 8px; }  /* Có thể bỏ nếu không dùng */
 
-/* --- RESPONSIVE --- */
+/* --- RESPONSIVE (Giữ nguyên) --- */
 @media (max-width: 900px) {
   .detail-body-grid {
     grid-template-columns: 1fr;
@@ -137,12 +134,12 @@
 @media (max-width: 480px) {
   .movie-detail-container { padding: 0 20px; width: 100%; }
   .detail-title { font-size: 1.2rem; }
+  .video-block { padding: 0; } /* Bỏ padding ở màn hình nhỏ */
 }
 
 .detail-loading { text-align: center; padding: 50px; font-size: 1.2rem; }
 
-/* Thêm vào cuối file src/pages/MovieDetail.css */
-
+/* --- Các nút Action (Giữ nguyên) --- */
 .actions-block {
   margin-top: 1rem;
   margin-bottom: 1rem;
@@ -163,7 +160,7 @@
   transition: background-color 0.2s ease;
 }
 
-.action-button:hover {
+.action-button:hover:not(:disabled) { /* Chỉ hover khi không bị disabled */
   background-color: #408ac9;
 }
 
@@ -173,15 +170,13 @@
   fill: currentColor;
 }
 
-/* Thêm vào cuối file src/pages/MovieDetail.css */
-
 .action-button.collected {
   background-color: #3a3a3a;
   color: #888;
   cursor: not-allowed;
 }
 
+/* Bỏ hover effect khi đã collected */
 .action-button.collected:hover {
-  background-color: #3a3a3a; /* Giữ nguyên màu khi hover */
+  background-color: #3a3a3a;
 }
-

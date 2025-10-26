@@ -140,14 +140,14 @@ function StorylinePage({
   return (
     <div className="main-content-section">
       <div className="sl-container">
-        
-        
           <div className="controls-wrapper">
             <DropdownFilter
-              genres={uniqueTheLoai || ["Hiện đại", "Cổ trang", "Niên đại"]} 
+              // genres={uniqueTheLoai || ["Hiện đại", "Cổ trang", "Niên đại"]}
+              genres={Array.isArray(uniqueTheLoai) ? uniqueTheLoai : ["Hiện đại", "Cổ trang", "Niên đại"]} 
               selectedGenres={[selectedTheLoai]}
               onGenreToggle={handleTheLoaiToggle}
               isDisabled={controlsDisabled} // <-- DÙNG CỜ SEARCH
+              panelWidth="380px"
             />
             <h1 className="sl-main-title section-title">Phim Cùng Cốt Truyện</h1>
             <SortDropdown

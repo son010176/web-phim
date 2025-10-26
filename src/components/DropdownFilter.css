@@ -62,7 +62,8 @@
   position: absolute;
   top: 110%; 
   left: 0;
-  width: 860px; /*Chỉnh sửa kích thước của khung bộ lọc*/
+  /* width: 860px; */
+  width: 100%; /* Đảm bảo panel ít nhất bằng chiều rộng nút trigger */
   background-color: #1f1f1f;
   border: 1px solid #444;
   border-radius: 8px;

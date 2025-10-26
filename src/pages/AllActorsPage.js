@@ -144,10 +144,12 @@ function AllActorsPage({
       <div className="aa-container">
         <div className="controls-wrapper">
            <DropdownFilter
-            genres={uniqueGenders || ["Nam", "Nữ"]}
+            // genres={uniqueGenders || ["Nam", "Nữ"]}
+            genres={Array.isArray(uniqueGenders) ? uniqueGenders : ["Nam", "Nữ"]}
             selectedGenres={selectedGender === 'Tất cả' ? ['Tất cả'] : [selectedGender].filter(Boolean)}
             onGenreToggle={handleGenderToggle} 
             isDisabled={controlsDisabled} // <-- DÙNG CỜ SEARCH
+            panelWidth="240px"
           />
           <h1 className="section-title">Danh Sách Diễn Viên</h1>
           <SortDropdown
