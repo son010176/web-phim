@@ -3,46 +3,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
 import ImageWithFallback from "./ImageWithFallback";
+import { ReactComponent as SearchIcon } from '../assets/icons/magnifying-glass-solid-full.svg';
+import { ReactComponent as UserIcon } from '../assets/icons/user-regular-full.svg';
+import { ReactComponent as ClearIcon } from '../assets/icons/circle-xmark-solid-full.svg';
 
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import { useAuth } from "../context/AuthContext";
 import { useNotification } from "../context/NotificationContext";
-
-const SearchIcon = () => (
-  <svg
-    className="search-icon"
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-  >
-    <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-  </svg>
-);
-
-// Icon cho nút thành viên
-const UserIcon = () => (
-  <svg
-    className="user-icon"
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-  >
-    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-  </svg>
-);
-
-const ClearIcon = ({ onClick }) => (
-  <svg
-    className="clear-icon"
-    onClick={onClick}
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-  >
-    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-  </svg>
-);
 
 function Header({
   searchQuery,
@@ -137,7 +105,7 @@ function Header({
                 <option value="couplePhim">Couple Phim</option>
               </select>
               <div className="search-input-wrapper">
-                <SearchIcon />
+                <SearchIcon className="search-icon"/>
                 <input
                   type="text"
                   placeholder="Tìm kiếm..."
@@ -145,7 +113,7 @@ function Header({
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setDropdownVisible(true)}
                 />
-                {searchQuery && <ClearIcon onClick={handleClearSearch} />}
+                {searchQuery && <ClearIcon onClick={handleClearSearch} className="clear-icon"/>}
               </div>
             </div>
 
@@ -320,7 +288,7 @@ function Header({
               </div>
             ) : (
               <Link to="/login" className="auth-btn login-btn">
-                <UserIcon />
+                <UserIcon className="user-icon"/>
                 <span>Đăng nhập</span>
               </Link>
             )}

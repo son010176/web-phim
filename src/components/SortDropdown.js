@@ -1,9 +1,11 @@
-// src/components/SortDropdown.js
+// src/components/SortDropdown.js (Đã thêm icon vào panel)
 
 import React, { useState, useEffect, useRef } from 'react';
-import './DropdownFilter.css'; // Tái sử dụng CSS của DropdownFilter
-import { ReactComponent as SortIcon } from '../assets/icons/sort-solid-full.svg'; // Cần có icon này
+import './DropdownFilter.css'; // Tái sử dụng CSS
+import { ReactComponent as SortIcon } from '../assets/icons/sort-solid-full.svg'; 
 import { ReactComponent as ChevronIcon } from '../assets/icons/chevron-down-solid-full.svg';
+import { ReactComponent as SortIconAZ } from '../assets/icons/arrow-down-a-z-solid-full.svg';
+import { ReactComponent as SortIconZA } from '../assets/icons/arrow-down-z-a-solid-full.svg';
 
 const sortOptions = {
   default: 'Mặc định',
@@ -11,13 +13,19 @@ const sortOptions = {
   za: 'Tên Z-A',
 };
 
+// --- BƯỚC 1: TẠO MAP CHỨA ICON ---
+// (Sử dụng các icon bạn đã import)
+const sortIcons = {
+  default: <SortIcon />,
+  az: <SortIconAZ />,
+  za: <SortIconZA />,
+};
+
 function SortDropdown({ currentSortOrder, onSortChange, isDisabled }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-// Hàm để bật/tắt dropdown
   const toggleDropdown = () => {
-    // CHỈ MỞ KHI KHÔNG BỊ VÔ HIỆU HÓA
     if (isDisabled) return;
     setIsOpen(!isOpen);
   };
@@ -32,7 +40,6 @@ function SortDropdown({ currentSortOrder, onSortChange, isDisabled }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [dropdownRef]);
 
-  // Tự động đóng panel nếu component bị disable
   useEffect(() => {
     if (isDisabled) {
       setIsOpen(false);
@@ -41,7 +48,7 @@ function SortDropdown({ currentSortOrder, onSortChange, isDisabled }) {
 
   const handleOptionClick = (order) => {
     onSortChange(order);
-    setIsOpen(false); // Tự động đóng dropdown sau khi chọn
+    setIsOpen(false); 
   };
 
   return (
@@ -62,7 +69,9 @@ function SortDropdown({ currentSortOrder, onSortChange, isDisabled }) {
                 className={`sort-button ${currentSortOrder === key ? 'active' : ''}`}
                 onClick={() => handleOptionClick(key)}
               >
-                {value}
+                {/* --- BƯỚC 2: THÊM ICON VÀO NÚT --- */}
+                <span className="sort-icon-wrapper">{sortIcons[key]}</span>
+                <span>{value}</span>
               </button>
             ))}
           </div>

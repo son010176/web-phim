@@ -1,28 +1,30 @@
-// src/components/Pagination.js (Đã nâng cấp, hỗ trợ isDisabled)
+// src/components/Pagination.js (Đã nâng cấp Icon)
 
 import React, { useState, useEffect } from 'react';
 import './Pagination.css';
 
-// 1. Nhận thêm prop 'isDisabled', mặc định là false
+// --- BƯỚC 1: IMPORT CÁC ICON MỚI ---
+// (Bạn cần đảm bảo có các file SVG này trong 'src/assets/icons/')
+import { ReactComponent as FirstIcon } from '../assets/icons/angles-left-solid-full.svg';
+import { ReactComponent as PrevIcon } from '../assets/icons/angle-left-solid-full.svg';
+import { ReactComponent as NextIcon } from '../assets/icons/angle-right-solid-full.svg';
+import { ReactComponent as LastIcon } from '../assets/icons/angles-right-solid-full.svg';
+
 function Pagination({ currentPage, totalPages, onPageChange, isDisabled = false }) {
-  // State để quản lý giá trị của ô nhập liệu
   const [inputValue, setInputValue] = useState(currentPage);
 
-  // Effect để đồng bộ giá trị ô nhập liệu khi trang thay đổi từ các nút bấm
   useEffect(() => {
     setInputValue(currentPage);
   }, [currentPage]);
 
-  // --- CÁC HÀM XỬ LÝ SỰ KIỆN ---
+  // --- CÁC HÀM XỬ LÝ SỰ KIỆN (Giữ nguyên) ---
 
   const handleGoToFirst = () => {
-    // 2. Thêm kiểm tra: Không làm gì nếu bị vô hiệu hóa
     if (isDisabled) return;
     onPageChange(1);
   };
   
   const handleGoToLast = () => {
-    // 2. Thêm kiểm tra: Không làm gì nếu bị vô hiệu hóa
     if (isDisabled) return;
     onPageChange(totalPages);
   };
@@ -38,14 +40,11 @@ function Pagination({ currentPage, totalPages, onPageChange, isDisabled = false 
     }
   };
 
-  // Cập nhật state khi người dùng gõ vào ô input
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
   };
 
-  // Xử lý khi người dùng nhấn Enter trong ô input
   const handleInputKeyDown = (e) => {
-    // 2. Thêm kiểm tra: Không làm gì nếu bị vô hiệu hóa
     if (isDisabled) return; 
     
     if (e.key === 'Enter') {
@@ -58,9 +57,7 @@ function Pagination({ currentPage, totalPages, onPageChange, isDisabled = false 
     }
   };
   
-  // Xử lý khi click ra ngoài (onBlur)
   const handleInputBlur = () => {
-    // Chỉ reset về trang hiện tại, không làm gì khác
     setInputValue(currentPage);
   };
 
@@ -73,12 +70,12 @@ function Pagination({ currentPage, totalPages, onPageChange, isDisabled = false 
       {/* NÚT VỀ TRANG ĐẦU */}
       <button 
         onClick={handleGoToFirst} 
-        // 3. Logic vô hiệu hóa: (Trang 1) HOẶC (Bị vô hiệu hóa từ bên ngoài)
         disabled={currentPage === 1 || isDisabled}
         className="pagination-button"
         title="Trang đầu"
       >
-        &laquo;
+        {/* --- BƯỚC 2: THAY THẾ TEXT BẰNG ICON --- */}
+        <FirstIcon />
       </button>
       
       {/* NÚT LÙI 1 TRANG */}
@@ -88,10 +85,11 @@ function Pagination({ currentPage, totalPages, onPageChange, isDisabled = false 
         className="pagination-button"
         title="Trang trước"
       >
-        &larr;
+        {/* --- BƯỚC 2: THAY THẾ TEXT BẰNG ICON --- */}
+        <PrevIcon />
       </button>
       
-      {/* KHU VỰC HIỂN THỊ THÔNG TIN VÀ NHẬP LIỆU */}
+      {/* KHU VỰC HIỂN THỊ THÔNG TIN VÀ NHẬP LIỆU (Giữ nguyên) */}
       <div className="pagination-info">
         <span>Trang</span>
         <input 
@@ -99,8 +97,7 @@ function Pagination({ currentPage, totalPages, onPageChange, isDisabled = false 
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleInputKeyDown}
-          onBlur={handleInputBlur} // Reset khi người dùng click ra ngoài
-          // 3. Vô hiệu hóa ô nhập liệu khi ở Chế độ Server
+          onBlur={handleInputBlur}
           disabled={isDisabled}
           className="page-input"
         />
@@ -114,18 +111,19 @@ function Pagination({ currentPage, totalPages, onPageChange, isDisabled = false 
         className="pagination-button"
         title="Trang sau"
       >
-        &rarr;
+        {/* --- BƯỚC 2: THAY THẾ TEXT BẰNG ICON --- */}
+        <NextIcon />
       </button>
 
       {/* NÚT ĐẾN TRANG CUỐI */}
       <button 
         onClick={handleGoToLast} 
-        // 3. Logic vô hiệu hóa: (Trang cuối) HOẶC (Bị vô hiệu hóa từ bên ngoài)
         disabled={currentPage === totalPages || isDisabled}
         className="pagination-button"
         title="Trang cuối"
       >
-        &raquo;
+        {/* --- BƯỚC 2: THAY THẾ TEXT BẰNG ICON --- */}
+        <LastIcon />
       </button>
     </div>
   );

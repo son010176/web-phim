@@ -1,26 +1,11 @@
-/* src/components/DropdownFilter.css */
+/* src/components/DropdownFilter.css (Đã thêm style cho nhóm) */
 
 .dropdown-filter {
-  position: relative; /* Quan trọng để định vị panel con */
-  width: 17rem; /* Hoặc độ rộng bạn muốn */
+  position: relative; 
+  width: 17rem; 
   margin-bottom: 1rem;
   margin-top: 1rem;
 }
-
-/* .dropdown-display {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  background-color: #2a2a2a;
-  color: #e0e0e0;
-  border: 1px solid #444;
-  border-radius: 0.5rem;
-  padding: 10px 15px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: border-color 0.2s ease;
-} */
 
 .dropdown-display {
   display: flex;
@@ -35,7 +20,6 @@
   font-weight: 600;
   cursor: pointer;
   transition: border-color 0.2s ease;
-  /* Quan trọng: Ngăn box bị tràn nội dung */
   overflow: hidden; 
 }
 
@@ -50,7 +34,6 @@
 }
 
 .dropdown-label {
-
   flex-shrink: 0; 
   color: #aaa;
 }
@@ -77,13 +60,13 @@
 
 .dropdown-panel {
   position: absolute;
-  top: 110%; /* Hiển thị ngay dưới display box */
+  top: 110%; 
   left: 0;
-  width: 100%;
+  width: 860px; /*Chỉnh sửa kích thước của khung bộ lọc*/
   background-color: #1f1f1f;
   border: 1px solid #444;
   border-radius: 8px;
-  padding: 15px;
+  padding: 15px; /* Giữ padding tổng thể */
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
   z-index: 10;
   max-height: 300px;
@@ -102,8 +85,10 @@
   color: #e0e0e0;
   border: 1px solid #555;
   border-radius: 15px;
-  padding: 8px 15px;
-  font-size: 0.9rem;
+  /* --- SỬA (Làm nút to hơn một chút) --- */
+  padding: 10px 16px; 
+  font-size: 0.95rem; 
+  /* --- KẾT THÚC SỬA --- */
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -120,14 +105,12 @@
   font-weight: bold;
 }
 
-/* Thêm vào cuối file src/components/DropdownFilter.css */
-
+/* --- CSS CHO SORT DROPDOWN (Giữ nguyên) --- */
 .sort-options {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
-
 .sort-button {
   width: 100%;
   text-align: left;
@@ -138,26 +121,68 @@
   padding: 10px;
   font-size: 0.9rem;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
-
 .sort-button:hover {
   background-color: #444;
 }
-
 .sort-button.active {
   background-color: #61dafb;
   color: #121212;
   font-weight: bold;
 }
+.sort-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.sort-icon-wrapper svg {
+  width: 16px;
+  height: 16px;
+  fill: #aaa; 
+}
+.sort-button:hover .sort-icon-wrapper svg,
+.sort-button.active .sort-icon-wrapper svg {
+  fill: currentColor; 
+}
 
-/* Thêm vào cuối file src/components/DropdownFilter.css */
-
+/* --- CSS CHO TRẠNG THÁI DISABLED (Giữ nguyên) --- */
 .dropdown-display.disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  border-color: #444; /* Ngăn hiệu ứng hover border */
+  border-color: #444; 
+}
+.dropdown-display.disabled:hover {
+  border-color: #444; 
 }
 
-.dropdown-display.disabled:hover {
-  border-color: #444; /* Đảm bảo không đổi màu khi hover */
+/* --- CSS MỚI CHO LỌC THEO NHÓM --- */
+
+.filter-options-group {
+  /* Thêm một vạch chia nhỏ giữa các nhóm */
+  border-bottom: 1px solid #333;
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+}
+
+.filter-options-group:last-child {
+  /* Nhóm cuối cùng không cần vạch/khoảng cách */
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.filter-group-heading {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #61dafb; /* Màu xanh cyan cho nổi bật */
+  margin-top: 0;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  text-align: left;
 }

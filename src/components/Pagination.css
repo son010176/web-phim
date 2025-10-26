@@ -16,8 +16,7 @@
   border-radius: 8px;
   width: 45px;
   height: 40px;
-  font-size: 1.2rem;
-  font-weight: bold;
+  /* Bỏ font-size và font-weight cũ */
   cursor: pointer;
   display: flex;
   justify-content: center;
@@ -77,4 +76,11 @@
 .page-input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+/* --- THÊM CSS MỚI CHO ICON --- */
+.pagination-button svg {
+  width: 18px; /* Kích thước icon */
+  height: 18px;
+  fill: currentColor; /* Icon sẽ đổi màu theo màu chữ của nút (kể cả khi hover) */
 }

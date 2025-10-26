@@ -6,8 +6,8 @@ import YouTube from "react-youtube";
 import "./MovieDetail.css";
 import { createSlug } from "../utils/createSlug";
 import ImageWithFallback from "../components/ImageWithFallback";
-import { ReactComponent as PlusIcon } from '../assets/icons/plus-solid.svg';
-import { ReactComponent as CheckIcon } from '../assets/icons/check-solid.svg';
+import { ReactComponent as PlusIcon } from '../assets/icons/plus-solid-full.svg';
+import { ReactComponent as CheckIcon } from '../assets/icons/check-solid-full.svg';
 import { getMovieDetail_CF } from "../services/api"; // <-- IMPORT API
 import { useCollection } from "../context/CollectionContext"; 
 import { useAuth } from "../context/AuthContext"; 
