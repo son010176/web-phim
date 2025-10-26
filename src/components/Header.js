@@ -6,6 +6,7 @@ import ImageWithFallback from "./ImageWithFallback";
 import { ReactComponent as SearchIcon } from '../assets/icons/magnifying-glass-solid-full.svg';
 import { ReactComponent as UserIcon } from '../assets/icons/user-regular-full.svg';
 import { ReactComponent as ClearIcon } from '../assets/icons/circle-xmark-solid-full.svg';
+import LogoNew from '../assets/logo/favicon-32x32.png';
 
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
@@ -83,7 +84,7 @@ function Header({
       <div className="header-content">
         <div className="header-left">
           <Link to="/" className="logo-link">
-            <span className="logo-icon">🎬</span>
+            <img src={LogoNew} alt="Midrama Logo" className="logo-icon"/>
             <span className="logo-text">MiDrama</span>
           </Link>
 
