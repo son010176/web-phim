@@ -1,10 +1,94 @@
-// src/services/api_client.js (File mới)
+// src/services/api_client.js (Cập nhật 2 Key Cache)
 
 import { auth } from '../firebase';
+import { openDB } from 'idb';
 
-// URL của API Google Apps Script
 const API_URL = "https://script.google.com/macros/s/AKfycbyU2ieJmUVhvXK7TuVoHs_CM3QoA6_fstXtfnvOIt_JgYRYnZMKkfNvQ2Y-YIjB5o3pZg/exec";
-const APP_CACHE_KEY = 'myAppSearchCache';
+
+// --- CẤU HÌNH INDEXEDDB (2 KEYS) ---
+const DB_NAME = 'WebAppCacheDB';
+const DB_VERSION = 2;
+const STORE_NAME = 'appCache'; // Tên chung cho store
+const CACHE_KEY_FULL = 'fullCacheData'; // Key cho dữ liệu đầy đủ
+const CACHE_KEY_SEARCH = 'searchCacheData'; // Key cho dữ liệu search
+
+// --- HÀM HELPER CHO INDEXEDDB (CẬP NHẬT) ---
+async function openCacheDB() {
+  return openDB(DB_NAME, DB_VERSION, {
+    upgrade(db) {
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME);
+        console.log(`IndexedDB: Đã tạo object store '${STORE_NAME}'.`);
+      }
+    },
+  });
+}
+
+/**
+ * --- HÀM 1 (SỬA): TẢI CACHE TỪ INDEXEDDB (THEO KEY) ---
+ * @param {string} cacheKey - Key cần tải (CACHE_KEY_FULL hoặc CACHE_KEY_SEARCH).
+ * @param {number} maxAgeInHours - Thời gian cache tối đa (giờ).
+ * @returns {Promise<object|null>}
+ */
+export const loadCacheFromDB = async (cacheKey, maxAgeInHours = 24) => {
+  try {
+    const db = await openCacheDB();
+    const storedData = await db.get(STORE_NAME, cacheKey);
+
+    if (!storedData) {
+      console.log(`🔍 IndexedDB: Không tìm thấy cache cho key '${cacheKey}'.`);
+      return null;
+    }
+
+    const { timestamp, data } = storedData;
+    const now = new Date().getTime();
+    const maxAgeInMs = maxAgeInHours * 60 * 60 * 1000;
+
+    if (now - timestamp < maxAgeInMs) {
+      console.log(`👍 IndexedDB: Tải cache '${cacheKey}' thành công.`);
+      return data;
+    } else {
+      console.log(`⌛ IndexedDB: Cache '${cacheKey}' đã hết hạn.`);
+      await db.delete(STORE_NAME, cacheKey);
+      return null;
+    }
+  } catch (error) {
+    console.warn(`⚠️ IndexedDB: Lỗi khi đọc cache '${cacheKey}':`, error);
+    try {
+      const db = await openCacheDB();
+      await db.delete(STORE_NAME, cacheKey);
+    } catch (deleteError) {
+      // Bỏ qua lỗi xóa
+    }
+    return null;
+  }
+};
+
+/**
+ * --- HÀM 2 (SỬA): LƯU CACHE VÀO INDEXEDDB (THEO KEY) ---
+ * @param {string} cacheKey - Key cần lưu (CACHE_KEY_FULL hoặc CACHE_KEY_SEARCH).
+ * @param {object} cacheData - Dữ liệu cần lưu.
+ */
+export const saveCacheToDB = async (cacheKey, cacheData) => {
+  if (!cacheData) {
+    console.warn(`⚠️ Dữ liệu cache '${cacheKey}' rỗng, không lưu.`);
+    return;
+  }
+
+  try {
+    const db = await openCacheDB();
+    const dataToStore = {
+      timestamp: new Date().getTime(),
+      data: cacheData,
+    };
+    await db.put(STORE_NAME, dataToStore, cacheKey);
+    console.log(`💾 IndexedDB: Đã lưu cache '${cacheKey}'.`);
+  } catch (error) {
+    console.warn(`⚠️ IndexedDB: Không thể lưu cache '${cacheKey}':`, error);
+  }
+};
+
+// --- CÁC HÀM API HIỆN TẠI (Giữ nguyên) ---
 
 /**
  * Hàm chung để xử lý các yêu cầu POST đến Apps Script.
@@ -21,7 +105,7 @@ const fetchPostData = async (action, payload) => {
     } else {
       throw new Error("Bạn cần đăng nhập để thực hiện hành động này.");
     }
-    
+
     const requestBody = { action, payload, token };
 
     const response = await fetch(API_URL, {
@@ -31,11 +115,11 @@ const fetchPostData = async (action, payload) => {
       },
       body: JSON.stringify(requestBody),
       redirect: 'follow'
-    }); 
+    });
 
-    const result = await response.json(); 
+    const result = await response.json();
     if (result.status === 'success' || result.status === 'info') {
-      return result; 
+      return result;
     } else {
       throw new Error(result.message || 'Lỗi không xác định từ API');
     }
@@ -64,164 +148,108 @@ const fetchGetData = async (queryString) => {
     }
   } catch (error) {
     console.error(`Lỗi khi thực hiện yêu cầu GET (${queryString}):`, error);
-    return []; 
+    return [];
   }
 };
 
+// --- HÀM API APPS SCRIPT (CẬP NHẬT TÊN VÀ THÊM MỚI) ---
+
 /**
- * --- HÀM 1: TẢI CACHE TỪ LOCALSTORAGE ---
- * (Giữ nguyên logic của bạn)
+ * --- HÀM MỚI: TẢI DỮ LIỆU NHẸ CHO TÌM KIẾM ---
  */
-export const loadCacheFromStorage = (maxAgeInHours = 24) => {
+export const getDataSearch = async () => {
+  console.log("⏳ Gọi API getDataSearch (Apps Script)...");
   try {
-    const storedCache = localStorage.getItem(APP_CACHE_KEY);
-    if (!storedCache) {
-      console.log("🔍 Không tìm thấy cache trong localStorage.");
-      return null;
+    // Giả sử file cache.gs của bạn đã có action='getDataSearch'
+    const searchData = await fetchGetData('?action=getDataSearch'); 
+    if (!searchData || typeof searchData !== 'object') {
+        throw new Error("API getDataSearch không trả về object hợp lệ.");
     }
-
-    const { timestamp, data } = JSON.parse(storedCache);
-    const now = new Date().getTime();
-    const maxAgeInMs = maxAgeInHours * 60 * 60 * 1000;
-
-    if (now - timestamp < maxAgeInMs) {
-      // Cache hợp lệ
-      console.log("👍 Tải cache thành công từ localStorage.");
-      return data;
-    } else {
-      // Cache hết hạn
-      console.log("⌛ Cache đã hết hạn. Cần tải lại.");
-      localStorage.removeItem(APP_CACHE_KEY); // Xóa cache cũ
-      return null;
+    if (!searchData.movies || !searchData.actors) {
+        console.warn("⚠️ Dữ liệu trả về từ getDataSearch thiếu key movies/actors.");
     }
+    console.log("✅ API getDataSearch thành công.");
+    return searchData;
   } catch (error) {
-    console.warn("⚠️ Lỗi khi đọc localStorage (dữ liệu có thể bị hỏng):", error);
-    localStorage.removeItem(APP_CACHE_KEY); // Xóa nếu bị lỗi
-    return null;
-  }
-};
-
-/**
- * --- HÀM 2: HÀM MỚI ĐỂ LƯU CACHE ---
- * (Đã được tách ra theo yêu cầu của bạn)
- */
-export const saveCacheToStorage = (cacheData) => {
-  if (!cacheData || !cacheData.movies || cacheData.movies.length === 0) {
-    console.warn("⚠️ Dữ liệu cache rỗng (hoặc không có phim), không lưu vào localStorage.");
-    return;
-  }
-  
-  try {
-    const dataToStore = {
-      timestamp: new Date().getTime(), // Thêm dấu thời gian
-      data: cacheData // Lưu toàn bộ object { movies, actors, ... }
-    };
-    localStorage.setItem(APP_CACHE_KEY, JSON.stringify(dataToStore));
-    console.log("💾 Đã lưu cache vào localStorage.");
-  } catch (storageError) {
-    console.warn("⚠️ Không thể lưu vào localStorage (có thể do đầy):", storageError);
+    console.error("❌ Lỗi khi gọi getDataSearch:", error);
+    // Ném lỗi để App.js biết
+    throw error;
   }
 };
 
 
 /**
  * --- HÀM 3: TẢI DỮ LIỆU TỪ APPS SCRIPT ---
- * (Đã thêm log chi tiết và xóa logic tự lưu)
+ * (Giữ nguyên, không thay đổi)
  */
-export const fetchAllDataForSearchCache = async () => {
-  console.log("⏳ Bắt đầu tải dữ liệu (App Script) cho bộ đệm tìm kiếm...");
-  
+export const getDataFull = async () => { // Đổi tên từ fetchAllDataForSearchCache
+  console.log("⏳ Gọi API getDataFull (Apps Script - dữ liệu đầy đủ)...");
   try {
-    // 1. Gọi hàm gộp của bạn
-    const cacheData = await fetchGetData('?action=fetchAllDataForSearchCache');
-    
-    // --- LOG LỖI CHI TIẾT ---
-    if (!cacheData) {
-      throw new Error("Apps Script không trả về dữ liệu (null hoặc undefined).");
-    }
+    // Giả sử file cache.gs của bạn đã đổi tên hàm nhưng action vẫn là 'fetchAllDataForSearchCache'
+    const fullData = await fetchGetData('?action=getDataFull'); 
 
+    // --- LOG LỖI CHI TIẾT (Giữ nguyên) ---
+    if (!fullData) throw new Error("API getDataFull không trả về dữ liệu.");
     let hasCriticalError = false;
 
-    // Kiểm tra Movies (quan trọng nhất)
-    if (!cacheData.movies || !Array.isArray(cacheData.movies)) {
+    if (!fullData.movies || !Array.isArray(fullData.movies)) {
       console.error("❌ Lỗi Dữ Liệu: 'movies' bị thiếu hoặc không phải là mảng.");
       hasCriticalError = true;
-    } else if (cacheData.movies.length === 0) {
+    } else if (fullData.movies.length === 0) {
       console.warn("⚠️ Cảnh báo Dữ Liệu: 'movies' là mảng rỗng.");
     } else {
-      console.log(`✅ Tải xong ${cacheData.movies.length} phim.`);
+      console.log(`✅ Tải xong ${fullData.movies.length} phim.`);
     }
 
-    // Kiểm tra Actors
-    if (!cacheData.actors || !Array.isArray(cacheData.actors)) {
+    if (!fullData.actors || !Array.isArray(fullData.actors)) {
       console.warn("⚠️ Cảnh báo Dữ Liệu: 'actors' bị thiếu hoặc không phải là mảng.");
     } else {
-      console.log(`✅ Tải xong ${cacheData.actors.length} diễn viên.`);
+      console.log(`✅ Tải xong ${fullData.actors.length} diễn viên.`);
     }
 
-    // Kiểm tra Couples
-    if (!cacheData.couples || !Array.isArray(cacheData.couples)) {
+    if (!fullData.couples || !Array.isArray(fullData.couples)) {
       console.warn("⚠️ Cảnh báo Dữ Liệu: 'couples' bị thiếu hoặc không phải là mảng.");
     } else {
-      console.log(`✅ Tải xong ${cacheData.couples.length} couples.`);
+      console.log(`✅ Tải xong ${fullData.couples.length} couples.`);
     }
 
-    // Kiểm tra Storylines
-    if (!cacheData.storylines || !Array.isArray(cacheData.storylines)) {
+    if (!fullData.storylines || !Array.isArray(fullData.storylines)) {
       console.warn("⚠️ Cảnh báo Dữ Liệu: 'storylines' bị thiếu hoặc không phải là mảng.");
     } else {
-      console.log(`✅ Tải xong ${cacheData.storylines.length} storylines.`);
+      console.log(`✅ Tải xong ${fullData.storylines.length} storylines.`);
     }
-    
+
     if (hasCriticalError) {
       throw new Error("Dữ liệu 'movies' không hợp lệ, hủy bỏ quá trình cache.");
     }
-    // -------------------------
 
-    console.log("✅ Dữ liệu (App Script) đã tải xong và có cấu trúc hợp lệ.");
-    // 2. Chỉ trả về dữ liệu, KHÔNG TỰ LƯU
-    return cacheData;
+    console.log("✅ API getDataFull thành công.");
+    return fullData;
 
   } catch (error) {
-    console.error("❌ Lỗi nghiêm trọng khi tải dữ liệu (App Script):", error);
-    // Trả về cấu trúc rỗng để ứng dụng không bị crash
+    console.error("❌ Lỗi nghiêm trọng khi tải getDataFull:", error);
     return { movies: [], actors: [], couples: [], storylines: [] };
   }
 };
 
-/**
- * [FALLBACK] Lấy TẤT CẢ phim từ App Script.
- */
+// --- XUẤT CÁC KEY ---
+export { CACHE_KEY_FULL, CACHE_KEY_SEARCH };
+
+// --- CÁC HÀM API KHÁC (Giữ nguyên) ---
 export const getAllMovies_AppScript = () => fetchGetData('?action=getAllMovies');
-
-// Lấy danh sách tất cả diễn viên
 export const getAllActors_AppScript = () => fetchGetData('?action=getAllActors');
-
-// Lấy danh sách các phim đang chờ xử lý
 export const getPendingMovies_AppScript = () => fetchGetData('?action=getPendingMovies');
-
-// Lấy thông tin profile chi tiết của một diễn viên
 export const getActorProfile_AppScript = (slug) => fetchGetData(`?action=getActorProfile&slug=${slug}`);
-
-// Lấy danh sách tất cả phim theo các cặp đôi diễn viên
 export const getMovieCouples_AppScript = () => fetchGetData('?action=getMovieCouples');
-
-// Lấy danh sách TẤT CẢ các cặp đôi (kèm phim)
 export const getAllMovieCouples_AppScript = () => fetchGetData('?action=getAllMovieCouples');
-
-// Lấy danh sách phim cùng cốt truyện
 export const getMoviesByStoryline_AppScript = () => fetchGetData('?action=getMoviesByStoryline');
-
-// Lấy bộ sưu tập phim của người dùng
 export const getCollection_AppScript = () => fetchGetData('?action=getCollection');
-
-// Thêm phim vào bộ sưu tập
 export const addToCollection_AppScript = (movieData) => fetchPostData('addToCollection', movieData);
-
-// Xóa phim khỏi bộ sưu tập
 export const removeFromCollection_AppScript = (movieId) => fetchPostData('removeFromCollection', { id: movieId });
-
-// --- CÁC HÀM POST DỮ LIỆU (CHO TRANG ADMIN) ---
 export const addMovie_AppScript = (movieData) => fetchPostData('addMovie', movieData);
 export const updateMovie_AppScript = (movieData) => fetchPostData('updateMovie', movieData);
 export const deleteMovie_AppScript = (movieId) => fetchPostData('deleteMovie', { ID: movieId });
+
+// --- XÓA CÁC HÀM LOCALSTORAGE CŨ ---
+// export const loadCacheFromStorage = ... (đã xóa)
+// export const saveCacheToStorage = ... (đã xóa)

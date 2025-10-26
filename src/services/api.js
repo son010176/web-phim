@@ -8,6 +8,9 @@ const API_URL_COUPLES = 'https://phim-ngan-web-api.phimngan.workers.dev/api/coup
 const API_URL_STORYLINES = 'https://phim-ngan-web-api.phimngan.workers.dev/api/storylines';
 const API_URL_USERS = 'https://phim-ngan-web-api.phimngan.workers.dev/api/users';
 
+// --- THÊM MỘT BIẾN BASE URL ---
+const API_URL_BASE = 'https://phim-ngan-web-api.phimngan.workers.dev/api';
+
 // --- HÀM HELPER CHUNG (MỚI) ---
 /**
  * Xử lý phản hồi API chung
@@ -140,6 +143,21 @@ export const getStorylineProfile_CF = async (storylineId) => {
   try {
     const response = await fetch(apiUrl);
     return await handleResponse(response, context); // Trả về { storyline: ... }
+  } catch (error) {
+    handleError(error, context);
+  }
+};
+
+// --- HÀM MỚI ĐỂ LẤY SEARCH DATA TỪ R2 ---
+export const getSearchData_CF = async () => {
+  const context = "SearchData";
+  const apiUrl = `${API_URL_BASE}/search-data`; // <--- GỌI ENDPOINT MỚI
+  console.log(`✅ Gọi API (CF Worker / R2): ${apiUrl}`);
+  try {
+    const response = await fetch(apiUrl);
+    // handleResponse trả về {movies, actors, ...}
+    const result = await handleResponse(response, context); 
+    return result; 
   } catch (error) {
     handleError(error, context);
   }

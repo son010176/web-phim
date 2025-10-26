@@ -1,14 +1,14 @@
-// src/pages/CoupleFilmMographyPage.js (Đã nâng cấp logic)
+// src/pages/CoupleFilmMographyPage.js (Đã sửa logic, dựa trên ActorProfilePage)
 
 import React, { useState, useEffect } from "react";
-import { data, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import "./CoupleFilmMographyPage.css";
 import ImageWithFallback from "../components/ImageWithFallback";
 import MovieList from "../components/MovieList";
 import { getCoupleProfile_CF } from "../services/api"; // <-- IMPORT API
 
-// Nhận props từ App.js
-function CoupleFilmMographyPage({ allCouples, isCacheReady }) {
+// Nhận props từ App.js (giống ActorProfilePage)
+function CoupleFilmMographyPage({ fullCache, isFullDataReady }) {
   const { coupleId } = useParams();
   
   // State nội bộ để quản lý dữ liệu
@@ -25,14 +25,44 @@ function CoupleFilmMographyPage({ allCouples, isCacheReady }) {
 
     setIsLoading(true);
     setError(null);
+    setCoupleData(null); // Xóa data cũ
 
-    // 1. Định nghĩa hàm gọi API
-    const fetchProfileFromAPI = () => {
-      console.log(`🌐 Gọi Cloudflare với coupleId: ${coupleId}`);
+    let foundInCache = false;
+
+    // --- BƯỚC 1: Ưu tiên kiểm tra Full Cache ---
+    // Chỉ kiểm tra nếu cờ isFullDataReady là true và fullCache có dữ liệu couples
+    if (isFullDataReady && fullCache?.couples) {
+      console.log(`CoupleProfile: Kiểm tra Full Cache (IndexedDB) cho ID: ${coupleId}`);
+      // Tìm couple trong cache bằng ID
+      const coupleFromCache = fullCache.couples.find((c) => c.id === coupleId);
+
+      // Kiểm tra xem dữ liệu cache có đủ chi tiết không
+      // (Giả định full cache luôn có 'movies')
+      if (coupleFromCache && coupleFromCache.movies !== undefined) {
+        console.log("🚀 CoupleProfile: Tìm thấy dữ liệu đầy đủ trong Full Cache.");
+        // Gán dữ liệu từ cache vào state
+        setCoupleData({
+          profile: coupleFromCache,
+          movies: coupleFromCache.movies || [] // Đảm bảo movies là mảng
+        });
+        foundInCache = true; // Đánh dấu đã tìm thấy
+        setIsLoading(false); // Ngừng loading
+      } else {
+         console.log("ℹ️ CoupleProfile: Không tìm thấy trong Full Cache (hoặc cache không đủ chi tiết).");
+      }
+    } else {
+       console.log("ℹ️ CoupleProfile: Full Cache chưa sẵn sàng hoặc không có dữ liệu couples.");
+    }
+
+    // --- BƯỚC 2: Gọi API Cloudflare nếu không tìm thấy trong cache ---
+    // Chỉ gọi API nếu chưa tìm thấy trong cache (foundInCache === false)
+    if (!foundInCache) {
+      console.log(`☁️ CoupleProfile: Gọi Cloudflare API cho ID: ${coupleId}`);
       getCoupleProfile_CF(coupleId) // Giả định hàm này gọi /api/couples/:id/profile
         .then(data => {
-          // API trả về { status, couple: { ... } } }
+          // API Cloudflare trả về { status, data: { couple: { ... } } }
           if (data && data.couple) {
+             console.log("✅ CoupleProfile: API Cloudflare thành công.");
              setCoupleData({
                profile: data.couple, // profile chứa { ...profile, movies: [...] }
                movies: data.couple.movies || []
@@ -48,32 +78,9 @@ function CoupleFilmMographyPage({ allCouples, isCacheReady }) {
         .finally(() => {
           setIsLoading(false);
         });
-    };
-
-    // 2. Kiểm tra Cache đã sẵn sàng chưa
-    if (isCacheReady) {
-      // 2a. Cache đã sẵn sàng, thử tìm trong cache
-      const coupleFromCache = allCouples.find((c) => c.id === coupleId);
-
-      if (coupleFromCache) {
-        // TÌM THẤY TRONG CACHE -> Dùng cache
-        console.log("🚀 Dùng cache (Google Sheet) - BỎ QUA API");
-        setCoupleData({
-          profile: coupleFromCache,
-          movies: coupleFromCache.movies || []
-        });
-        setIsLoading(false);
-      } else {
-        // 2b. KHÔNG TÌM THẤY TRONG CACHE -> Vẫn gọi API
-        fetchProfileFromAPI();
-      }
-    } else {
-      // 3. CACHE CHƯA SẴN SÀNG (isCacheReady = false)
-      // Đây là trường hợp RELOAD (F5). Gọi API ngay lập tức.
-      fetchProfileFromAPI();
     }
 
-  }, [coupleId, allCouples, isCacheReady]);
+  }, [coupleId, fullCache, isFullDataReady]); // <-- Phản ứng với cờ FullData
 
   // --- Logic Render ---
   if (isLoading) {
@@ -87,6 +94,7 @@ function CoupleFilmMographyPage({ allCouples, isCacheReady }) {
   }
 
   const { profile, movies } = coupleData;
+  // Lấy poster từ phim đầu tiên trong danh sách (nếu có)
   const couplePoster = movies.find((movie) => movie.linkPoster)?.linkPoster || null;
 
   return (

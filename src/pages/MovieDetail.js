@@ -1,41 +1,38 @@
-// src/pages/MovieDetail.js (Đã nâng cấp logic)
+// src/pages/MovieDetail.js (Đã sửa logic, dựa trên ActorProfilePage)
 
 import React, { useState, useEffect } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom"; // Thêm useNavigate
+import { Link, useParams, useNavigate } from "react-router-dom"; 
 import YouTube from "react-youtube";
 import "./MovieDetail.css";
 import { createSlug } from "../utils/createSlug";
 import ImageWithFallback from "../components/ImageWithFallback";
 import { ReactComponent as PlusIcon } from '../assets/icons/plus-solid.svg';
 import { ReactComponent as CheckIcon } from '../assets/icons/check-solid.svg';
-// import { useNotification } from '../context/NotificationContext'; // Không cần nữa
 import { getMovieDetail_CF } from "../services/api"; // <-- IMPORT API
-import { useCollection } from "../context/CollectionContext"; // <-- IMPORT CONTEXT MỚI
-import { useAuth } from "../context/AuthContext"; // <-- Import useAuth
+import { useCollection } from "../context/CollectionContext"; 
+import { useAuth } from "../context/AuthContext"; 
 
-// SỬA: Xóa props collection, setCollection
-function MovieDetail({ movies, isCacheReady }) {
+// Nhận props từ App.js (giống ActorProfilePage)
+function MovieDetail({ fullCache, isFullDataReady }) {
   const { id } = useParams();
-  const navigate = useNavigate(); // Dùng để chuyển trang
+  const navigate = useNavigate(); 
   
   // State nội bộ để quản lý dữ liệu phim
-  const [movie, setMovie] = useState(null); // <-- Dùng state thay vì prop
+  const [movie, setMovie] = useState(null); 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // const { addNotification } = useNotification(); // Lấy từ CollectionContext
   const [activeTab, setActiveTab] = useState("");
   
-  // --- LOGIC MỚI: DÙNG COLLECTION CONTEXT ---
-  const { currentUser } = useAuth(); // Lấy user hiện tại
+  // --- LOGIC COLLECTION CONTEXT (Giữ nguyên) ---
+  const { currentUser } = useAuth(); 
   const { 
     isMovieInCollection, 
     addMovieToCollection 
   } = useCollection();
-  
   const [isCollected, setIsCollected] = useState(false);
 
-  // --- LOGIC TẢI DỮ LIỆU (Giữ nguyên) ---
+  // --- LOGIC TẢI DỮ LIỆU (ĐÃ SỬA) ---
   useEffect(() => {
     if (!id) {
       setError("Không có ID phim.");
@@ -47,13 +44,39 @@ function MovieDetail({ movies, isCacheReady }) {
     setError(null);
     setMovie(null); // Xóa phim cũ
 
-    // 1. Định nghĩa hàm gọi API
-    const fetchMovieFromAPI = () => {
-      console.log(`🌐 Gọi Cloudflare với movieId: ${id}`);
-      getMovieDetail_CF(id) // Giả định hàm này gọi /api/movies/:id/profile
+    let foundInCache = false;
+
+    // --- BƯỚC 1: Ưu tiên kiểm tra Full Cache ---
+    // Chỉ kiểm tra nếu cờ isFullDataReady là true và fullCache có dữ liệu movies
+    if (isFullDataReady && fullCache?.movies) {
+      console.log(`MovieDetail: Kiểm tra Full Cache (IndexedDB) cho ID: ${id}`);
+      // Tìm movie trong cache bằng ID
+      const movieFromCache = fullCache.movies.find((m) => m.id === id);
+
+      // Kiểm tra xem dữ liệu cache có đủ chi tiết không
+      // (Dữ liệu search-data KHÔNG có 'moTa', 'linkVideo', v.v...)
+      if (movieFromCache && movieFromCache.moTa !== undefined && movieFromCache.linkVideo !== undefined) {
+        console.log("🚀 MovieDetail: Tìm thấy dữ liệu đầy đủ trong Full Cache.");
+        // Gán dữ liệu từ cache vào state
+        setMovie(movieFromCache);
+        foundInCache = true; // Đánh dấu đã tìm thấy
+        setIsLoading(false); // Ngừng loading
+      } else {
+         console.log("ℹ️ MovieDetail: Không tìm thấy trong Full Cache (hoặc cache không đủ chi tiết).");
+      }
+    } else {
+       console.log("ℹ️ MovieDetail: Full Cache chưa sẵn sàng hoặc không có dữ liệu movies.");
+    }
+
+    // --- BƯỚC 2: Gọi API Cloudflare nếu không tìm thấy trong cache ---
+    // Chỉ gọi API nếu chưa tìm thấy trong cache (foundInCache === false)
+    if (!foundInCache) {
+      console.log(`☁️ MovieDetail: Gọi Cloudflare API cho ID: ${id}`);
+      getMovieDetail_CF(id) 
         .then(data => {
-          // API trả về { status, data: { movie: {...} } }
+          // API Cloudflare trả về { status, data: { movie: {...} } }
           if (data && data.movie) {
+             console.log("✅ MovieDetail: API Cloudflare thành công.");
              setMovie(data.movie);
           } else {
             throw new Error("Cấu trúc dữ liệu API không hợp lệ.");
@@ -66,29 +89,9 @@ function MovieDetail({ movies, isCacheReady }) {
         .finally(() => {
           setIsLoading(false);
         });
-    };
-
-    // 2. Kiểm tra Cache đã sẵn sàng chưa
-    if (isCacheReady) {
-      // 2a. Cache đã sẵn sàng, thử tìm trong cache
-      const movieFromCache = movies.find((m) => m.id === id);
-
-      if (movieFromCache) {
-        // TÌM THẤY TRONG CACHE -> Dùng cache
-        console.log("🚀 Dùng cache (Google Sheet) - BỎ QUA API");
-        setMovie(movieFromCache);
-        setIsLoading(false);
-      } else {
-        // 2b. KHÔNG TÌM THẤY TRONG CACHE -> Vẫn gọi API
-        fetchMovieFromAPI();
-      }
-    } else {
-      // 3. CACHE CHƯA SẴN SÀNG (isCacheReady = false)
-      // Đây là trường hợp RELOAD (F5). Gọi API ngay lập tức.
-      fetchMovieFromAPI();
     }
 
-  }, [id, movies, isCacheReady]);
+  }, [id, fullCache, isFullDataReady]); // <-- Phản ứng với cờ FullData
   // --- HẾT LOGIC TẢI DỮ LIỆU ---
 
 
@@ -144,11 +147,18 @@ function MovieDetail({ movies, isCacheReady }) {
 
   // Tự động chọn tab đầu tiên
   useEffect(() => {
-    if (viVideoId) setActiveTab("vi");
-    else if (driveEmbedUrl) setActiveTab("drive");
-    else if (subVideoId) setActiveTab("sub");
-    else setActiveTab(""); // Không có video nào
-  }, [viVideoId, subVideoId, driveEmbedUrl]);
+    // Chỉ chạy nếu movie đã tồn tại
+    if (movie) { 
+      const viId = getYouTubeVideoId(movie.linkVideo);
+      const subId = getYouTubeVideoId(movie.linkVideoMultiSub);
+      const driveUrl = getGoogleDriveEmbedUrl(movie.linkGgDrive);
+
+      if (viId) setActiveTab("vi");
+      else if (driveUrl) setActiveTab("drive");
+      else if (subId) setActiveTab("sub");
+      else setActiveTab(""); // Không có video nào
+    }
+  }, [movie]); // <-- Chỉ phụ thuộc vào movie
 
   // --- Logic Render ---
   if (isLoading) {
@@ -198,8 +208,8 @@ function MovieDetail({ movies, isCacheReady }) {
             <div className="actions-block">
               <button
                 className={`action-button ${isCollected ? 'collected' : 'add-to-collection'}`}
-                onClick={handleAddToCollection} // <-- SỬA
-                disabled={isCollected} // <-- SỬA
+                onClick={handleAddToCollection} 
+                disabled={isCollected} 
               >
                 {isCollected ? <CheckIcon /> : <PlusIcon />}
                 <span>
@@ -224,7 +234,7 @@ function MovieDetail({ movies, isCacheReady }) {
           </div>
 
           <div className="actors-block">
-            {movie.dienVienNam || movie.dienVienNu ? (
+            {(movie.dienVienNam || movie.dienVienNu) && (
               <div className="info-section">
                 <h2 className="info-title">Diễn viên</h2>
                 <div className="actor-list-detail">
@@ -252,7 +262,7 @@ function MovieDetail({ movies, isCacheReady }) {
                     ))}
                 </div>
               </div>
-            ) : null}
+            )}
           </div>
 
           <div className="description-block">

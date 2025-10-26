@@ -1,4 +1,4 @@
-// src/pages/StorylineFilmMographyPage.js (Đã nâng cấp logic)
+// src/pages/StorylineFilmMographyPage.js (Đã sửa logic, dựa trên ActorProfilePage)
 
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -7,8 +7,8 @@ import ImageWithFallback from "../components/ImageWithFallback";
 import MovieList from "../components/MovieList";
 import { getStorylineProfile_CF } from "../services/api"; // <-- IMPORT API
 
-// Nhận props từ App.js
-function StorylineFilmMographyPage({ allStorylines, isCacheReady }) {
+// Nhận props từ App.js (giống ActorProfilePage)
+function StorylineFilmMographyPage({ fullCache, isFullDataReady }) {
   const { storylineId } = useParams();
   
   // State nội bộ để quản lý dữ liệu
@@ -25,14 +25,45 @@ function StorylineFilmMographyPage({ allStorylines, isCacheReady }) {
 
     setIsLoading(true);
     setError(null);
+    setStorylineData(null); // Xóa data cũ
 
-    // 1. Định nghĩa hàm gọi API
-    const fetchProfileFromAPI = () => {
-      console.log(`🌐 Gọi Cloudflare với storylineId: ${storylineId}`);
+    let foundInCache = false;
+
+    // --- BƯỚC 1: Ưu tiên kiểm tra Full Cache ---
+    // Chỉ kiểm tra nếu cờ isFullDataReady là true và fullCache có dữ liệu storylines
+    if (isFullDataReady && fullCache?.storylines) {
+      console.log(`StorylineProfile: Kiểm tra Full Cache (IndexedDB) cho ID: ${storylineId}`);
+      // Tìm storyline trong cache bằng ID
+      const storylineFromCache = fullCache.storylines.find((s) => s.id === storylineId);
+
+      // Kiểm tra xem dữ liệu cache có đủ chi tiết không
+      // (Giả định full cache luôn có 'movies')
+      if (storylineFromCache && storylineFromCache.movies !== undefined) {
+        // TÌM THẤY TRONG CACHE -> Dùng cache
+        console.log("🚀 StorylineProfile: Tìm thấy dữ liệu đầy đủ trong Full Cache.");
+        setStorylineData({
+          profile: storylineFromCache,
+          movies: storylineFromCache.movies || [] // Đảm bảo movies là mảng
+        });
+        foundInCache = true; // Đánh dấu đã tìm thấy
+        setIsLoading(false); // Ngừng loading
+      } else {
+         console.log("ℹ️ StorylineProfile: Không tìm thấy trong Full Cache (hoặc cache không đủ chi tiết).");
+      }
+    } else {
+       console.log("ℹ️ StorylineProfile: Full Cache chưa sẵn sàng hoặc không có dữ liệu storylines.");
+    }
+
+
+    // --- BƯỚC 2: Gọi API Cloudflare nếu không tìm thấy trong cache ---
+    // Chỉ gọi API nếu chưa tìm thấy trong cache (foundInCache === false)
+    if (!foundInCache) {
+      console.log(`☁️ StorylineProfile: Gọi Cloudflare API cho ID: ${storylineId}`);
       getStorylineProfile_CF(storylineId) // Giả định hàm này gọi /api/storylines/:id/profile
         .then(data => {
-          // API trả về { status, storyline: { ... } } }
+          // API Cloudflare trả về { status, data: { storyline: { ... } } }
           if (data && data.storyline) {
+             console.log("✅ StorylineProfile: API Cloudflare thành công.");
              setStorylineData({
                profile: data.storyline, 
                movies: data.storyline.movies || []
@@ -48,32 +79,9 @@ function StorylineFilmMographyPage({ allStorylines, isCacheReady }) {
         .finally(() => {
           setIsLoading(false);
         });
-    };
-
-    // 2. Kiểm tra Cache đã sẵn sàng chưa
-    if (isCacheReady) {
-      // 2a. Cache đã sẵn sàng, thử tìm trong cache
-      const storylineFromCache = allStorylines.find((s) => s.id === storylineId);
-
-      if (storylineFromCache) {
-        // TÌM THẤY TRONG CACHE -> Dùng cache
-        console.log("🚀 Dùng cache (Google Sheet) - BỎ QUA API");
-        setStorylineData({
-          profile: storylineFromCache,
-          movies: storylineFromCache.movies || []
-        });
-        setIsLoading(false);
-      } else {
-        // 2b. KHÔNG TÌM THẤY TRONG CACHE -> Vẫn gọi API
-        fetchProfileFromAPI();
-      }
-    } else {
-      // 3. CACHE CHƯA SẴN SÀNG (isCacheReady = false)
-      // Đây là trường hợp RELOAD (F5). Gọi API ngay lập tức.
-      fetchProfileFromAPI();
     }
 
-  }, [storylineId, allStorylines, isCacheReady]);
+  }, [storylineId, fullCache, isFullDataReady]); // <-- Phản ứng với cờ FullData
 
   // --- Logic Render ---
   if (isLoading) {
