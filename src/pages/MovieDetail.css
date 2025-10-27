@@ -21,7 +21,7 @@
 .info-container { grid-area: info; }
 .video-block {
   grid-area: video;
-  padding: 0rem 10rem;
+  padding: 0rem 5rem;
 }
 
 /* --- ĐỊNH DẠNG CHI TIẾT CHO CÁC KHỐI --- */
@@ -29,6 +29,7 @@
 /* Cập nhật .detail-poster */
 .detail-poster {
   display: block;
+  box-sizing: border-box;
   width: 100%;
   aspect-ratio: 2 / 3;
   object-fit: cover;
