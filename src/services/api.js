@@ -163,6 +163,21 @@ export const getSearchData_CF = async () => {
   }
 };
 
+// --- HÀM MỚI ĐỂ LẤY SEARCH DATA TỪ R2 ---
+export const getFullData_CF = async () => {
+  const context = "FullData";
+  const apiUrl = `${API_URL_BASE}/full-data`; // <--- GỌI ENDPOINT MỚI
+  console.log(`✅ Gọi API (CF Worker / R2): ${apiUrl}`);
+  try {
+    const response = await fetch(apiUrl);
+    // handleResponse trả về {movies, actors, ...}
+    const result = await handleResponse(response, context); 
+    return result; 
+  } catch (error) {
+    handleError(error, context);
+  }
+};
+
 // --- CÁC HÀM MỚI CHO BỘ SƯU TẬP ---
 
 /**

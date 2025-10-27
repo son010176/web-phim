@@ -6,7 +6,7 @@ import { performLiveSearch } from "./utils/search";
 
 // --- IMPORT API ---
 import {
-  getDataFull,
+  // getDataFull,
   loadCacheFromDB,
   saveCacheToDB,
   CACHE_KEY_FULL, // Lấy key từ api_client
@@ -14,7 +14,7 @@ import {
 } from "./services/api_client";
 
 // --- THÊM IMPORT MỚI TỪ api.js ---
-import { getSearchData_CF } from "./services/api";
+import { getSearchData_CF, getFullData_CF } from "./services/api";
 
 // --- IMPORT CÁC TRANG ---
 import LoginPage from "./pages/LoginPage";
@@ -142,11 +142,11 @@ function App() {
 
       // --- BƯỚC 4: TẢI NGẦM DỮ LIỆU ĐẦY ĐỦ (FULL) ---
       if (shouldLoadFullInBackground) {
-        console.log("🔄 Gọi API getDataFull (ngầm)...");
+        console.log("🔄 Gọi API getFullData_CF (ngầm)...");
         try {
-          const fullData = await getDataFull();
+          const fullData = await getFullData_CF();
           if (fullData?.movies?.length > 0) {
-            console.log("💾 API getDataFull hoàn tất.");
+            console.log("💾 API getFullData_CF hoàn tất.");
 
             // ✅ SỬA: Chỉ set những state cần thiết
             setFullCache(fullData);
@@ -167,10 +167,10 @@ function App() {
             saveCacheToDB(CACHE_KEY_FULL, fullData);
             console.log("🚀 Đã nâng cấp ứng dụng lên dữ liệu đầy đủ.");
           } else {
-            console.warn("⚠️ API getDataFull trả về rỗng, không nâng cấp.");
+            console.warn("⚠️ API getFullData_CF trả về rỗng, không nâng cấp.");
           }
         } catch (err) {
-          console.error("❌ Lỗi API getDataFull:", err);
+          console.error("❌ Lỗi API getFullData_CF:", err);
         }
       }
     }
