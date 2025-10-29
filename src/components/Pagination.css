@@ -83,3 +83,30 @@
   height: 18px;
   fill: currentColor;
 }
+
+/* Thêm vào cuối file src/components/Pagination.css */
+
+@media (max-width: 480px) {
+  .pagination-container {
+    /* Cho phép các nút xuống hàng nếu không đủ chỗ */
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .pagination-info {
+    /* Giảm kích thước ô thông tin */
+    padding: 0 10px;
+    height: 38px;
+    font-size: 0.9rem;
+  }
+
+  .page-input {
+    width: 40px;
+  }
+
+  .pagination-button {
+    /* Giảm kích thước nút */
+    width: 40px;
+    height: 38px;
+  }
+}

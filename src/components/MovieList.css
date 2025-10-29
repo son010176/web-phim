@@ -141,3 +141,28 @@
   background-color: var(--accent-danger); /* SỬA */
   border-color: var(--accent-danger); /* SỬA */
 }
+
+@media (max-width: 480px) {
+  .movie-list {
+    /* Chuyển thành lưới 2 cột, 1fr = 1 phần bằng nhau */
+    grid-template-columns: repeat(2, 1fr);
+    /* Giảm khoảng cách giữa các thẻ phim */
+    gap: 15px;
+  }
+
+  .movie-card img.default-icon,
+  .movie-card img {
+    /* Giảm chiều cao poster một chút cho cân đối */
+    height: 220px;
+  }
+
+  .movie-title {
+    font-size: 1rem;
+  }
+
+  .movie-original-title,
+  .movie-actors {
+    /* Ẩn bớt thông tin phụ trên lưới 2 cột để gọn gàng hơn */
+    display: none;
+  }
+}

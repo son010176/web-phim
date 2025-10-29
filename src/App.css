@@ -142,7 +142,13 @@ body {
 }
 
 @media (max-width: 480px) {
+.main-content-section {
+    /* Giảm padding hai bên cho điện thoại */
+    padding: 0 15px;
+  }
+
   .section-title {
+    /* Giảm kích thước font cho tiêu đề */
     font-size: 1.5rem;
   }
 }
