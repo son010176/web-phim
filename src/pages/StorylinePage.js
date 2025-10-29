@@ -157,10 +157,12 @@ function StorylinePage({
             />
           </div>
 
-        {showLoadingOverlay && <div className="loading-overlay sl-loading">Đang tải trang mới...</div>}
+        {/* {showLoadingOverlay && <div className="loading-overlay sl-loading">Đang tải trang mới...</div>} */}
+        {showLoadingOverlay && <div className="loading-indicator loading-indicator--overlay">Đang tải trang mới...</div>}
 
         {storylinesToRender.length === 0 && !showLoadingOverlay ? (
-          <p className="sl-loading">Không có mục nào.</p>
+          // <p className="sl-loading">Không có mục nào.</p>
+          <div className="loading-indicator">Không có mục nào.</div> // Sử dụng div và class mới
         ) : (
           <>
             <div className="sl-list">

@@ -4,17 +4,15 @@
 .aa-actor-meta {
   margin-top: 10px;
   font-size: 0.9rem;
-  color: #aaa;
+  color: var(--text-secondary); /* SỬA */
   /* Đẩy phần này xuống cuối thẻ */
   margin-top: auto;
   padding-top: 10px;
 }
 
-.aa-container {
-  /* text-align: center; */
-  /* padding-top: 40px; */
-  /* padding-bottom: 40px; */
-}
+/* .aa-container {
+  
+} */
 
 .aa-info-item {
   margin: 4px 0;
@@ -23,9 +21,9 @@
   text-overflow: ellipsis;
 }
 
-.aa-loading {
+/* .aa-loading {
   text-align: center;
   padding: 50px;
   font-size: 1.5rem;
-  color: #ccc;
-}
+  color: var(--text-primary);
+} */

@@ -1,23 +1,21 @@
 /* src/pages/CoupleFilmMographyPage.css (TẠO FILE MỚI) */
-/* Thêm vào đầu file src/pages/CoupleFilmMographyPage.css */
 
 .cf-header {
   display: grid;
-  grid-template-columns: 220px 1fr; /* Poster rộng 220px, info chiếm phần còn lại */
+  grid-template-columns: 220px 1fr;
   gap: 40px;
   align-items: center;
   padding-bottom: 25px;
   margin-bottom: 25px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--border-primary); /* SỬA */
 }
 
 .cf-poster img {
   width: 100%;
-  aspect-ratio: 2 / 3; /* Giữ tỷ lệ khung hình chuẩn của poster */
+  aspect-ratio: 2 / 3;
   object-fit: cover;
-  /* object-fit: contain; */
   border-radius: 10px;
-  border: 4px solid #333;
+  border: 4px solid var(--border-primary); /* SỬA */
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
 }
 
@@ -26,17 +24,14 @@
   flex-direction: column;
 }
 
-/* Điều chỉnh lại style cũ để phù hợp layout mới */
-
 .cf-container {
   text-align: left;
   padding-top: 40px;
-  /* padding-bottom: 40px; */
 }
 
 .cf-title {
   font-size: 2.5rem;
-  color: #e0e0e0;
+  color: var(--text-primary); /* SỬA */
   margin-top: 0;
   margin-bottom: 20px;
 }
@@ -53,17 +48,17 @@
 
 .cf-meta-item {
   font-size: 1.1rem;
-  color: #ccc;
+  color: var(--text-primary); /* SỬA */
 }
 
 .cf-meta-item strong {
-  color: #888;
+  color: var(--text-muted); /* SỬA */
   margin-right: 10px;
 }
 
 .cf-meta-button {
-  background-color: #569cd6;
-  color: white;
+  background-color: var(--accent-vscode); /* SỬA */
+  color: var(--text-white); /* SỬA */
   padding: 10px 20px;
   border-radius: 5px;
   text-decoration: none;
@@ -72,41 +67,38 @@
 }
 
 .cf-meta-button:hover {
-  background-color: #408ac9;
+  background-color: var(--accent-vscode-hover); /* SỬA */
 }
 
 .cf-movie-list-placeholder {
-  background-color: #1e1e1e;
-  border: 2px dashed #333;
+  background-color: var(--bg-secondary); /* SỬA */
+  border: 2px dashed var(--border-primary); /* SỬA */
   padding: 50px;
   border-radius: 8px;
   text-align: center;
-  color: #888;
+  color: var(--text-muted); /* SỬA */
   font-size: 1.2rem;
 }
 
-.cf-loading {
+/* .cf-loading {
   text-align: center;
   padding: 50px;
   font-size: 1.5rem;
-  color: #ccc;
-}
-
-/* Thêm vào cuối file src/pages/CoupleFilmMographyPage.css */
+  color: var(--text-primary);
+} */
 
 .cf-no-movies {
-  background-color: #1e1e1e;
-  border: 1px solid #333;
+  background-color: var(--bg-secondary); /* SỬA */
+  border: 1px solid var(--border-primary); /* SỬA */
   padding: 40px;
   border-radius: 8px;
   text-align: center;
-  color: #888;
+  color: var(--text-muted); /* SỬA */
   font-size: 1.1rem;
 }
 
-/* Ghi đè lại style của tiêu đề section chung để phù hợp hơn */
-.cf-container .section-title {
+/* .cf-container .section-title {
   font-size: 1.8rem;
   margin-top: 25px;
   margin-bottom: 25px;
-}
+} */

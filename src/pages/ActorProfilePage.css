@@ -3,27 +3,25 @@
 .ap-container {
   text-align: left;
   padding-top: 40px;
-  /* padding-bottom: 40px; */
 }
 
 /* --- Khối Header (Thông tin Diễn viên) --- */
 .ap-header {
   display: grid;
-  grid-template-columns: 250px 1fr; /* Avatar rộng 250px, info chiếm phần còn lại */
+  grid-template-columns: 250px 1fr;
   gap: 40px;
-  align-items: flex-start; /* Căn lề trên */
+  align-items: flex-start;
   padding-bottom: 25px;
   margin-bottom: 25px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--border-primary); /* SỬA */
 }
 
 .ap-avatar-img {
   width: 100%;
-  /* height: 100%; */
   aspect-ratio: 2 / 3;
   object-fit: cover;
   border-radius: 12px;
-  border: 4px solid #333;
+  border: 4px solid var(--border-primary); /* SỬA */
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
 }
 
@@ -34,13 +32,13 @@
 
 .ap-name {
   font-size: 2.5rem;
-  color: #e0e0e0;
+  color: var(--text-primary); /* SỬA */
   margin: 0;
 }
 
 .ap-pinyin-name {
   font-size: 1.2rem;
-  color: #aaa;
+  color: var(--text-secondary); /* SỬA */
   font-style: italic;
   margin: 5px 0 20px 0;
 }
@@ -51,54 +49,55 @@
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 10px 20px;
   line-height: 1.8;
-  color: #ccc;
+  color: var(--text-primary); /* SỬA */
   width: 100%;
 }
 
 .ap-meta-grid p {
   margin: 0;
   padding-bottom: 5px;
-  border-bottom: 1px solid #2c2c2c;
+  border-bottom: 1px solid var(--bg-surface-1); /* SỬA */
 }
 
 .ap-meta-grid strong {
-  color: #888;
+  color: var(--text-muted); /* SỬA */
   margin-right: 10px;
-  min-width: 100px; /* Đảm bảo các label có độ rộng đều nhau */
+  min-width: 100px;
   display: inline-block;
 }
 
 .ap-meta-grid a {
-  color: #569cd6;
+  color: var(--text-link); /* SỬA */
   text-decoration: none;
 }
 
 .ap-meta-grid a:hover {
   text-decoration: underline;
+  color: var(--text-link-hover); /* SỬA */
 }
 
 .ap-tags {
   margin-top: 20px;
-  color: #888;
+  color: var(--text-muted); /* SỬA */
   font-style: italic;
   word-wrap: break-word;
 }
 
 /* --- Các style chung và responsive --- */
-.ap-loading {
+/* .ap-loading {
   text-align: center;
   padding: 50px;
   font-size: 1.5rem;
-  color: #ccc;
-}
+  color: var(--text-primary); 
+} */
 
 .ap-no-movies {
-  background-color: #1e1e1e;
-  border: 1px solid #333;
+  background-color: var(--bg-secondary); /* SỬA */
+  border: 1px solid var(--border-primary); /* SỬA */
   padding: 40px;
   border-radius: 8px;
   text-align: center;
-  color: #888;
+  color: var(--text-muted); /* SỬA */
   font-size: 1.1rem;
 }
 
@@ -111,16 +110,16 @@
 /* --- Responsive cho màn hình nhỏ --- */
 @media (max-width: 768px) {
   .ap-header {
-    grid-template-columns: 1fr; /* Chuyển thành 1 cột */
+    grid-template-columns: 1fr;
     text-align: center;
   }
 
   .ap-avatar {
     width: 200px;
-    margin: 0 auto 20px auto; /* Căn avatar ra giữa */
+    margin: 0 auto 20px auto;
   }
 
   .ap-meta-grid {
-    text-align: left; /* Giữ cho text trong lưới căn trái */
+    text-align: left;
   }
 }

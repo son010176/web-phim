@@ -1,8 +1,8 @@
 /* src/components/DropdownFilter.css (Đã đổi tên class) */
 
 .filter-dropdown {
-  position: relative; 
-  width: 17rem; 
+  position: relative;
+  width: 17rem;
   margin-bottom: 1rem;
   margin-top: 1rem;
 }
@@ -11,38 +11,38 @@
   display: flex;
   gap: 10px;
   align-items: center;
-  background-color: #2a2a2a;
-  color: #e0e0e0;
-  border: 1px solid #444;
+  background-color: var(--bg-surface-1); /* SỬA */
+  color: var(--text-primary); /* SỬA */
+  border: 1px solid var(--border-secondary); /* SỬA */
   border-radius: 0.5rem;
   padding: 10px 15px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: border-color 0.2s ease;
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 .filter-dropdown-display:hover {
-  border-color: #61dafb;
+  border-color: var(--border-accent); /* SỬA */
 }
 
 .filter-dropdown-icon {
   width: 20px;
   height: 20px;
-  fill: #aaa;
+  fill: var(--text-secondary); /* SỬA */
 }
 
 .filter-dropdown-label {
-  flex-shrink: 0; 
-  color: #aaa;
+  flex-shrink: 0;
+  color: var(--text-secondary); /* SỬA */
 }
 
 .filter-dropdown-selected-text {
   text-align: left;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis; 
+  text-overflow: ellipsis;
   flex: 1;
   min-width: 0;
 }
@@ -50,7 +50,7 @@
 .filter-dropdown-chevron {
   width: 20px;
   height: 20px;
-  fill: #e0e0e0;
+  fill: var(--text-primary); /* SỬA */
   transition: transform 0.3s ease;
 }
 
@@ -60,14 +60,13 @@
 
 .filter-dropdown-panel {
   position: absolute;
-  top: 110%; 
+  top: 110%;
   left: 0;
-  /* width: 860px; */
-  width: 100%; /* Đảm bảo panel ít nhất bằng chiều rộng nút trigger */
-  background-color: #1f1f1f;
-  border: 1px solid #444;
+  width: 100%;
+  background-color: var(--bg-surface-2); /* SỬA */
+  border: 1px solid var(--border-secondary); /* SỬA */
   border-radius: 8px;
-  padding: 15px; /* Giữ padding tổng thể */
+  padding: 15px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
   z-index: 10;
   max-height: 300px;
@@ -82,25 +81,25 @@
 }
 
 .filter-dropdown-panel .filter-dropdown-button {
-  background-color: #333;
-  color: #e0e0e0;
-  border: 1px solid #555;
+  background-color: var(--border-primary); /* SỬA */
+  color: var(--text-primary); /* SỬA */
+  border: 1px solid var(--bg-disabled); /* SỬA */
   border-radius: 15px;
-  padding: 10px 16px; 
-  font-size: 0.95rem; 
+  padding: 10px 16px;
+  font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .filter-dropdown-panel .filter-dropdown-button:hover {
-  background-color: #444;
-  border-color: #666;
+  background-color: var(--border-secondary); /* SỬA */
+  border-color: #666; /* Giữ nguyên hoặc tạo biến */
 }
 
 .filter-dropdown-panel .filter-dropdown-button.active {
-  background-color: #61dafb;
-  color: #121212;
-  border-color: #61dafb;
+  background-color: var(--accent-react); /* SỬA */
+  color: var(--text-inverted); /* SỬA */
+  border-color: var(--accent-react); /* SỬA */
   font-weight: bold;
 }
 
@@ -108,15 +107,15 @@
 .filter-dropdown-display.disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  border-color: #444; 
+  border-color: var(--border-secondary); /* SỬA */
 }
 .filter-dropdown-display.disabled:hover {
-  border-color: #444; 
+  border-color: var(--border-secondary); /* SỬA */
 }
 
 /* --- CSS MỚI CHO LỌC THEO NHÓM --- */
 .filter-dropdown-options-group {
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--border-primary); /* SỬA */
   padding-bottom: 15px;
   margin-bottom: 15px;
 }
@@ -130,7 +129,7 @@
 .filter-dropdown-group-heading {
   font-size: 1rem;
   font-weight: 700;
-  color: #61dafb;
+  color: var(--accent-react); /* SỬA */
   margin-top: 0;
   margin-bottom: 12px;
   text-transform: uppercase;

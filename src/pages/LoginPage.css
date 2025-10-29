@@ -12,7 +12,7 @@
   width: 100%;
   max-width: 400px;
   padding: 2rem;
-  background-color: #2c2c2c;
+  background-color: var(--bg-surface-1); /* SỬA */
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
@@ -20,7 +20,7 @@
 .login-form-wrapper h2 {
   text-align: center;
   margin-bottom: 1.5rem;
-  color: #fff;
+  color: var(--text-white); /* SỬA */
 }
 
 .form-group {
@@ -30,18 +30,17 @@
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #ccc;
+  color: var(--text-primary); /* SỬA */
 }
 
 .form-group input {
   width: 90%;
   padding: 0.75rem;
-  background-color: #1e1e1e;
-  border: 1px solid #444;
+  background-color: var(--bg-secondary); /* SỬA */
+  border: 1px solid var(--border-secondary); /* SỬA */
   border-radius: 4px;
-  color: #fff;
+  color: var(--text-white); /* SỬA */
   font-size: 1rem;
-  /* margin: 0 auto; */
 }
 
 .submit-btn, .google-signin-btn {
@@ -56,41 +55,36 @@
 }
 
 .submit-btn {
-  background-color: #e50914;
-  color: white;
+  background-color: var(--accent-login); /* SỬA */
+  color: var(--text-white); /* SỬA */
   margin-top: 1rem;
 }
 
 .submit-btn:hover {
-  background-color: #f40612;
+  background-color: var(--accent-login-hover); /* SỬA */
 }
 
 .google-signin-btn {
-  background-color: #4285F4;
-  color: white;
+  background-color: var(--accent-google); /* SỬA */
+  color: var(--text-white); /* SỬA */
   margin-top: 1rem;
 }
 
 .google-signin-btn:hover {
-  background-color: #357ae8;
+  background-color: var(--accent-google-hover); /* SỬA */
 }
-
-/* --- SỬA: Xóa class này ---
-.error-message {
-  color: #e57373;
-  margin-top: 1rem;
-  text-align: center;
-}
-*/
 
 .toggle-form-text {
   margin-top: 1.5rem;
   text-align: center;
-  color: #aaa;
+  color: var(--text-secondary); /* SỬA */
 }
 
 .toggle-form-text span {
-  color: #42a5f5;
+  color: var(--text-link); /* SỬA */
   cursor: pointer;
   font-weight: bold;
+}
+.toggle-form-text span:hover {
+    color: var(--text-link-hover); /* SỬA */
 }

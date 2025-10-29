@@ -97,15 +97,18 @@ function ActorProfilePage({ fullCache, isFullDataReady }) {
 
   // --- Logic Render (Giữ nguyên phần lớn) ---
   if (isLoading) {
-    return <div className="ap-loading">Đang tải thông tin diễn viên...</div>;
+    // return <div className="ap-loading">Đang tải thông tin diễn viên...</div>;
+    return <div className="loading-indicator">Đang tải thông tin diễn viên...</div>;
   }
   if (error) {
     // Hiển thị lỗi nếu có
-    return <div className="ap-loading error-message">{error}</div>; // Thêm class error-message nếu cần style riêng
+    // return <div className="ap-loading error-message">{error}</div>; // Thêm class error-message nếu cần style riêng
+    return <div className="loading-indicator error-message">{error}</div>;
   }
   // Kiểm tra nếu không loading, không lỗi, nhưng không có dữ liệu profile
   if (!actorData || !actorData.profile) {
-    return <div className="ap-loading">Không tìm thấy thông tin diễn viên.</div>;
+    // return <div className="ap-loading">Không tìm thấy thông tin diễn viên.</div>;
+    return <div className="loading-indicator">Không tìm thấy thông tin diễn viên.</div>;
   }
 
   // Nếu đã có dữ liệu, tiến hành render

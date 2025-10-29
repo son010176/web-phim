@@ -20,7 +20,12 @@ const API_URL_BASE = 'https://phim-ngan-web-api.phimngan.workers.dev/api';
  */
 const handleResponse = async (response, context) => {
   if (!response.ok) {
-    throw new Error(`Lỗi mạng từ API Worker (${context}): ${response.statusText}`);
+    console.log(response);
+    if (context === 'ActorProfile') {
+      throw new Error(`Không tìm thấy thông tin diễn viên`);
+    } else {
+      throw new Error(`Lỗi mạng từ API Worker (${context}): ${response.status}`);
+    }
   }
   const result = await response.json();
   if (result.status === 'success') {
@@ -37,6 +42,7 @@ const handleResponse = async (response, context) => {
  * @param {string} context - Tên hàm (để log lỗi)
  */
 const handleError = (error, context) => {
+  // if(context === 'ActorProfile')
   console.error(`❌ Lỗi nghiêm trọng khi gọi API Worker (${context}):`, error);
   throw error;
 };

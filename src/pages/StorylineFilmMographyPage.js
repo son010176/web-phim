@@ -85,13 +85,16 @@ function StorylineFilmMographyPage({ fullCache, isFullDataReady }) {
 
   // --- Logic Render ---
   if (isLoading) {
-    return <div className="sf-loading">Đang tải dữ liệu...</div>;
+    // return <div className="sf-loading">Đang tải dữ liệu...</div>;
+    return <div className="loading-indicator">Đang tải dữ liệu...</div>;
   }
   if (error) {
-    return <div className="sf-loading">{error}</div>; 
+    // return <div className="sf-loading">{error}</div>; 
+    return <div className="loading-indicator">{error}</div>;
   }
   if (!storylineData || !storylineData.profile) {
-    return <div className="sf-loading">Không tìm thấy thông tin cho cốt truyện này.</div>;
+    // return <div className="sf-loading">Không tìm thấy thông tin cho cốt truyện này.</div>;
+    return <div className="loading-indicator">Không tìm thấy thông tin cho cốt truyện này.</div>;
   }
 
   const { profile, movies } = storylineData;

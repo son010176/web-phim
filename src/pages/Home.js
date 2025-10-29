@@ -153,7 +153,8 @@ function Home({
         </div>
 
         {showLoading &&
-          <div className="loading-overlay">Đang tải trang mới...</div>
+          // <div className="loading-overlay">Đang tải trang mới...</div>
+          <div className="loading-indicator loading-indicator--overlay">Đang tải trang mới...</div>
         }
 
         <MovieList movies={moviesToRender} />

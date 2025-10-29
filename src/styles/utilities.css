@@ -1,0 +1,62 @@
+/* src/styles/utilities.css */
+
+/* --- Loading Indicator --- */
+/* Replaces .loading-overlay, .ap-loading, .cf-loading, etc. */
+.loading-indicator {
+  /* Style for inline loading messages */
+  text-align: center;
+  padding: 50px 20px;
+  font-size: 1.5rem;
+  color: var(--text-muted); /* Use CSS Variable */
+  flex-grow: 1; /* Helps center vertically in flex containers */
+  min-height: 200px; /* Give it some space */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Modifier for overlay style (if needed, like in Home.js) */
+.loading-indicator--overlay {
+  position: absolute; /* Or fixed */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(18, 18, 18, 0.7); /* var(--bg-primary) with alpha */
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  z-index: 10; /* Ensure it's on top */
+  /* Inherits flex properties from .loading-indicator */
+}
+
+/* --- Controls Wrapper --- */
+/* Used in Home, AllActorsPage, AllCouplesPage, StorylinePage */
+.controls-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem; /* Increased margin slightly */
+  margin-top: 1rem;
+  justify-content: space-between; /* Keeps items spaced out */
+}
+
+/* Optional: Add responsive behavior for controls wrapper */
+@media (max-width: 768px) {
+  .controls-wrapper {
+    flex-direction: column;
+    align-items: stretch; /* Make dropdowns full width on mobile */
+    gap: 15px;
+    margin-bottom: 1rem;
+  }
+  .controls-wrapper > * {
+     width: 100%; /* Ensure children take full width */
+     margin: 0 !important; /* Reset margins if needed */
+  }
+  .controls-wrapper .section-title {
+    order: -1; /* Move title to the top on mobile */
+    text-align: center;
+    margin-bottom: 1rem;
+    width: auto; /* Allow title to size naturally */
+  }
+}

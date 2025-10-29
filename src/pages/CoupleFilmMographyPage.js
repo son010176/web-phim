@@ -84,13 +84,17 @@ function CoupleFilmMographyPage({ fullCache, isFullDataReady }) {
 
   // --- Logic Render ---
   if (isLoading) {
-    return <div className="cf-loading">Đang tải dữ liệu...</div>;
+    // return <div className="cf-loading">Đang tải dữ liệu...</div>;
+    return <div className="loading-indicator">Đang tải dữ liệu...</div>;
   }
   if (error) {
-    return <div className="cf-loading">{error}</div>; 
+    // return <div className="cf-loading">{error}</div>; 
+    return <div className="loading-indicator">{error}</div>;
+
   }
   if (!coupleData || !coupleData.profile) {
-    return <div className="cf-loading">Không tìm thấy thông tin cho cặp đôi này.</div>;
+    // return <div className="cf-loading">Không tìm thấy thông tin cho cặp đôi này.</div>;
+    return <div className="loading-indicator">Không tìm thấy thông tin cho cặp đôi này.</div>;
   }
 
   const { profile, movies } = coupleData;

@@ -148,10 +148,12 @@ function AllCouplesPage({
             />
             
           </div>
-        {showLoadingOverlay && <div className="loading-overlay ac-loading">Đang tải trang mới...</div>}
+        {/* {showLoadingOverlay && <div className="loading-overlay ac-loading">Đang tải trang mới...</div>} */}
+        {showLoadingOverlay && <div className="loading-indicator loading-indicator--overlay">Đang tải trang mới...</div>}
 
         {couplesToRender.length === 0 && !showLoadingOverlay ? (
-          <p className="ac-loading">Không có cặp đôi nào.</p>
+          // <p className="ac-loading">Không có cặp đôi nào.</p>
+          <div className="loading-indicator">Không có cặp đôi nào.</div> // Sử dụng div và class mới
         ) : (
           <>
             <div className="movie-list">

@@ -1,11 +1,56 @@
-/* src/App.css (Đã được tinh gọn) */
+/* src/App.css (Cập nhật với CSS Variables) */
+
+/* --- THÊM KHỐI NÀY VÀO ĐẦU FILE --- */
+:root {
+  /* Màu nền */
+  --bg-primary: #121212;         /* Nền body chính */
+  --bg-secondary: #1e1e1e;       /* Nền card, input nền */
+  --bg-secondary-alt: #1a1a1a;   /* Nền footer, link section */
+  --bg-tertiary: #141414;        /* Nền header */
+  --bg-surface-1: #2a2a2a;       /* Nền dropdown trigger, modal */
+  --bg-surface-2: #1f1f1f;       /* Nền panel dropdown, search result */
+  --bg-overlay: rgba(0, 0, 0, 0.7); /* Modal overlay */
+  --bg-disabled: #555;          /* Nền nút disabled */
+
+  /* Màu chữ */
+  --text-primary: #e0e0e0;       /* Chữ chính */
+  --text-secondary: #aaa;        /* Chữ phụ, placeholder, label */
+  --text-inverted: #121212;      /* Chữ trên nền accent */
+  --text-white: #fff;            /* Chữ trắng (dùng khi cần) */
+  --text-muted: #888;           /* Chữ mờ (logo text, meta) */
+  --text-link: #569cd6;         /* Màu link VS Code */
+  --text-link-hover: #408ac9;   /* Link hover */
+
+  /* Màu viền */
+  --border-primary: #333;        /* Viền card, input */
+  --border-secondary: #444;      /* Viền dropdown, pagination button */
+  --border-accent: #61dafb;       /* Viền hover (React accent) */
+  --border-header: #222;        /* Viền dưới header */
+
+  /* Màu nhấn (Accent) */
+  --accent-react: #61dafb;       /* Màu xanh React */
+  --accent-vscode: #569cd6;     /* Màu xanh VS Code (link, button) */
+  --accent-vscode-hover: #408ac9;
+  --accent-danger: #f44336;      /* Màu đỏ xóa */
+  --accent-danger-hover: #d32f2f;
+  --accent-success: #28a745;     /* Màu xanh lá thành công */
+  --accent-google: #4285F4;     /* Màu nút Google */
+  --accent-google-hover: #357ae8;
+  --accent-login: #e50914;      /* Màu nút Login/Register */
+  --accent-login-hover: #f40612;
+
+  /* Font */
+  --font-family-primary: 'Inter', sans-serif; /* Đã dùng Inter */
+}
+/* --- KẾT THÚC KHỐI THÊM --- */
+
 body {
   margin: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-family-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #121212;
-  color: #e0e0e0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   line-height: 1.6;
 }
 
@@ -19,33 +64,31 @@ body {
 /* Phần section chung cho các trang */
 .main-content-section {
   padding: 0 40px;
-  max-width: 1200px; /* Giới hạn độ rộng nội dung chính */
+  max-width: 1200px;
   margin: 0 auto;
-  flex-grow: 1; /* Giúp đẩy footer xuống dưới */
+  flex-grow: 1;
   width: 100%;
-  box-sizing: border-box; /* Đảm bảo padding không làm tăng kích thước */
+  box-sizing: border-box;
 }
 
 .section-title {
   font-size: 2rem;
-  color: #f0f0f0;
-  margin-bottom: 1.5rem; /* Tăng khoảng cách dưới */
-  margin-top: 1.5rem;    /* Thêm khoảng cách trên */
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  margin-top: 1.5rem;
   text-align: left;
-  border-bottom: 2px solid #333;
+  border-bottom: 2px solid var(--border-primary);
   padding-bottom: 0.5rem;
 }
 
 /* Footer chung */
 .main-footer {
-  background-color: #1a1a1a;
+  background-color: var(--bg-secondary-alt);
   padding: 30px 20px;
-  color: #888;
+  color: var(--text-muted);
   font-size: 0.9rem;
   margin-top: 50px;
 }
-
-/* Thêm vào cuối file src/App.css */
 
 .loading-message {
   display: flex;
@@ -53,7 +96,7 @@ body {
   align-items: center;
   flex-grow: 1;
   font-size: 1.5rem;
-  color: #888;
+  color: var(--text-muted);
   min-height: 50vh;
   animation: fadeIn 0.3s ease-in;
 }
@@ -65,7 +108,7 @@ body {
 
 /* Thêm skeleton loading (tùy chọn) */
 .skeleton-loading {
-  background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+  background: linear-gradient(90deg, var(--bg-secondary-alt) 25%, var(--bg-surface-1) 50%, var(--bg-secondary-alt) 75%);
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
 }
@@ -75,6 +118,21 @@ body {
   100% { background-position: -200% 0; }
 }
 
+/* CSS cho .loading-overlay (tạm thời để ở đây, sau sẽ chuyển vào utilities.css) */
+/* .loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(18, 18, 18, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  z-index: 10;
+} */
 
 /* --- Media Queries Toàn Cục --- */
 @media (max-width: 768px) {

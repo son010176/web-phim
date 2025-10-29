@@ -2,7 +2,7 @@
 
 .filter-bar {
   padding: 20px;
-  background-color: #1a1a1a;
+  background-color: var(--bg-secondary-alt); /* SỬA */
   border-radius: 8px;
   margin-bottom: 30px;
   text-align: left;
@@ -16,7 +16,7 @@
 
 .filter-label {
   font-weight: 600;
-  color: #aaa;
+  color: var(--text-secondary); /* SỬA */
   flex-shrink: 0;
   padding-top: 8px;
 }
@@ -28,9 +28,9 @@
 }
 
 .filter-button {
-  background-color: #333;
-  color: #e0e0e0;
-  border: 1px solid #444;
+  background-color: var(--border-primary); /* SỬA */
+  color: var(--text-primary); /* SỬA */
+  border: 1px solid var(--border-secondary); /* SỬA */
   border-radius: 15px;
   padding: 8px 15px;
   font-size: 0.9rem;
@@ -39,14 +39,14 @@
 }
 
 .filter-button:hover {
-  background-color: #444;
-  border-color: #666;
+  background-color: var(--border-secondary); /* SỬA */
+  border-color: #666; /* Giữ nguyên hoặc tạo biến */
 }
 
 /* Kiểu cho nút đang được chọn */
 .filter-button.active {
-  background-color: #61dafb;
-  color: #121212;
-  border-color: #61dafb;
+  background-color: var(--accent-react); /* SỬA */
+  color: var(--text-inverted); /* SỬA */
+  border-color: var(--accent-react); /* SỬA */
   font-weight: bold;
 }

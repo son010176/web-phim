@@ -5,7 +5,7 @@
   right: 20px;
   padding: 15px 25px;
   border-radius: 8px;
-  color: white;
+  color: var(--text-white); /* SỬA */
   display: flex;
   align-items: center;
   gap: 15px;
@@ -15,11 +15,15 @@
 }
 
 .toast-container.success {
-  background-color: #28a745; /* Màu xanh lá */
+  background-color: var(--accent-success); /* SỬA */
 }
 
 .toast-container.error {
-  background-color: #dc3545; /* Màu đỏ */
+  background-color: var(--accent-danger); /* SỬA */
+}
+
+.toast-container.info { /* Thêm màu cho info (nếu cần) */
+  background-color: var(--accent-vscode); /* SỬA */
 }
 
 .toast-message {
@@ -30,7 +34,7 @@
 .toast-close-btn {
   background: none;
   border: none;
-  color: white;
+  color: var(--text-white); /* SỬA */
   font-size: 1.5rem;
   line-height: 1;
   cursor: pointer;

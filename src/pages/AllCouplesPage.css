@@ -6,42 +6,40 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.9rem;
-  color: #aaa;
+  color: var(--text-secondary); /* SỬA */
   margin-top: auto; /* Đẩy xuống dưới cùng của thẻ info */
   padding-top: 10px;
 }
 
-.ac-container {
-  /* text-align: center; */
-  /* padding-top: 40px; */
-  /* padding-bottom: 40px; */
-}
+/* .ac-container {
+  
+} */
 
 .ac-card-status {
   font-weight: bold;
   padding: 4px 8px;
   border-radius: 4px;
-  background-color: #444;
-  color: #e0e0e0;
+  background-color: var(--border-secondary); /* SỬA */
+  color: var(--text-primary); /* SỬA */
 }
 
 /* Thêm màu cho trạng thái 'LATEST' */
 .ac-card-status.latest {
-  background-color: #28a745; /* Màu xanh lá */
-  color: white;
+  background-color: var(--accent-success); /* SỬA */
+  color: var(--text-white); /* SỬA */
 }
 
-.ac-loading {
+/* .ac-loading {
   text-align: center;
   padding: 50px;
   font-size: 1.5rem;
-  color: #ccc;
-}
+  color: var(--text-primary);
+} */
 
-.controls-wrapper {
+/* .controls-wrapper {
   display: flex;
   align-items: center;
   gap: 20px;
   flex-wrap: wrap;
   margin-bottom: 1rem;
-}
+} */

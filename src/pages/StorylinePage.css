@@ -1,12 +1,10 @@
-/* src/pages/StorylinePage.css (Thiết kế lại hoàn toàn) */
+/* src/pages/StorylinePage.css (Đã đồng bộ hover effect) */
 
 .sl-container {
-  /* padding-top: 20px; */
   padding-bottom: 40px;
 }
 
 .sl-main-title {
-  /* font-size: 2rem; */
   margin-bottom: 40px;
   text-align: center;
 }
@@ -22,12 +20,16 @@
   text-decoration: none;
   color: inherit;
   display: block;
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
+  border-radius: 8px; /* Giữ bo tròn */
+  /* THAY ĐỔI: Chuyển transition vào link để áp dụng cho thẻ bên trong */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* THAY ĐỔI: Áp dụng hiệu ứng hover vào link để thẻ bên trong được nâng lên */
 .sl-item-link:hover {
-  background-color: #1e1e1e;
+  transform: translateY(-10px); /* Nâng lên */
+  /* Không cần đổi màu nền nữa */
+  /* background-color: var(--bg-secondary); */
 }
 
 /* --- Thẻ của một mục trong danh sách --- */
@@ -35,7 +37,20 @@
   display: flex;
   gap: 20px;
   padding: 15px;
+  background-color: var(--bg-secondary); /* Thêm màu nền mặc định cho thẻ */
+  border-radius: 8px; /* Thêm bo tròn cho thẻ */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4); /* Thêm shadow mặc định */
+  /* THAY ĐỔI: Transition cho box-shadow khi hover */
+  transition: box-shadow 0.3s ease;
+  height: 100%; /* Đảm bảo thẻ chiếm đủ chiều cao */
+  box-sizing: border-box; /* Đảm bảo padding không làm thay đổi kích thước */
 }
+
+/* THAY ĐỔI: Thêm hiệu ứng đổ bóng khi hover vào link cha */
+.sl-item-link:hover .sl-item-card {
+  box-shadow: 0 12px 25px rgba(97, 218, 251, 0.4); /* Shadow màu accent */
+}
+
 
 /* --- Poster --- */
 .sl-item-poster {
@@ -45,11 +60,10 @@
 
 .sl-item-poster img {
   width: 100%;
-  /* height: 100%; */
   aspect-ratio: 2 / 3;
   object-fit: cover;
   border-radius: 6px;
-  background-color: #2a2a2a;
+  background-color: var(--bg-surface-1); /* SỬA: Dùng biến */
 }
 
 /* --- Khối thông tin bên phải --- */
@@ -63,19 +77,19 @@
 .sl-item-title {
   font-size: 1.2rem;
   margin: 0 0 8px 0;
-  color: #e0e0e0;
+  color: var(--text-primary); /* SỬA: Dùng biến */
 }
 
 .sl-item-novel {
   font-size: 0.9rem;
   font-style: italic;
-  color: #aaa;
+  color: var(--text-secondary); /* SỬA: Dùng biến */
   margin: 0 0 10px 0;
 }
 
 .sl-item-tags {
   font-size: 0.85rem;
-  color: #ccc;
+  color: var(--text-primary); /* SỬA: Dùng biến */
   line-height: 1.6;
   margin: 0 0 15px 0;
   flex-grow: 1; /* Đẩy phần meta xuống dưới */
@@ -86,8 +100,8 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.9rem;
-  color: #aaa;
-  border-top: 1px solid #333;
+  color: var(--text-secondary); /* SỬA: Dùng biến */
+  border-top: 1px solid var(--border-primary); /* SỬA: Dùng biến */
   padding-top: 10px;
 }
 
@@ -95,26 +109,26 @@
   font-weight: bold;
   padding: 4px 8px;
   border-radius: 4px;
-  background-color: #444;
-  color: #e0e0e0;
+  background-color: var(--border-secondary); /* SỬA: Dùng biến */
+  color: var(--text-primary); /* SỬA: Dùng biến */
 }
 
 .sl-item-status.latest {
-  background-color: #28a745;
-  color: white;
+  background-color: var(--accent-success); /* SỬA: Dùng biến */
+  color: var(--text-white); /* SỬA: Dùng biến */
 }
 
-.sl-loading {
+/* .sl-loading {
   text-align: center;
   padding: 50px;
   font-size: 1.5rem;
-  color: #ccc;
-}
+  color: var(--text-primary);
+} */
 
-.controls-wrapper {
+/* .controls-wrapper {
   display: flex;
   align-items: center;
   gap: 20px;
   flex-wrap: wrap;
   margin-bottom: 1rem;
-}
+} */

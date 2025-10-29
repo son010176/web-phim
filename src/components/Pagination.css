@@ -5,18 +5,17 @@
   justify-content: center;
   align-items: center;
   padding: 20px 0;
-  gap: 10px; /* Giảm khoảng cách để các nút gần nhau hơn */
+  gap: 10px;
   margin-top: 20px;
 }
 
 .pagination-button {
-  background-color: #2a2a2a;
-  color: #e0e0e0;
-  border: 1px solid #444;
+  background-color: var(--bg-surface-1); /* SỬA */
+  color: var(--text-primary); /* SỬA */
+  border: 1px solid var(--border-secondary); /* SỬA */
   border-radius: 8px;
   width: 45px;
   height: 40px;
-  /* Bỏ font-size và font-weight cũ */
   cursor: pointer;
   display: flex;
   justify-content: center;
@@ -25,9 +24,9 @@
 }
 
 .pagination-button:hover:not(:disabled) {
-  background-color: #61dafb;
-  border-color: #61dafb;
-  color: #121212;
+  background-color: var(--accent-react); /* SỬA */
+  border-color: var(--accent-react); /* SỬA */
+  color: var(--text-inverted); /* SỬA */
 }
 
 .pagination-button:disabled {
@@ -39,24 +38,24 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: #1e1e1e;
-  color: #ccc;
+  background-color: var(--bg-secondary); /* SỬA */
+  color: var(--text-primary); /* SỬA */
   padding: 0 16px;
   height: 40px;
   box-sizing: border-box;
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 500;
-  border: 1px solid #333;
+  border: 1px solid var(--border-primary); /* SỬA */
 }
 
 .page-input {
   width: 50px;
   height: 28px;
-  background-color: #333;
-  border: 1px solid #555;
+  background-color: var(--border-primary); /* SỬA */
+  border: 1px solid var(--bg-disabled); /* SỬA */
   border-radius: 4px;
-  color: #e0e0e0;
+  color: var(--text-primary); /* SỬA */
   text-align: center;
   font-size: 1rem;
   font-weight: bold;
@@ -65,7 +64,7 @@
 }
 
 .page-input:focus {
-  border-color: #61dafb;
+  border-color: var(--border-accent); /* SỬA */
 }
 
 /* Ẩn các mũi tên mặc định của input type="number" */
@@ -80,7 +79,7 @@
 
 /* --- THÊM CSS MỚI CHO ICON --- */
 .pagination-button svg {
-  width: 18px; /* Kích thước icon */
+  width: 18px;
   height: 18px;
-  fill: currentColor; /* Icon sẽ đổi màu theo màu chữ của nút (kể cả khi hover) */
+  fill: currentColor;
 }

@@ -15,7 +15,7 @@
 }
 
 .movie-card {
-  background-color: #1e1e1e;
+  background-color: var(--bg-secondary); /* SỬA */
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
@@ -27,7 +27,7 @@
 
 .movie-card:hover {
   transform: translateY(-10px) scale(1.02);
-  box-shadow: 0 12px 25px rgba(97, 218, 251, 0.4);
+  box-shadow: 0 12px 25px rgba(97, 218, 251, 0.4); /* Có thể tạo biến cho màu shadow nếu muốn */
 }
 
 .movie-card img.default-icon,
@@ -35,8 +35,8 @@
   width: 100%;
   height: 280px;
   object-fit: cover;
-  border-bottom: 1px solid #333;
-  background-color: #2a2a2a;
+  border-bottom: 1px solid var(--border-primary); /* SỬA */
+  background-color: var(--bg-surface-1); /* SỬA */
 }
 
 /* --- Phần thông tin bên trong thẻ phim --- */
@@ -52,7 +52,7 @@
 .movie-title {
   font-size: 1.1rem;
   margin: 0 0 0.5rem 0;
-  color: #f0f0f0;
+  color: var(--text-primary); /* SỬA */
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -62,7 +62,7 @@
 
 .movie-original-title {
   font-size: 0.9rem;
-  color: #aaa;
+  color: var(--text-secondary); /* SỬA */
   font-style: italic;
   margin: 0 0 0.5rem 0;
   white-space: nowrap;
@@ -72,7 +72,7 @@
 
 .movie-actors {
   font-size: 0.9rem;
-  color: #bbb;
+  color: var(--text-secondary); /* SỬA */
   margin-top: 5px;
 }
 
@@ -81,13 +81,13 @@
 }
 
 .actor-name {
-  color: #ccc;
+  color: var(--text-primary); /* SỬA */
 }
 
 .movie-genre {
   display: inline-block;
-  background-color: #61dafb;
-  color: #1a1a1a;
+  background-color: var(--accent-react); /* SỬA */
+  color: var(--text-inverted); /* SỬA */
   padding: 5px 10px;
   border-radius: 5px;
   font-size: 0.85rem;
@@ -101,16 +101,15 @@
 }
 
 .no-results-message {
-  color: #888;
+  color: var(--text-muted); /* SỬA */
   font-size: 1.2rem;
   text-align: center;
   padding: 50px 0;
 }
 
-/* Thêm vào cuối file src/components/MovieList.css */
-
+/* Nút xóa */
 .movie-card {
-  position: relative; /* Quan trọng để định vị nút xóa */
+  position: relative;
 }
 
 .remove-button {
@@ -119,26 +118,26 @@
   right: 10px;
   z-index: 2;
   background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  border: 1px solid white;
+  color: var(--text-white); /* SỬA */
+  border: 1px solid var(--text-white); /* SỬA */
   border-radius: 50%;
   width: 30px;
   height: 30px;
   font-size: 1.5rem;
   font-weight: bold;
-  line-height: 28px; /* Căn dấu X ra giữa theo chiều dọc */
+  line-height: 28px;
   text-align: center;
   padding: 0;
   cursor: pointer;
   transition: all 0.2s ease;
-  opacity: 0; /* Mặc định ẩn đi */
+  opacity: 0;
 }
 
 .movie-card:hover .remove-button {
-  opacity: 1; /* Chỉ hiện khi hover vào thẻ phim */
+  opacity: 1;
 }
 
 .remove-button:hover {
-  background-color: #f44336; /* Màu đỏ khi hover */
-  border-color: #f44336;
+  background-color: var(--accent-danger); /* SỬA */
+  border-color: var(--accent-danger); /* SỬA */
 }

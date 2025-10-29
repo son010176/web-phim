@@ -159,10 +159,12 @@ function AllActorsPage({
           />
         </div>
 
-        {showLoadingOverlay && <div className="loading-overlay aa-loading">Đang tải trang mới...</div>}
+        {/* {showLoadingOverlay && <div className="loading-overlay aa-loading">Đang tải trang mới...</div>} */}
+        {showLoadingOverlay && <div className="loading-indicator loading-indicator--overlay">Đang tải trang mới...</div>}
 
         {actorsToRender.length === 0 && !showLoadingOverlay ? (
-            <p className="aa-loading">Không có diễn viên nào phù hợp.</p> 
+            // <p className="aa-loading">Không có diễn viên nào phù hợp.</p> 
+            <div className="loading-indicator">Không có diễn viên nào phù hợp.</div> // Sử dụng div và class mới
         ) : (
           <div className="movie-list"> 
             {actorsToRender.map((actor) => (

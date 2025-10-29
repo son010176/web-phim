@@ -7,6 +7,7 @@ import { NotificationProvider } from "./context/NotificationContext";
 import { AuthProvider } from "./context/AuthContext";
 // 1. Import CollectionProvider
 import { CollectionProvider } from "./context/CollectionContext";
+import './styles/utilities.css';
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

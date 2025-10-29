@@ -6,7 +6,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: var(--bg-overlay); /* SỬA */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -15,10 +15,10 @@
 }
 
 .modal-content {
-  background-color: #2a2a2a;
+  background-color: var(--bg-surface-1); /* SỬA */
   padding: 30px;
   border-radius: 12px;
-  border: 1px solid #444;
+  border: 1px solid var(--border-secondary); /* SỬA */
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   width: 90%;
   max-width: 450px;
@@ -29,13 +29,13 @@
 .modal-title {
   margin-top: 0;
   margin-bottom: 15px;
-  color: #e0e0e0;
+  color: var(--text-primary); /* SỬA */
   font-size: 1.5rem;
 }
 
 .modal-body {
   margin-bottom: 25px;
-  color: #ccc;
+  color: var(--text-primary); /* SỬA (hoặc text-secondary nếu muốn mờ hơn) */
   font-size: 1.1rem;
   line-height: 1.6;
 }
@@ -57,21 +57,21 @@
 }
 
 .modal-button.cancel {
-  background-color: #444;
-  color: #e0e0e0;
+  background-color: var(--border-secondary); /* SỬA */
+  color: var(--text-primary); /* SỬA */
 }
 
 .modal-button.cancel:hover {
-  background-color: #555;
+  background-color: var(--bg-disabled); /* SỬA */
 }
 
 .modal-button.confirm {
-  background-color: #f44336;
-  color: white;
+  background-color: var(--accent-danger); /* SỬA */
+  color: var(--text-white); /* SỬA */
 }
 
 .modal-button.confirm:hover {
-  background-color: #d32f2f;
+  background-color: var(--accent-danger-hover); /* SỬA */
 }
 
 /* Animation Keyframes */
