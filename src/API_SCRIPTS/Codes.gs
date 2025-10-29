@@ -30,11 +30,11 @@ function doGet(e) {
       case 'getMoviesByStoryline':
         response = getMoviesByStoryline();
         break;
-      case 'fetchAllDataForSearchCache':
-        response = fetchAllDataForSearchCache();
+      case 'getDataFull':
+        response = getDataFull();
         break;
-      case 'getCollection':
-        response = getCollection();
+      case 'getDataSearch':
+        response = getDataSearch();
         break;
       default:
         response = createJsonResponse({ status: 'error', message: 'Hành động GET không hợp lệ.' });

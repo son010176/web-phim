@@ -1,4 +1,4 @@
-// src/pages/Home.js (Đã sửa lỗi logic, dùng isSearchReady làm công tắc)
+// src/pages/Home.js (Đã đồng bộ layout)
 
 import React, { useState, useEffect, memo, useRef, useCallback } from "react";
 import DropdownFilter from "../components/DropdownFilter";
@@ -83,7 +83,7 @@ function Home({
           pageTokens: { ...prev.pageTokens, [newPage + 1]: res.pagination?.nextPageToken },
           isLoading: false
         }));
-        window.scrollTo(0, 0);
+        // window.scrollTo(0, 0);
       } else {
          setServerData(prev => ({ ...prev, isLoading: false }));
       }
@@ -96,7 +96,7 @@ function Home({
   // Phân trang Client (IndexedDB/SearchCache)
   const handleClientPageChange = (newPage) => {
     setClientCurrentPage(newPage);
-    window.scrollTo(0, 0);
+    // window.scrollTo(0, 0);
   };
 
   // --- LOGIC RENDER ---
@@ -133,8 +133,8 @@ function Home({
   const showLoading = serverData.isLoading && !isSearchReady;
   
   return (
-    <div className="home-content">
-      <main className="movie-list-section">
+    <>
+      <main className="main-content-section">
         <div className="controls-wrapper">
           <DropdownFilter
             genres={uniqueGenres}
@@ -170,7 +170,7 @@ function Home({
           &copy; {new Date().getFullYear()} Phim Ngắn. Mọi quyền được bảo lưu.
         </p>
       </footer>
-    </div>
+    </>
   );
 }
 

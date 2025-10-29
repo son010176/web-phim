@@ -89,7 +89,7 @@ function AllActorsPage({
           pageTokens: { ...prev.pageTokens, [newPage + 1]: res.pagination?.nextPageToken },
           isLoading: false
         }));
-        window.scrollTo(0, 0);
+        // window.scrollTo(0, 0);
       } else {
          setServerData(prev => ({ ...prev, list: [], isLoading: false }));
       }
@@ -102,7 +102,7 @@ function AllActorsPage({
   // Phân trang Client (IndexedDB)
   const handleClientPageChange = (newPage) => {
     setClientCurrentPage(newPage);
-    window.scrollTo(0, 0); 
+    // window.scrollTo(0, 0); 
   };
 
   // --- LOGIC RENDER ---

@@ -10,11 +10,6 @@
   justify-content:space-between;
 }
 
-/* --- Layout chính của trang Home --- */
-.movie-list-section {
-  padding: 0px 40px;
-  max-width: 1200px;
-  margin: 0 auto;
-  flex-grow: 1;
-}
-
+/* Đã xóa class .movie-list-section 
+  vì .main-content-section trong App.css đã xử lý
+*/

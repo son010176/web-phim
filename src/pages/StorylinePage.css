@@ -45,9 +45,9 @@
 
 .sl-item-poster img {
   width: 100%;
-  height: 100%;
+  /* height: 100%; */
   aspect-ratio: 2 / 3;
-  /* object-fit: cover; */
+  object-fit: cover;
   border-radius: 6px;
   background-color: #2a2a2a;
 }
