@@ -57,7 +57,7 @@ function SortDropdown({ currentSortOrder, onSortChange, isDisabled }) {
         onClick={toggleDropdown}
       >
         <SortIcon className="sort-dropdown-icon" />
-        <span className="sort-dropdown-label">Sắp xếp:</span>
+        <span className="sort-dropdown-label">Sắp xếp</span>
         <span className="sort-dropdown-selected-text">{sortOptions[currentSortOrder]}</span>
         <ChevronIcon className={`sort-dropdown-chevron ${isOpen ? 'expanded' : ''}`} />
       </div>

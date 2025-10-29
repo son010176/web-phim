@@ -93,7 +93,7 @@ function DropdownFilter({ genres, selectedGenres, onGenreToggle, isDisabled, gro
         onClick={toggleDropdown}
       >
         <FilterIcon className="filter-dropdown-icon" />
-        <span className="filter-dropdown-label">Lọc theo:</span>
+        <span className="filter-dropdown-label">Lọc theo</span>
         <span className="filter-dropdown-selected-text">{displaySelected()}</span>
         <ChevronIcon className={`filter-dropdown-chevron ${isOpen ? 'expanded' : ''}`} />
       </div>

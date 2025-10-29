@@ -128,3 +128,49 @@
 .sort-dropdown-display.disabled:hover {
   border-color: var(--border-secondary); /* SỬA */
 }
+
+/* Thêm vào cuối file src/components/SortDropdown.css */
+
+/* --- Ẩn chữ lựa chọn trên Mobile --- */
+@media (max-width: 768px) {
+  .sort-dropdown {
+      width: auto; /* Bỏ width cố định */
+      margin: 0; /* Reset margin */
+      flex-grow: 1; /* Cho phép co giãn */
+      flex-basis: 0;
+       min-width: 0; /* Bỏ min-width nếu không cần */
+  }
+
+  .sort-dropdown-display {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    gap: 8px;
+    justify-content: space-between;
+  }
+
+   .sort-dropdown-label {
+      margin-right: auto;
+      color: var(--text-primary);
+      font-weight: 500;
+  }
+
+  /* QUAN TRỌNG: Ẩn phần text hiển thị lựa chọn */
+  .sort-dropdown-selected-text {
+    display: none;
+  }
+  /* ------------------------------------------- */
+
+  .sort-dropdown-icon,
+  .sort-dropdown-chevron {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  /* Giữ nguyên style panel */
+  .sort-dropdown-panel {
+    right: 0; /* Đảm bảo căn trái */
+    width: 100%; /* Giữ nguyên width 100% */
+    box-sizing: border-box;
+  }
+}
