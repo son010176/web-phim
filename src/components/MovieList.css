@@ -47,6 +47,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  min-width: 0;
 }
 
 .movie-title {
@@ -58,6 +59,7 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   line-height: 1.4;
+  min-height: 3.08rem;
 }
 
 .movie-original-title {
@@ -156,9 +158,20 @@
     height: 220px;
   }
 
-  .movie-title {
-    font-size: 1rem;
-  }
+.movie-title {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+  overflow: hidden; /* Vẫn giữ overflow hidden */
+  /* XÓA HOẶC COMMENT LẠI DÒNG NÀY */
+  /* display: -webkit-box; */
+  /* -webkit-line-clamp: 2; */
+  /* -webkit-box-orient: vertical; */
+  line-height: 1.4;
+  /* THÊM: Cho phép ngắt dòng nếu cần (dù không còn clamp) */
+  word-break: break-word;
+  min-height: 0;
+}
 
   .movie-original-title,
   .movie-actors {

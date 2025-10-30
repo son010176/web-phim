@@ -42,6 +42,13 @@
   /* Font */
   --font-family-primary: 'Inter', sans-serif; /* Đã dùng Inter */
 }
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 /* --- KẾT THÚC KHỐI THÊM --- */
 
 body {
@@ -117,22 +124,6 @@ body {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
-
-/* CSS cho .loading-overlay (tạm thời để ở đây, sau sẽ chuyển vào utilities.css) */
-/* .loading-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(18, 18, 18, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: var(--text-primary);
-  font-size: 1.2rem;
-  z-index: 10;
-} */
 
 /* --- Media Queries Toàn Cục --- */
 @media (max-width: 768px) {

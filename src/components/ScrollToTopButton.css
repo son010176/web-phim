@@ -41,3 +41,22 @@
 .scroll-button:hover svg {
   fill: var(--text-inverted); /* SỬA */
 }
+
+/* --- THÊM KHỐI NÀY ĐỂ SỬA CHO DI ĐỘNG --- */
+@media (max-width: 480px) {
+  .scroll-button {
+    /* 1. Thu nhỏ kích thước nút */
+    width: 40px;
+    height: 40px;
+
+    /* 2. Di chuyển nút vào góc hơn */
+    bottom: 20px;
+    right: 20px;
+  }
+
+  .scroll-button svg {
+    /* 3. Thu nhỏ icon bên trong cho cân xứng */
+    width: 24px;
+    height: 24px;
+  }
+}

@@ -6,6 +6,7 @@ import "./AllActorsPage.css";
 import ImageWithFallback from "../components/ImageWithFallback";
 import { createSlug } from "../utils/createSlug";
 import { formatDate } from "../utils/formatDate";
+import { splitActorName } from "../utils/actorUtils";
 import SortDropdown from "../components/SortDropdown";
 import DropdownFilter from "../components/DropdownFilter";
 import Pagination from "../components/Pagination";
@@ -167,34 +168,40 @@ function AllActorsPage({
             <div className="loading-indicator">Không có diễn viên nào phù hợp.</div> // Sử dụng div và class mới
         ) : (
           <div className="movie-list"> 
-            {actorsToRender.map((actor) => (
-              <Link
-                to={`/dien-vien/${actor.id || createSlug(actor.ten)}`}
-                key={actor.id || actor.ten}
-                className="movie-card-link"
-              >
-                <div className="movie-card">
-                  <ImageWithFallback
-                    src={actor.linkAnhProfile}
-                    alt={`Ảnh của ${actor.ten}`}
-                    type="user" 
-                  />
-                  <div className="movie-info">
-                    <h3 className="movie-title" title={actor.ten}>
-                      {actor.ten}
-                    </h3>
-                    <div className="aa-actor-meta"> 
-                      <p className="aa-info-item" title={actor.tenBinhAm}>
-                        {actor.tenBinhAm || '...'}
-                      </p>
-                      <p className="aa-info-item">
-                        {formatDate(actor.ngaySinh) || '...'}
-                      </p>
+            {actorsToRender.map((actor) => {
+              // --- VẪN SỬ DỤNG HÀM NHƯ CŨ ---
+              const { vietnameseName, chineseName } = splitActorName(actor.ten);
+              // --- ---
+              return (
+                <Link
+                  to={`/dien-vien/${actor.id || createSlug(actor.ten)}`}
+                  key={actor.id || actor.ten}
+                  className="movie-card-link"
+                >
+                  <div className="movie-card">
+                    <ImageWithFallback
+                      src={actor.linkAnhProfile}
+                      alt={`Ảnh của ${vietnameseName}`}
+                      type="user"
+                    />
+                    <div className="movie-info">
+                      <h3 className="movie-title actor-name-split" title={actor.ten}>
+                        {vietnameseName}
+                        {chineseName && <span className="actor-chinese-name">{chineseName}</span>}
+                      </h3>
+                      <div className="aa-actor-meta">
+                        <p className="aa-info-item" title={actor.tenBinhAm}>
+                          {actor.tenBinhAm || '...'}
+                        </p>
+                        <p className="aa-info-item">
+                          {formatDate(actor.ngaySinh) || '...'}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         )}
 

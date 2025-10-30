@@ -11,10 +11,6 @@
   padding-top: 10px;
 }
 
-/* .ac-container {
-  
-} */
-
 .ac-card-status {
   font-weight: bold;
   padding: 4px 8px;
@@ -28,18 +24,3 @@
   background-color: var(--accent-success); /* SỬA */
   color: var(--text-white); /* SỬA */
 }
-
-/* .ac-loading {
-  text-align: center;
-  padding: 50px;
-  font-size: 1.5rem;
-  color: var(--text-primary);
-} */
-
-/* .controls-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
-} */

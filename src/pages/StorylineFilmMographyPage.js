@@ -112,7 +112,27 @@ function StorylineFilmMographyPage({ fullCache, isFullDataReady }) {
             />
           </div>
           <div className="sf-info">
-            <h1 className="sf-title">{profile.tenCouple}</h1>
+            <h1 className="sf-title">
+              {(() => {
+                // SỬA DÒNG NÀY: Thêm ký tự ＆ full-width vào Regex
+                const parts = profile.tenCouple.split(/\s*[&＆]\s*/); 
+                
+                if (parts.length > 1) { 
+                  return (
+                    <>
+                      <span className="sf-title-part">
+                        {/* Thêm lại ký tự & chuẩn để hiển thị cho đẹp */}
+                        {parts[0]} &
+                      </span>
+                      <span className="sf-title-part">
+                        {parts[1]}
+                      </span>
+                    </>
+                  );
+                }
+                return profile.tenCouple; // Hiển thị bình thường nếu không có "&"
+              })()}
+            </h1>
             <p className="sf-novel-title">
               <strong>Tiểu thuyết gốc:</strong> {profile.tieuThuyetGoc || "Chưa rõ"}
             </p>

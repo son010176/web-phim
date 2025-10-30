@@ -1,15 +1,1 @@
 /* src/pages/Home.css (Đã được tinh gọn) */
-
-/* --- Bố cục cho các bộ lọc --- */
-/* .controls-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
-  justify-content:space-between;
-} */
-
-/* Đã xóa class .movie-list-section 
-  vì .main-content-section trong App.css đã xử lý
-*/

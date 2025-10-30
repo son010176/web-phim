@@ -83,14 +83,6 @@
   word-wrap: break-word;
 }
 
-/* --- Các style chung và responsive --- */
-/* .ap-loading {
-  text-align: center;
-  padding: 50px;
-  font-size: 1.5rem;
-  color: var(--text-primary); 
-} */
-
 .ap-no-movies {
   background-color: var(--bg-secondary); /* SỬA */
   border: 1px solid var(--border-primary); /* SỬA */
@@ -107,6 +99,8 @@
   margin-bottom: 25px;
 }
 
+/* Tìm trong file src/pages/ActorProfilePage.css */
+
 /* --- Responsive cho màn hình nhỏ --- */
 @media (max-width: 768px) {
   .ap-header {
@@ -114,12 +108,45 @@
     text-align: center;
   }
 
-  .ap-avatar {
-    width: 200px;
-    margin: 0 auto 20px auto;
+  /* Đảm bảo khối avatar căn giữa và có khoảng cách hợp lý */
+  .ap-avatar { /* THÊM CLASS NÀY BAO QUANH IMG TRONG JS NẾU CHƯA CÓ */
+    width: 200px; /* Hoặc kích thước phù hợp */
+    max-width: 60%; /* Giới hạn chiều rộng tối đa */
+    margin: 0 auto 20px auto; /* Căn giữa và tạo khoảng cách dưới */
+  }
+   /* .ap-avatar-img giữ nguyên */
+
+  .ap-info {
+      /* Căn giữa các mục con bên trong khối info */
+      align-items: center;
+  }
+
+  .ap-name {
+    font-size: 1.8rem; /* GIẢM Cỡ chữ tên chính trên mobile */
+    line-height: 1.3; /* TĂNG Nhẹ line-height để dễ đọc khi xuống dòng */
+    word-break: break-word; /* CHO PHÉP Tên tự động xuống dòng */
+    margin-bottom: 5px; /* Giảm khoảng cách dưới tên chính */
+  }
+
+  .ap-pinyin-name {
+    font-size: 1rem; /* GIẢM Cỡ chữ tên pinyin */
+    margin-bottom: 15px; /* Giữ hoặc điều chỉnh khoảng cách dưới */
   }
 
   .ap-meta-grid {
-    text-align: left;
+    text-align: left; /* Giữ căn lề trái cho thông tin chi tiết */
+    /* Có thể giảm số cột nếu cần */
+    /* grid-template-columns: 1fr; */
   }
+}
+
+/* Có thể thêm breakpoint nhỏ hơn nếu cần tinh chỉnh thêm */
+@media (max-width: 480px) {
+    .ap-name {
+        font-size: 1.6rem; /* Giảm thêm cỡ chữ trên điện thoại rất nhỏ */
+    }
+    .ap-meta-grid {
+        /* Ép thành 1 cột trên màn hình rất nhỏ */
+        grid-template-columns: 1fr;
+    }
 }

@@ -166,11 +166,11 @@ function Home({
           isDisabled={paginationDisabled} 
         />
       </main>
-      <footer className="main-footer">
+      {/* <footer className="main-footer">
         <p>
           &copy; {new Date().getFullYear()} Phim Ngắn. Mọi quyền được bảo lưu.
         </p>
-      </footer>
+      </footer> */}
     </>
   );
 }

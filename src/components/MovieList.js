@@ -65,11 +65,11 @@ function MovieList({ movies, onRemoveMovie }) {
                 </div>
               </div>
               {/* Chỉ hiển thị thể loại nếu có */}
-              {movie.theLoai && (
+              {/* {movie.theLoai && (
                 <span className="movie-genre" title={movie.theLoai}>
                   {movie.theLoai.split(/[.,]/)[0].trim()}
                 </span>
-              )}
+              )} */}
             </div>
           </div>
         </Link>

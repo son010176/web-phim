@@ -135,6 +135,32 @@ function MovieDetail({ fullCache, isFullDataReady }) {
     return null;
   };
 
+  // --- THÊM HÀM MỚI NÀY ---
+  const getOneDriveEmbedUrl = (url) => {
+    if (!url) return null;
+    try {
+      const urlObj = new URL(url);
+      if (urlObj.pathname.startsWith("/embed")) {
+        return url;
+      }
+      if (urlObj.pathname.startsWith("/redir")) {
+        return url.replace("/redir?", "/embed?");
+      }
+      if (urlObj.pathname.startsWith("/view.aspx")) {
+        return url.replace("/view.aspx?", "/embed?");
+      }
+
+      if (urlObj.hostname === "1drv.ms") {
+        console.warn("Link 1drv.ms không được hỗ trợ, vui lòng dùng link đầy đủ của onedrive.live.com");
+        return null;
+      }
+    } catch (e) {
+
+      return null;
+    }
+    return null;
+  };
+
   const getYouTubeVideoId = (url) => {
     if (!url) return null;
     const regExp =
@@ -149,6 +175,10 @@ function MovieDetail({ fullCache, isFullDataReady }) {
   const driveEmbedUrl = movie
     ? getGoogleDriveEmbedUrl(movie.linkGgDrive)
     : null;
+  // Thử lấy link OneDrive (CHỈ KHI nó không phải là link Google Drive)
+  const oneDriveEmbedUrl = !driveEmbedUrl
+    ? (movie ? getOneDriveEmbedUrl(movie.linkGgDrive) : null)
+    : null;
 
   // Tự động chọn tab đầu tiên
   useEffect(() => {
@@ -158,8 +188,11 @@ function MovieDetail({ fullCache, isFullDataReady }) {
       const subId = getYouTubeVideoId(movie.linkVideoMultiSub);
       const driveUrl = getGoogleDriveEmbedUrl(movie.linkGgDrive);
 
+      const oneDriveUrl = !driveUrl ? getOneDriveEmbedUrl(movie.linkGgDrive) : null;
+
       if (viId) setActiveTab("vi");
       else if (driveUrl) setActiveTab("drive");
+      else if (oneDriveUrl) setActiveTab("onedrive");
       else if (subId) setActiveTab("sub");
       else setActiveTab(""); // Không có video nào
     }
@@ -308,6 +341,16 @@ function MovieDetail({ fullCache, isFullDataReady }) {
                 allow="fullscreen"
               ></iframe>
             )}
+            {activeTab === "onedrive" && oneDriveEmbedUrl && (
+              <iframe
+                src={oneDriveEmbedUrl}
+                title="OneDrive Player"
+                className="youtube-player"
+                // frameBorder="0" // OneDrive iframe thường có thêm cái này
+                allow="fullscreen"
+              ></iframe>
+            )}
+
             {!viVideoId && !subVideoId && !driveEmbedUrl && (
               <p className="no-video-message">Không có video cho phim này.</p>
             )}
@@ -337,6 +380,16 @@ function MovieDetail({ fullCache, isFullDataReady }) {
                 onClick={() => setActiveTab("drive")}
               >
                 [GG Drive] Thuyết Minh
+              </button>
+            )}
+            {oneDriveEmbedUrl && (
+              <button
+                className={`tab-button ${
+                  activeTab === "onedrive" ? "active" : ""
+                }`}
+                onClick={() => setActiveTab("onedrive")}
+              >
+                [OneDrive] Thuyết Minh
               </button>
             )}
           </div>

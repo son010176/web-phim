@@ -153,23 +153,6 @@
   text-decoration: underline;
 }
 
-/* --- RESPONSIVE (Giữ nguyên) --- */
-@media (max-width: 900px) {
-  .detail-body-grid {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "poster"
-      "info"
-      "video";
-  }
-  .poster-block { margin: 0 auto; width: 100%; max-width: 320px; }
-}
-@media (max-width: 480px) {
-  .movie-detail-container { padding: 0 20px; width: 100%; }
-  .detail-title { font-size: 1.2rem; }
-  .video-block { padding: 0; }
-}
-
 .detail-loading { text-align: center; padding: 50px; font-size: 1.2rem; }
 
 /* --- Các nút Action --- */
@@ -211,4 +194,34 @@
 
 .action-button.collected:hover {
   background-color: #3a3a3a; /* Có thể tạo biến */
+}
+
+/* --- RESPONSIVE (Giữ nguyên) --- */
+@media (max-width: 900px) {
+  .detail-body-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "poster"
+      "info"
+      "video";
+  }
+  .poster-block { margin: 0 auto; width: 100%; max-width: 320px; }
+ 
+  .video-block { 
+    padding: 0 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .movie-detail-container { padding: 0 15px; width: 100%; }
+  .detail-title { font-size: 1.2rem; }
+
+  /* THÊM: Điều chỉnh các tab video cho gọn hơn */
+  .video-tabs {
+    gap: 10px; /* Giảm khoảng cách */
+  }
+  .tab-button {
+    padding: 10px 15px; /* Giảm padding nút */
+    font-size: 0.9rem; /* Giảm cỡ chữ */
+  }
 }

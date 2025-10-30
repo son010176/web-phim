@@ -28,8 +28,6 @@
 /* THAY ĐỔI: Áp dụng hiệu ứng hover vào link để thẻ bên trong được nâng lên */
 .sl-item-link:hover {
   transform: translateY(-10px); /* Nâng lên */
-  /* Không cần đổi màu nền nữa */
-  /* background-color: var(--bg-secondary); */
 }
 
 /* --- Thẻ của một mục trong danh sách --- */
@@ -117,18 +115,3 @@
   background-color: var(--accent-success); /* SỬA: Dùng biến */
   color: var(--text-white); /* SỬA: Dùng biến */
 }
-
-/* .sl-loading {
-  text-align: center;
-  padding: 50px;
-  font-size: 1.5rem;
-  color: var(--text-primary);
-} */
-
-/* .controls-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
-} */

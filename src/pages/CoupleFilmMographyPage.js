@@ -113,7 +113,27 @@ function CoupleFilmMographyPage({ fullCache, isFullDataReady }) {
             />
           </div>
           <div className="cf-info">
-            <h1 className="cf-title">{profile.tenCouple}</h1>
+            <h1 className="cf-title">
+              {(() => {
+                // SỬA DÒNG NÀY: Thêm ký tự ＆ full-width vào Regex
+                const parts = profile.tenCouple.split(/\s*[&＆]\s*/); 
+                
+                if (parts.length > 1) { 
+                  return (
+                    <>
+                      <span className="cf-title-part">
+                        {/* Thêm lại ký tự & chuẩn để hiển thị cho đẹp */}
+                        {parts[0]} &
+                      </span>
+                      <span className="cf-title-part">
+                        {parts[1]}
+                      </span>
+                    </>
+                  );
+                }
+                return profile.tenCouple; // Hiển thị bình thường nếu không có "&"
+              })()}
+            </h1>
             <div className="cf-meta">
               <span className="cf-meta-item">
                 <strong>Tổng số phim hợp tác:</strong> {movies.length}

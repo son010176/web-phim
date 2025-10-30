@@ -102,3 +102,54 @@
   margin-top: 25px;
   margin-bottom: 25px;
 } */
+
+.cf-title {
+  /* Đảm bảo tiêu đề có thể ngắt dòng giữa các khối */
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.cf-title-part {
+  /* Biến mỗi phần thành một khối nội tuyến */
+  /* Trình duyệt sẽ không ngắt dòng BÊN TRONG khối này */
+  display: block;
+}
+
+/* .cf-container .section-title {
+  font-size: 1.8rem;
+  margin-top: 25px;
+  margin-bottom: 25px;
+} */
+
+/* --- THÊM KHỐI RESPONSIVE NÀY --- */
+@media (max-width: 600px) {
+  .cf-header {
+    /* Chuyển thành layout 1 cột */
+    grid-template-columns: 1fr;
+    /* Giảm khoảng cách */
+    gap: 20px;
+  }
+
+  .cf-poster {
+    /* Đặt chiều rộng cụ thể cho poster và căn giữa */
+    width: 220px;
+    margin: 0 auto;
+  }
+
+  .cf-info {
+    /* Căn giữa toàn bộ khối thông tin cho khớp với poster */
+    text-align: center;
+    align-items: center; /* Vì .sf-info là flex-column */
+  }
+
+  .cf-title {
+    /* Giảm nhẹ cỡ chữ tiêu đề trên di động */
+    font-size: 1.5rem;
+  }
+
+  .cf-meta {
+    /* Căn giữa các nút/thông tin meta */
+    justify-content: center;
+    gap: 15px;
+  }
+}
