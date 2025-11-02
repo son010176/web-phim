@@ -255,6 +255,7 @@ function Header({
                 <li className="nav-item"> <Link to="/dien-vien/all-actors">Diễn viên</Link> </li>
                 <li className="nav-item"> <Link to="/dien-vien-couples/all-couples">Couple Diễn viên</Link> </li>
                 <li className="nav-item"> <Link to="/phim-couples/all-couples">Couple Phim</Link> </li>
+                <li className="nav-item"> <Link to="/summarizer">Tóm tắt</Link> </li> {/* <-- 1. THÊM LINK DESKTOP */}
                 {currentUser && (<li className="nav-item"> <Link to="/bo-suu-tap">Bộ Sưu Tập</Link> </li>)}
               </ul>
             </nav>
@@ -291,6 +292,7 @@ function Header({
             <li className="nav-item"> <Link to="/dien-vien/all-actors" onClick={handleNavLinkClick}>Diễn viên</Link> </li>
             <li className="nav-item"> <Link to="/dien-vien-couples/all-couples" onClick={handleNavLinkClick}> Couple Diễn viên </Link> </li>
             <li className="nav-item"> <Link to="/phim-couples/all-couples" onClick={handleNavLinkClick}>Couple Phim</Link> </li>
+            <li className="nav-item"> <Link to="/summarizer" onClick={handleNavLinkClick}>Tóm tắt</Link> </li> {/* <-- 2. THÊM LINK MOBILE */}
             {currentUser && (<li className="nav-item"> <Link to="/bo-suu-tap" onClick={handleNavLinkClick}>Bộ Sưu Tập</Link> </li>)}
           </ul>
         </nav>

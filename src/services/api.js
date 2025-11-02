@@ -254,3 +254,52 @@ export const removeFromCollection = async (userId, movieId) => {
     handleError(error, context);
   }
 };
+
+/**
+ * Lấy RSS feed của kênh YouTube (qua một proxy JSON).
+ * @param {string} channelId - ID của kênh YouTube
+ * @returns {Promise<any>} - Dữ liệu feed
+ */
+export const getChannelFeed = async (channelId) => {
+  const context = "GetChannelFeed";
+  // Chúng ta dùng rss2json làm proxy để parse XML và tránh lỗi CORS
+  const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+  const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+  
+  console.log(`✅ Gọi API (rss2json): ${apiUrl}`);
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      throw new Error(`Lỗi mạng từ rss2json: ${response.status}`);
+    }
+    const result = await response.json();
+    if (result.status === 'ok') {
+      console.log(`✅ API (rss2json) phản hồi thành công.`);
+      return result.items; // Trả về mảng các video
+    } else {
+      throw new Error(`Lỗi logic từ rss2json: ${result.message}`);
+    }
+  } catch (error) {
+    handleError(error, context);
+  }
+};
+
+/**
+ * Lấy tóm tắt video từ Cloudflare Worker
+ * @param {string} videoId - ID của video YouTube
+ * @returns {Promise<any>} - { summary: "..." }
+ */
+export const getYouTubeSummary = async (videoId) => {
+  const context = "GetYouTubeSummary";
+  // Đây là endpoint MỚI bạn sẽ cần tạo trên worker của mình
+  const apiUrl = `${API_URL_BASE}/summarize-video?id=${videoId}`;
+  
+  console.log(`✅ Gọi API (CF Worker / Summarize): ${apiUrl}`);
+  try {
+    const response = await fetch(apiUrl);
+    // handleResponse sẽ trả về { summary: "..." }
+    return await handleResponse(response, context); 
+  } catch (error) {
+    handleError(error, context);
+  }
+};

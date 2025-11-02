@@ -29,6 +29,7 @@ import SearchResultsPage from "./pages/SearchResultsPage";
 import ActorProfilePage from "./pages/ActorProfilePage";
 import AdminSandbox from "./pages/AdminSandbox";
 import CollectionPage from "./pages/CollectionPage"; // <-- THÊM TRANG COLLECTION
+import SummarizerPage from "./pages/SummarizerPage";
 
 // --- IMPORT CÁC COMPONENT ---
 import Header from "./components/Header";
@@ -317,6 +318,7 @@ function App() {
           />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/bo-suu-tap" element={<CollectionPage />} />
+          <Route path="/summarizer" element={<SummarizerPage />} />
         </Routes>
         <ScrollToTopButton />
       </div>

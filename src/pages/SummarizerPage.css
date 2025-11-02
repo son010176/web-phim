@@ -1,0 +1,152 @@
+/* src/pages/SummarizerPage.css */
+
+.summarizer-container {
+  max-width: 900px;
+  margin: 0 auto 40px auto;
+  padding: 30px;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-primary);
+}
+
+.summarizer-form {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.summarizer-input {
+  flex-grow: 1;
+  padding: 12px 15px;
+  font-size: 1rem;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
+  color: var(--text-primary);
+  border-radius: 4px;
+}
+
+.summarizer-button {
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: var(--accent-vscode);
+  color: var(--text-white);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.summarizer-button:hover:not(:disabled) {
+  background-color: var(--accent-vscode-hover);
+}
+
+.summarizer-button:disabled {
+  background-color: var(--bg-disabled);
+  cursor: not-allowed;
+}
+
+.summary-status-message {
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin-top: 20px;
+}
+
+.summary-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* --- THAY ĐỔI 1: BỐ CỤC CARD --- */
+.summary-item-card {
+  display: flex;
+  flex-direction: column; /* Xếp chồng (Thumbnail -> Content) */
+  align-items: center;     /* Căn giữa theo chiều ngang */
+  gap: 20px;
+  padding: 20px;
+  background-color: var(--bg-surface-1);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+}
+
+/* --- THAY ĐỔI 2: KÍCH THƯỚC THUMBNAIL --- */
+.summary-item-thumbnail {
+  width: 100%;             /* Chiếm 100% chiều rộng card */
+  max-width: 640px;       /* Nhưng không rộng quá 640px */
+  height: auto;           /* Để aspect-ratio quyết định */
+  aspect-ratio: 16 / 9;   /* Giữ tỷ lệ 16:9 */
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid var(--border-secondary);
+}
+
+/* --- THAY ĐỔI 3: VÙNG NỘI DUNG --- */
+.summary-item-content {
+  text-align: center; /* Căn giữa Title */
+  width: 100%;      /* Chiếm 100% chiều rộng */
+  flex: 1;
+  min-width: 0;
+}
+
+/* --- THAY ĐỔI 4: TIÊU ĐỀ (TITLE) --- */
+.summary-item-title {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  white-space: normal;   /* Cho phép title xuống dòng */
+  word-wrap: break-word; /* Ngắt chữ nếu quá dài */
+  /* Đã xóa: nowrap, overflow, ellipsis */
+}
+
+.summary-item-title a {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+.summary-item-title a:hover {
+  color: var(--accent-react);
+}
+
+/* --- THAY ĐỔI 5: ĐOẠN TÓM TẮT (SUMMARY) --- */
+.summary-item-text {
+  background-color: var(--bg-primary);
+  padding: 15px;
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  /* white-space: pre-wrap; */ /* <-- XÓA DÒNG NÀY */
+  word-wrap: break-word;
+  text-align: left; 
+}
+
+/* === THÊM MỚI: Định dạng cho các đoạn văn <p> bên trong === */
+.summary-item-text p {
+  margin: 0 0 1em 0; /* Tạo khoảng cách 1em (1 dòng) BÊN DƯỚI mỗi đoạn */
+}
+
+.summary-item-text p:last-child {
+  margin-bottom: 0; /* Đoạn cuối cùng không cần khoảng cách dưới */
+}
+
+.summary-item-text strong {
+  color: var(--text-primary); /* Đảm bảo chữ in đậm có màu */
+  font-weight: 600;
+}
+/* === KẾT THÚC THÊM MỚI === */
+
+/* --- THAY ĐỔI 6: DỌN DẸP MEDIA QUERY --- */
+@media (max-width: 600px) {
+  .summarizer-form {
+    flex-direction: column;
+  }
+  .summarizer-container {
+    padding: 20px;
+  }
+  
+  /* Các style .summary-item-card, .thumbnail, .title 
+     không còn cần thiết ở đây vì đã áp dụng cho desktop */
+}
