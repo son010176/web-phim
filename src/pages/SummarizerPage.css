@@ -59,7 +59,7 @@
   gap: 20px;
 }
 
-/* --- THAY ĐỔI 1: BỐ CỤC CARD --- */
+/* --- BỐ CỤC CARD --- */
 .summary-item-card {
   display: flex;
   flex-direction: column; /* Xếp chồng (Thumbnail -> Content) */
@@ -71,7 +71,7 @@
   border-radius: 8px;
 }
 
-/* --- THAY ĐỔI 2: KÍCH THƯỚC THUMBNAIL --- */
+/* --- KÍCH THƯỚC THUMBNAIL --- */
 .summary-item-thumbnail {
   width: 100%;             /* Chiếm 100% chiều rộng card */
   max-width: 640px;       /* Nhưng không rộng quá 640px */
@@ -82,7 +82,7 @@
   border: 1px solid var(--border-secondary);
 }
 
-/* --- THAY ĐỔI 3: VÙNG NỘI DUNG --- */
+/* --- VÙNG NỘI DUNG --- */
 .summary-item-content {
   text-align: center; /* Căn giữa Title */
   width: 100%;      /* Chiếm 100% chiều rộng */
@@ -90,14 +90,13 @@
   min-width: 0;
 }
 
-/* --- THAY ĐỔI 4: TIÊU ĐỀ (TITLE) --- */
+/* --- TIÊU ĐỀ (TITLE) --- */
 .summary-item-title {
   margin-top: 0;
   margin-bottom: 10px;
   font-size: 1.1rem;
   white-space: normal;   /* Cho phép title xuống dòng */
   word-wrap: break-word; /* Ngắt chữ nếu quá dài */
-  /* Đã xóa: nowrap, overflow, ellipsis */
 }
 
 .summary-item-title a {
@@ -109,7 +108,7 @@
   color: var(--accent-react);
 }
 
-/* --- THAY ĐỔI 5: ĐOẠN TÓM TẮT (SUMMARY) --- */
+/* --- ĐOẠN TÓM TẮT (SUMMARY) --- */
 .summary-item-text {
   background-color: var(--bg-primary);
   padding: 15px;
@@ -118,12 +117,12 @@
   font-family: inherit;
   font-size: 0.95rem;
   line-height: 1.6;
-  /* white-space: pre-wrap; */ /* <-- XÓA DÒNG NÀY */
+  /* white-space: pre-wrap; */ /* <-- ĐÃ XÓA */
   word-wrap: break-word;
   text-align: left; 
 }
 
-/* === THÊM MỚI: Định dạng cho các đoạn văn <p> bên trong === */
+/* --- Định dạng cho các đoạn văn <p> bên trong --- */
 .summary-item-text p {
   margin: 0 0 1em 0; /* Tạo khoảng cách 1em (1 dòng) BÊN DƯỚI mỗi đoạn */
 }
@@ -136,9 +135,8 @@
   color: var(--text-primary); /* Đảm bảo chữ in đậm có màu */
   font-weight: 600;
 }
-/* === KẾT THÚC THÊM MỚI === */
 
-/* --- THAY ĐỔI 6: DỌN DẸP MEDIA QUERY --- */
+/* --- MEDIA QUERY --- */
 @media (max-width: 600px) {
   .summarizer-form {
     flex-direction: column;
@@ -146,7 +144,144 @@
   .summarizer-container {
     padding: 20px;
   }
+}
+
+/* === THÊM MỚI: STYLE CHO PHẦN LỊCH SỬ === */
+
+/* --- Khung Lịch Sử --- */
+.history-container {
+  max-width: 900px;
+  margin: 40px auto; /* Tách biệt với khung tóm tắt */
+  padding: 0 10px; /* Thêm padding nhỏ cho di động */
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-title-small {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary); /* Đảm bảo màu chữ */
+}
+
+.history-clear-button {
+  background: none;
+  border: 1px solid var(--border-secondary);
+  color: var(--text-muted);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.history-clear-button:hover {
+  background-color: var(--bg-surface-1);
+  color: var(--text-primary);
+  border-color: var(--border-primary);
+}
+
+.history-empty-message {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  padding: 20px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+}
+
+/* --- Danh Sách Lịch Sử --- */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.history-item-card {
+  display: flex;
+  gap: 15px;
+  padding: 15px;
+  background-color: var(--bg-surface-1);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  overflow: hidden; /* Ngăn title tràn ra ngoài */
+  position: relative; /* Dùng cho nút Xóa */
+}
+
+.history-item-card:hover {
+  background-color: var(--bg-surface-1-hover);
+}
+
+.history-item-thumbnail {
+  width: 120px;
+  height: 67.5px; /* Tỷ lệ 16:9 */
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid var(--border-secondary);
+  flex-shrink: 0; /* Không co lại */
+}
+
+.history-item-content {
+  flex: 1;
+  text-align: left;
+  min-width: 0; /* Cho phép ngắt dòng title */
+}
+
+.history-item-title {
+  margin: 0 0 5px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
   
-  /* Các style .summary-item-card, .thumbnail, .title 
-     không còn cần thiết ở đây vì đã áp dụng cho desktop */
+  /* Ngắt dòng title nếu quá dài */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+  /* Tạo không gian cho nút Xóa */
+  padding-right: 25px; 
+}
+
+.history-item-date {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* --- Nút Xóa 1 Item --- */
+.history-item-delete {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  
+  font-size: 1.5rem;
+  line-height: 1;
+  text-align: center;
+  
+  cursor: pointer;
+  opacity: 0.5;
+  transition: all 0.2s;
+}
+
+.history-item-card:hover .history-item-delete {
+  opacity: 1; /* Hiện rõ khi hover vào card */
+}
+
+.history-item-delete:hover {
+  color: var(--accent-react); /* Đổi màu khi hover vào nút */
+  transform: scale(1.1);
 }

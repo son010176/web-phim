@@ -1,9 +1,22 @@
-import React, { useState } from "react";
+// src/pages/SummarizerPage.js
+
+import React, { useState, useEffect } from "react"; // <-- THÊM 'useEffect'
 import { getYouTubeSummary } from "../services/api";
+// === THÊM MỚI: IMPORT TỪ API_CLIENT ĐỂ DÙNG INDEXEDDB ===
+import {
+  loadCacheFromDB,
+  saveCacheToDB,
+} from "../services/api_client"; 
+// --------------------------------------------------------
 import { useNotification } from "../context/NotificationContext";
 import "./SummarizerPage.css"; 
 
-// ... (Hàm extractVideoId của bạn giữ nguyên, không đổi)
+// === THÊM MỚI: KEY CHO INDEXEDDB ===
+const SUMMARY_HISTORY_KEY = "summary-history-v1";
+const MAX_HISTORY_ITEMS = 50; // Giới hạn 50 video
+// -----------------------------------
+
+// ... (Hàm extractVideoId giữ nguyên)
 function extractVideoId(url) {
   if (!url) return null;
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -15,26 +28,13 @@ function extractVideoId(url) {
   }
 }
 
-// === THÊM MỚI: HÀM HELPER ĐỂ PARSE SUMMARY ===
-/**
- * Chuyển đổi chuỗi summary (có Markdown nhẹ) sang mảng các thẻ <p>
- */
+// ... (Hàm renderSummary giữ nguyên)
 const renderSummary = (summaryText) => {
   if (!summaryText) return null;
-
-  // 1. Tách chuỗi ra thành từng dòng, lọc bỏ các dòng rỗng
   const lines = summaryText.split('\n').filter(line => line.trim() !== '');
-
   return lines.map((line, index) => {
-    // 2. Xóa dấu * và khoảng trắng ở đầu dòng
     let processedLine = line.trim().replace(/^\*\s*/, '');
-    
-    // 3. Chuyển Markdown **bold** thành thẻ <strong>
     processedLine = processedLine.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-    // 4. Trả về một thẻ <p>
-    // Dùng dangerouslySetInnerHTML vì chúng ta tin tưởng chuỗi (từ Gemini)
-    // và muốn render thẻ <strong>
     return (
       <p 
         key={index}
@@ -43,7 +43,6 @@ const renderSummary = (summaryText) => {
     );
   });
 };
-// === KẾT THÚC THÊM MỚI ===
 
 
 function SummarizerPage() {
@@ -51,6 +50,26 @@ function SummarizerPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState(null); 
   const { addNotification } = useNotification();
+  
+  // === THÊM MỚI: STATE CHO LỊCH SỬ ===
+  const [history, setHistory] = useState([]);
+  // -----------------------------------
+
+  // === THÊM MỚI: LOAD LỊCH SỬ TỪ INDEXEDDB KHI MỞ TRANG ===
+  useEffect(() => {
+    async function loadHistory() {
+      try {
+        const loaded = await loadCacheFromDB(SUMMARY_HISTORY_KEY);
+        if (loaded && Array.isArray(loaded)) {
+          setHistory(loaded);
+        }
+      } catch (err) {
+        console.error("Lỗi khi tải lịch sử tóm tắt:", err);
+      }
+    }
+    loadHistory();
+  }, []); // [] = Chạy 1 lần duy nhất khi trang mở
+  // ----------------------------------------------------
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,44 +80,90 @@ function SummarizerPage() {
     }
     setIsLoading(true);
     setResult(null); 
+    
     try {
-      // 2. Gọi API
-      // Bây giờ, apiResult có thể chứa { status, message, data }
-      const apiResponse = await getYouTubeSummary(videoId);
+      // 1. getYouTubeSummary TRẢ VỀ DATA SẠCH (hoặc ném lỗi)
+      const apiResultData = await getYouTubeSummary(videoId); 
 
-      // --- THAY ĐỔI: Xử lý response mới ---
-      // Giả định API của bạn (getYouTubeSummary) đã được cập nhật
-      // để trả về { status: 'success', data: { ... } } khi thành công
-      // và ném lỗi (catch) hoặc trả về { status: 'error', message: '...', data: { ... } } khi lỗi
+      // 2. TẠO OBJECT KẾT QUẢ ĐẦY ĐỦ (VÌ ĐÃ THÀNH CÔNG)
+      const newResultData = { 
+          ...apiResultData, 
+          videoId: videoId,       // Thêm videoId
+          videoUrl: videoUrl,     // Thêm link
+          timestamp: new Date().toISOString() // Thêm mốc thời gian
+      };
       
-      if (apiResponse.status === 'error') {
-         // Hiển thị lỗi nhưng vẫn set result để hiển thị thumbnail (nếu có)
-         addNotification(apiResponse.message, "error");
-         setResult(apiResponse.data || null); // apiResponse.data có thể chứa { title, thumbnail }
-      } else if (apiResponse.status === 'success') {
-         // Thành công, apiResponse.data chứa { summary, title, thumbnail }
-         setResult(apiResponse.data);
-      } else {
-         // Fallback cho cấu trúc cũ (nếu có)
-         setResult(apiResponse); 
-      }
-      // --- KẾT THÚC THAY ĐỔI ---
+      // 3. CẬP NHẬT STATE (CHO CARD CHÍNH)
+      setResult(newResultData);
 
-    } catch (error) {
-      // Lỗi mạng hoặc lỗi API nghiêm trọng
-      setResult(null); 
+      // 4. CẬP NHẬT STATE LỊCH SỬ VÀ LƯU VÀO DB
+      setHistory(prevHistory => {
+          // Lọc bỏ item cũ (nếu tóm tắt lại)
+          const filtered = prevHistory.filter(item => item.videoId !== videoId);
+          // Thêm item mới lên đầu, và giới hạn số lượng
+          const updatedHistory = [newResultData, ...filtered].slice(0, MAX_HISTORY_ITEMS);
+          
+          // "Fire-and-forget" - Lưu vào DB, không cần await
+          saveCacheToDB(SUMMARY_HISTORY_KEY, updatedHistory)
+            .catch(err => console.error("Lỗi lưu lịch sử vào DB:", err));
+            
+          return updatedHistory;
+      });
+
+    } catch (error) { 
+      // 5. BẮT LỖI TỪ getYouTubeSummary
+      
+      // getYouTubeSummary (api.js) sẽ ném lỗi có 'message'
       addNotification(`Lỗi khi tóm tắt: ${error.message}`, "error");
+      
+      // LƯU Ý: File api.js của bạn hiện tại không trả về 'data' khi lỗi,
+      // nên chúng ta chỉ có thể set kết quả về null.
+      setResult(null); 
+
+      // (Nếu bạn muốn hiển thị thumbnail/title ngay cả khi lỗi,
+      // bạn cần sửa cả file api.js để nó trả về 'data' trong lỗi)
+      
     } finally {
       setIsLoading(false);
     }
   };
+
+  // === THÊM MỚI: HÀM XÓA LỊCH SỬ ===
+  const handleClearHistory = async () => {
+    if (window.confirm("Bạn có chắc muốn xóa toàn bộ lịch sử tóm tắt?")) {
+      try {
+        await saveCacheToDB(SUMMARY_HISTORY_KEY, []); // Lưu mảng rỗng
+        setHistory([]); // Xóa state
+        addNotification("Đã xóa lịch sử tóm tắt.");
+      } catch (err) {
+        addNotification("Lỗi khi xóa lịch sử.", "error");
+      }
+    }
+  };
+  // ---------------------------------
+  
+  // === THÊM MỚI: HÀM XÓA 1 MỤC TRONG LỊCH SỬ ===
+  const handleRemoveHistoryItem = async (e, videoIdToRemove) => {
+    e.stopPropagation(); // Ngăn không cho sự kiện click vào card chạy
+    
+    setHistory(prevHistory => {
+      const updatedHistory = prevHistory.filter(item => item.videoId !== videoIdToRemove);
+      
+      // Lưu lại vào DB
+      saveCacheToDB(SUMMARY_HISTORY_KEY, updatedHistory)
+        .catch(err => console.error("Lỗi lưu lịch sử (xóa item) vào DB:", err));
+        
+      return updatedHistory;
+    });
+  };
+  // ---------------------------------------
 
   return (
     <div className="main-content-section">
       <h1 className="section-title">Công Cụ Tóm Tắt Video</h1>
       
       <div className="summarizer-container">
-        {/* ... (Form giữ nguyên) ... */}
+        {/* ... (Form) ... */}
         <form className="summarizer-form" onSubmit={handleSubmit}>
           <input
             type="text"
@@ -122,38 +187,89 @@ function SummarizerPage() {
              <p className="summary-status-message">Nhập link video và nhấn "Tóm tắt" để bắt đầu.</p>
           )}
 
+          {/* Card kết quả (card chính) */}
           {result && (
             <div className="summary-results-list">
               <div className="summary-item-card">
-                
                 {result.thumbnail && (
                   <img 
                     src={result.thumbnail} 
-                    alt="Video thumbnail" 
+                    alt={result.title || "Video thumbnail"} 
                     className="summary-item-thumbnail" 
                   />
                 )}
-
                 <div className="summary-item-content">
                   <h3 className="summary-item-title">
-                    <a href={videoUrl} target="_blank" rel="noopener noreferrer">
-                      {result.title || videoUrl}
+                    {/* THAY ĐỔI: Dùng result.videoUrl nếu có, fallback về videoUrl state */}
+                    <a href={result.videoUrl || videoUrl} target="_blank" rel="noopener noreferrer">
+                      {result.title || (result.videoUrl || videoUrl)}
                     </a>
                   </h3>
-                  
-                  {/* === THAY ĐỔI LỚN Ở ĐÂY === */}
-                  {/* Thay thế <pre> bằng <div> và gọi hàm renderSummary */}
                   <div className="summary-item-text">
-                    {renderSummary(result.summary)}
+                    {/* Hiển thị lỗi nếu có, ngược lại render tóm tắt */}
+                    {result.summary ? renderSummary(result.summary) : (
+                      <p><i>{result.message || "Không có nội dung tóm tắt."}</i></p>
+                    )}
                   </div>
-                  {/* === KẾT THÚC THAY ĐỔI LỚN === */}
-
                 </div>
               </div>
             </div>
           )}
         </div>
       </div>
+      
+      {/* === THÊM MỚI: KHUNG LỊCH SỬ === */}
+      <div className="history-container">
+        <div className="history-header">
+          <h2 className="section-title-small">Lịch sử đã tóm tắt</h2>
+          {history.length > 0 && (
+            <button 
+              onClick={handleClearHistory} 
+              className="history-clear-button"
+            >
+              Xóa tất cả
+            </button>
+          )}
+        </div>
+
+        {history.length === 0 ? (
+          <p className="history-empty-message">Chưa có video nào trong lịch sử.</p>
+        ) : (
+          <div className="history-list">
+            {history.map(item => (
+              <div 
+                key={item.videoId} 
+                className="history-item-card"
+                // Khi click, set 'result' bằng item này
+                onClick={() => setResult(item)}
+                title={`Xem lại tóm tắt cho "${item.title}"`}
+              >
+                <img 
+                  src={item.thumbnail} 
+                  alt={item.title} 
+                  className="history-item-thumbnail" 
+                />
+                <div className="history-item-content">
+                  <h4 className="history-item-title">{item.title}</h4>
+                  <p className="history-item-date">
+                    {new Date(item.timestamp).toLocaleString('vi-VN')}
+                  </p>
+                </div>
+                {/* Nút Xóa 1 item */}
+                <button 
+                  className="history-item-delete"
+                  title="Xóa khỏi lịch sử"
+                  onClick={(e) => handleRemoveHistoryItem(e, item.videoId)}
+                >
+                  &times;
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      {/* === KẾT THÚC THÊM MỚI === */}
+
     </div>
   );
 }
